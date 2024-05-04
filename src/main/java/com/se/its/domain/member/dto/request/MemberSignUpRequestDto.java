@@ -1,6 +1,5 @@
 package com.se.its.domain.member.dto.request;
 
-
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
@@ -12,9 +11,5 @@ public class MemberSignUpRequestDto {
 
     @NotBlank(message = "PW는 공백이면 안 됩니다.")
     private String password;
-
-    @Digits(integer = 2, fraction = 0, message = "올바른 나이를 입력해주세요(0~99)")
-    @Positive(message = "올바른 나이를 입력해주세요(0~99)")
-    private Integer age;
 
 }

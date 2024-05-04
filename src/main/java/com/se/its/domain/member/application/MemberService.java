@@ -4,9 +4,7 @@ import com.se.its.domain.member.domain.Member;
 import com.se.its.domain.member.domain.respository.MemberRepository;
 import com.se.its.domain.member.dto.request.MemberSignInRequestDto;
 import com.se.its.domain.member.dto.request.MemberSignUpRequestDto;
-import com.se.its.domain.member.dto.request.MemberUpdateRequestDto;
 import com.se.its.domain.member.dto.response.MemberResponseDto;
-import com.se.its.domain.store.domain.Store;
 import com.se.its.global.error.exceptions.BadRequestException;
 import com.se.its.global.error.exceptions.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
@@ -25,13 +23,10 @@ public class MemberService {
 
     @Transactional
     public MemberResponseDto signUp(MemberSignUpRequestDto memberSignUpRequestDto) {
-        Store store = Store.builder().build();
 
         Member member = Member.builder()
                 .email(memberSignUpRequestDto.getEmail())
                 .password(memberSignUpRequestDto.getPassword())
-                .age(memberSignUpRequestDto.getAge())
-                .store(store)
                 .build();
 
         memberRepository.save(member);
@@ -39,8 +34,6 @@ public class MemberService {
         return MemberResponseDto.builder()
                 .id(member.getId())
                 .email(member.getEmail())
-                .age(member.getAge())
-                .level(member.getLevel())
                 .build();
     }
 
@@ -54,22 +47,6 @@ public class MemberService {
         return MemberResponseDto.builder()
                 .id(member.getId())
                 .email(member.getEmail())
-                .age(member.getAge())
-                .level(member.getLevel())
-                .build();
-    }
-
-    public MemberResponseDto updateMember(Long memberId, MemberUpdateRequestDto memberUpdateRequestDto) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "잘못된 Member ID 입니다."));
-
-        member.updateMember(memberUpdateRequestDto);
-        return MemberResponseDto.builder()
-                .id(member.getId())
-                .email(member.getEmail())
-                .password(member.getPassword())
-                .age(member.getAge())
-                .level(member.getLevel())
                 .build();
     }
 
@@ -80,8 +57,6 @@ public class MemberService {
                 .id(member.getId())
                 .email(member.getEmail())
                 .password(member.getPassword())
-                .age(member.getAge())
-                .level(member.getLevel())
                 .build();
     }
 

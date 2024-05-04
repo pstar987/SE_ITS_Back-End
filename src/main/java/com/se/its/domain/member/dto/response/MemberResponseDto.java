@@ -12,8 +12,4 @@ public class MemberResponseDto {
 
     private String password;
 
-    private Integer age;
-
-    private Double level;
-
 }

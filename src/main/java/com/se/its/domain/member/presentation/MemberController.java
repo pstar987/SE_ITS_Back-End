@@ -3,7 +3,6 @@ package com.se.its.domain.member.presentation;
 import com.se.its.domain.member.application.MemberService;
 import com.se.its.domain.member.dto.request.MemberSignInRequestDto;
 import com.se.its.domain.member.dto.request.MemberSignUpRequestDto;
-import com.se.its.domain.member.dto.request.MemberUpdateRequestDto;
 import com.se.its.domain.member.dto.response.MemberResponseDto;
 import com.se.its.global.payload.ApiResponseTemplate;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,14 +30,6 @@ public class MemberController {
             @Valid @RequestBody MemberSignInRequestDto memberSignInRequestDto
     ) {
         return ApiResponseTemplate.ok(memberService.signIn(memberSignInRequestDto));
-    }
-
-    @PutMapping("/update")
-    public ApiResponseTemplate<MemberResponseDto> updateMember(
-            @RequestHeader Long memberId,
-            @Valid @RequestBody MemberUpdateRequestDto memberUpdateRequestDto
-    ) {
-        return ApiResponseTemplate.ok(memberService.updateMember(memberId, memberUpdateRequestDto));
     }
 
     @GetMapping("/find")
