@@ -7,7 +7,7 @@ import lombok.Data;
 @Builder
 public class MemberResponseDto {
 
-    private String signId;
+    private Long id;
 
     private Role role;
 

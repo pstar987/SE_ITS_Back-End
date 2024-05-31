@@ -7,8 +7,7 @@ import lombok.Getter;
 
 @Getter
 public class MemberRoleUpdateRequestDto {
-    @NotBlank(message = "올바른 사용자 id를 입력해주세요.")
-    private String signId;
+    private Long id;
 
     @NotNull
     private Role role;

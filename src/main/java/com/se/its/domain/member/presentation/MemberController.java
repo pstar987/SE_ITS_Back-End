@@ -25,10 +25,10 @@ public class MemberController {
 
     @PostMapping("/signUp")
     public ResponseEntity<MemberResponseDto> signUp(
-            @Valid @RequestHeader String signId,
+            @Valid @RequestHeader Long id,
             @Valid @RequestBody MemberSignUpRequestDto memberSignUpRequestDto
     ) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(memberService.signUp(signId, memberSignUpRequestDto));
+        return ResponseEntity.status(HttpStatus.CREATED).body(memberService.signUp(id, memberSignUpRequestDto));
     }
 
     @PostMapping("/createAdmin")
@@ -48,34 +48,34 @@ public class MemberController {
 
     @GetMapping("/find")
     public ResponseEntity<MemberResponseDto> findMemberById(
-            @Valid @RequestHeader String signId
+            @Valid @RequestHeader Long id
     ) {
-        return ResponseEntity.ok(memberService.findMemberById(signId));
+        return ResponseEntity.ok(memberService.findMemberById(id));
     }
 
 
     @GetMapping("/account")
     public ResponseEntity<List<MemberResponseDto>> findMembersByAdmin(
-            @Valid @RequestHeader String signId
+            @Valid @RequestHeader Long id
     ){
-        return ResponseEntity.ok(memberService.findMembersByAdmin(signId));
+        return ResponseEntity.ok(memberService.findMembersByAdmin(id));
     }
 
 
     @PutMapping("/account/delete")
     public ResponseEntity<MemberResponseDto> deleteMember(
-            @Valid @RequestHeader String signId,
+            @Valid @RequestHeader Long id,
             @Valid @RequestBody MemberDeleteRequestDto memberDeleteRequestDto
     ){
-        return ResponseEntity.ok(memberService.deleteMember(signId, memberDeleteRequestDto));
+        return ResponseEntity.ok(memberService.deleteMember(id, memberDeleteRequestDto));
     }
 
     @PutMapping("/account/update")
     public ResponseEntity<MemberResponseDto> updateMember(
-            @Valid @RequestHeader String signId,
+            @Valid @RequestHeader Long id,
             @Valid @RequestBody MemberRoleUpdateRequestDto memberRoleUpdateRequestDto
     ){
-        return ResponseEntity.ok(memberService.updateMemberRole(signId, memberRoleUpdateRequestDto));
+        return ResponseEntity.ok(memberService.updateMemberRole(id, memberRoleUpdateRequestDto));
     }
 
 }

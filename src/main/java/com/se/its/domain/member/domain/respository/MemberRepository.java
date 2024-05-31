@@ -10,6 +10,8 @@ import java.util.Optional;
 @Repository
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
+    Optional<Member> findByIdAndIsDeletedFalse(Long id);
+
     Optional<Member> findBySignIdAndIsDeletedFalse(String signId);
 
     List<Member> findByIsDeletedIsFalse();

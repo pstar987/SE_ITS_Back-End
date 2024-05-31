@@ -23,8 +23,8 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public MemberResponseDto signUp(String signId, MemberSignUpRequestDto memberSignUpRequestDto) {
-        Member admin = getUser(signId);
+    public MemberResponseDto signUp(Long id, MemberSignUpRequestDto memberSignUpRequestDto) {
+        Member admin = getUser(id);
 
         if(!admin.getRole().equals(Role.ADMIN)){
             throw  new BadRequestException(INVALID_REQUEST_ROLE, "관리자가 아닙니다.");
@@ -49,7 +49,7 @@ public class MemberService {
         memberRepository.save(member);
 
         return MemberResponseDto.builder()
-                .signId(member.getSignId())
+                .id(member.getId())
                 .role(member.getRole())
                 .name(member.getName())
                 .isDeleted(member.getIsDeleted())
@@ -73,7 +73,7 @@ public class MemberService {
         memberRepository.save(admin);
 
         return MemberResponseDto.builder()
-                .signId(admin.getSignId())
+                .id(admin.getId())
                 .role(admin.getRole())
                 .name(admin.getName())
                 .isDeleted(admin.getIsDeleted())
@@ -82,13 +82,15 @@ public class MemberService {
 
     @Transactional
     public MemberResponseDto signIn(MemberSignInRequestDto memberSignInRequestDto) {
-        Member member = getUser(memberSignInRequestDto.getSignId());
+        Member member = memberRepository.findBySignIdAndIsDeletedFalse(memberSignInRequestDto.getSignId())
+                .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 사용자입니다."));
+
         if (!member.getPassword().equals(memberSignInRequestDto.getPassword())) {
             throw new UnauthorizedException(INVALID_SIGNIN, "유효하지 않은 비밀번호입니다.");
         }
 
         return MemberResponseDto.builder()
-                .signId(member.getSignId())
+                .id(member.getId())
                 .name(member.getName())
                 .isDeleted(member.getIsDeleted())
                 .role(member.getRole())
@@ -96,11 +98,11 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public MemberResponseDto findMemberById(String signId) {
-        Member member = getUser(signId);
+    public MemberResponseDto findMemberById(Long id) {
+        Member member = getUser(id);
 
         return MemberResponseDto.builder()
-                .signId(member.getSignId())
+                .id(member.getId())
                 .name(member.getName())
                 .isDeleted(member.getIsDeleted())
                 .role(member.getRole())
@@ -108,8 +110,8 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public List<MemberResponseDto> findMembersByAdmin(String signId){
-        Member admin = memberRepository.findBySignIdAndIsDeletedFalse(signId)
+    public List<MemberResponseDto> findMembersByAdmin(Long id){
+        Member admin = memberRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "잘못된 ID 입니다."));
 
         if(!admin.getRole().equals(Role.ADMIN)){
@@ -120,7 +122,7 @@ public class MemberService {
 
         List<MemberResponseDto> memberResponseDtos = allMembers.stream()
                 .map(member -> MemberResponseDto.builder()
-                        .signId(member.getSignId())
+                        .id(member.getId())
                         .name(member.getName())
                         .isDeleted(member.getIsDeleted())
                         .role(member.getRole())
@@ -131,9 +133,9 @@ public class MemberService {
     }
 
     @Transactional
-    public MemberResponseDto deleteMember(String signId, MemberDeleteRequestDto memberDeleteRequestDto){
-        Member admin = getUser(signId);
-        Member target = getUser(memberDeleteRequestDto.getSignId());
+    public MemberResponseDto deleteMember(Long id, MemberDeleteRequestDto memberDeleteRequestDto){
+        Member admin = getUser(id);
+        Member target = getUser(memberDeleteRequestDto.getId());
 
         if(!admin.getRole().equals(Role.ADMIN)){
             throw  new BadRequestException(INVALID_REQUEST_ROLE, "관리자가 아닙니다.");
@@ -143,7 +145,7 @@ public class MemberService {
         target.setIsDeleted(true);
 
         return MemberResponseDto.builder()
-                .signId(target.getSignId())
+                .id(target.getId())
                 .role(target.getRole())
                 .name(target.getName())
                 .isDeleted(target.getIsDeleted())
@@ -153,9 +155,9 @@ public class MemberService {
 
 
     @Transactional
-    public MemberResponseDto updateMemberRole(String signId, MemberRoleUpdateRequestDto memberRoleUpdateRequestDto){
-        Member admin = getUser(signId);
-        Member target = getUser(memberRoleUpdateRequestDto.getSignId());
+    public MemberResponseDto updateMemberRole(Long id, MemberRoleUpdateRequestDto memberRoleUpdateRequestDto){
+        Member admin = getUser(id);
+        Member target = getUser(memberRoleUpdateRequestDto.getId());
 
         if(!admin.getRole().equals(Role.ADMIN)){
             throw  new BadRequestException(INVALID_REQUEST_ROLE, "관리자가 아닙니다.");
@@ -168,7 +170,7 @@ public class MemberService {
         target.updateRole(memberRoleUpdateRequestDto.getRole());
 
         return MemberResponseDto.builder()
-                .signId(target.getSignId())
+                .id(target.getId())
                 .role(target.getRole())
                 .name(target.getName())
                 .isDeleted(target.getIsDeleted())
@@ -177,8 +179,8 @@ public class MemberService {
     }
 
 
-    private Member getUser(String targetId){
-        return memberRepository.findBySignIdAndIsDeletedFalse(targetId)
+    private Member getUser(Long targetId){
+        return memberRepository.findByIdAndIsDeletedFalse(targetId)
                 .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 사용자입니다."));
     }
 
