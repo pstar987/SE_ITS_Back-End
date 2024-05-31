@@ -22,18 +22,36 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public MemberResponseDto signUp(MemberSignUpRequestDto memberSignUpRequestDto) {
+    public MemberResponseDto signUp(String signId, MemberSignUpRequestDto memberSignUpRequestDto) {
+        Member admin = getUser(signId);
+
+        if(!admin.getRole().equals(Role.ADMIN)){
+            throw  new BadRequestException(INVALID_REQUEST_ROLE, "관리자가 아닙니다.");
+        }
+        if (isDuplicateSignId(memberSignUpRequestDto.getSignId())) {
+            throw new BadRequestException(ROW_ALREADY_EXIST, "중복되는 ID가 존재합니다.");
+        }
+        if(memberSignUpRequestDto.getRole().equals(Role.ADMIN)){
+            throw new BadRequestException(INVALID_REQUEST_ROLE, "관리자를 생성할 수 없습니다.");
+        }
+
+
 
         Member member = Member.builder()
-                .email(memberSignUpRequestDto.getEmail())
+                .signId(memberSignUpRequestDto.getSignId())
                 .password(memberSignUpRequestDto.getPassword())
+                .role(memberSignUpRequestDto.getRole())
+                .name(memberSignUpRequestDto.getName())
+                .isDeleted(false)
                 .build();
 
         memberRepository.save(member);
 
         return MemberResponseDto.builder()
-                .id(member.getId())
-                .email(member.getEmail())
+                .signId(member.getSignId())
+                .role(member.getRole())
+                .name(member.getName())
+                .isDeleted(member.getIsDeleted())
                 .build();
     }
 
