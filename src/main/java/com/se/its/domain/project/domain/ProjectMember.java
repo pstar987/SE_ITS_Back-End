@@ -23,7 +23,7 @@ public class ProjectMember {
     private Project project;
 
     @Column(name = "isDeleted")
-    private Boolean isDeleted = false;
+    private Boolean isDeleted;
 
     public void setIsDeleted(Boolean isDeleted){
         this.isDeleted = isDeleted;

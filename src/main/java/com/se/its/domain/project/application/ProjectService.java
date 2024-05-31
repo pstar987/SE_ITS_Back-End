@@ -59,6 +59,7 @@ public class ProjectService {
                 .map(member -> ProjectMember.builder()
                         .project(project)
                         .member(member)
+                        .isDeleted(false)
                         .build())
                 .collect(Collectors.toList());
 
