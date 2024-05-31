@@ -131,6 +131,45 @@ public class ProjectService {
 
     }
 
+    @Transactional
+    public ProjectResponseDto removeMember(Long signId, Long projectId, ProjectMemberRemoveRequestDto projectMemberRemoveRequestDto){
+        Member admin = getUser(signId);
+        Project project = getProject(projectId);
+        Member removeMember = getUser(projectMemberRemoveRequestDto.getRemoveMemberId());
+        isAdminOrPL(admin);
+
+        if(admin.getRole().equals(Role.ADMIN)){
+            removeProjectMember(project, removeMember);
+        }else{
+            if (removeMember.getRole().equals(Role.PL)) {
+                throw new BadRequestException(INVALID_REQUEST_ROLE, "프로젝트 리더는 프로젝트 리더를 삭제할 수 없습니다.");
+            }
+            boolean isMemberOfProject = projectMemberRepository.existsByMemberIdAndProjectIdAndIsDeletedFalse(admin.getId(), project.getId());
+            if (!isMemberOfProject) {
+                throw new BadRequestException(ROW_DOES_NOT_EXIST, "해당 프로젝트의 멤버가 아니기 때문에 권한이 없습니다.");
+            }
+            removeProjectMember(project, removeMember);
+        }
+        return createProjectResponseDto(project);
+    }
+
+    @Transactional
+    public void removeProject(Long signId, Long projectId){
+        Member admin = getUser(signId);
+        Project project = getProject(projectId);
+        if(!admin.getRole().equals(Role.ADMIN)){
+            throw new BadRequestException(INVALID_REQUEST_ROLE, "관리자가 아닙니다.");
+        }
+        project.setIsDeleted(true);
+
+        List<ProjectMember> projectMembers = projectMemberRepository.findByProjectIdAndIsDeletedFalse(projectId);
+        projectMembers.forEach(pm -> pm.setIsDeleted(true));
+
+    }
+
+
+
+
 
     private Member getUser(Long targetId){
         return memberRepository.findByIdAndIsDeletedFalse(targetId)

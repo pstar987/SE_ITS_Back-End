@@ -52,10 +52,26 @@ public class ProjectController {
             @PathVariable Long projectId,
             @Valid @RequestBody ProjectMemberAddRequestDto projectMemberAddRequestDto
     ){
-        return ResponseEntity.status(HttpStatus.CREATED).body(projectService.addMember(id, projectId, projectMemberAddRequestDto));
+        return ResponseEntity.ok(projectService.addMember(id, projectId, projectMemberAddRequestDto));
 
     }
+    @PutMapping("/{projectId}/member/delete")
+    public ResponseEntity<ProjectResponseDto> removeMember(
+            @Valid @RequestHeader Long id,
+            @PathVariable Long projectId,
+            @Valid @RequestBody ProjectMemberRemoveRequestDto projectMemberRemoveRequestDto
+    ){
+        return ResponseEntity.ok(projectService.removeMember(id, projectId, projectMemberRemoveRequestDto));
+    }
 
+    @PutMapping("/{projectId}")
+    public ResponseEntity<String> removeProject(
+            @Valid @RequestHeader Long id,
+            @PathVariable Long projectId
+    ){
+        projectService.removeProject(id, projectId);
+        return ResponseEntity.ok("removed");
+    }
 
 
 
@@ -66,6 +82,6 @@ public class ProjectController {
     * 프로젝트 멤버 추가 put : /api/v1/project/{projectId}/member/add
     * 프로젝트 멤버 삭제 put : /api/v1/project/{projectId}/member/delete
     * 프로젝트 전체 조회 get : /api/v1/project
-    * 프로젝트 삭제  put  : /api/v1/project/delete
+    * 프로젝트 삭제  put  : /api/v1/project/{projectId}
     *  */
 }
