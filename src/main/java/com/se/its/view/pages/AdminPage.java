@@ -15,11 +15,11 @@ public class AdminPage extends JFrame {
     private JLabel message;
     private JPanel accountPanel;
     private JPanel projectPanel;
-    private JTextField idTextField;
-    private JPasswordField passwordField;
-    private JPasswordField confirmPasswordField;
-
     private JButton accountCreateBtn;
+
+    private JButton accountRuleChangeBtn;
+
+    private JButton accountDeleteBtn;
 
     public AdminPage() {
         initComponents();
@@ -60,6 +60,20 @@ public class AdminPage extends JFrame {
         accountCreateBtn = new JButton("계정 생성하기");
         accountPanel.add(accountCreateBtn, accountGbc);
 
+        accountGbc.gridx = 0;
+        accountGbc.gridy = 2;
+        accountGbc.gridwidth = 2;
+        accountGbc.anchor = GridBagConstraints.CENTER;
+        accountRuleChangeBtn = new JButton("계정 직책 변경하기");
+        accountPanel.add(accountRuleChangeBtn, accountGbc);
+
+        accountGbc.gridx = 0;
+        accountGbc.gridy = 3;
+        accountGbc.gridwidth = 2;
+        accountGbc.anchor = GridBagConstraints.CENTER;
+        accountDeleteBtn = new JButton("계정 삭제하기");
+        accountPanel.add(accountDeleteBtn, accountGbc);
+
         accountCreateBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -67,6 +81,19 @@ public class AdminPage extends JFrame {
             }
         });
 
+        accountRuleChangeBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new AccountRuleChangePage().setVisible(true);
+            }
+        });
+
+        accountDeleteBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new AccountDeletePage().setVisible(true);
+            }
+        });
 
 
         add(accountPanel);
