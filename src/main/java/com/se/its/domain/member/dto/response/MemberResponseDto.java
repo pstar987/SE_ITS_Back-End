@@ -1,15 +1,18 @@
 package com.se.its.domain.member.dto.response;
 
+import com.se.its.domain.member.domain.Role;
 import lombok.Builder;
 import lombok.Data;
 @Data
 @Builder
 public class MemberResponseDto {
 
-    private Long id;
+    private String signId;
 
-    private String email;
+    private Role role;
 
-    private String password;
+    private Boolean isDeleted;
+
+    private String name;
 
 }

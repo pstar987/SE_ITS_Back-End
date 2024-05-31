@@ -1,7 +1,7 @@
 package com.se.its.domain.member.presentation;
 
 import com.se.its.domain.member.application.MemberService;
-용import com.se.its.domain.member.dto.request.MemberDeleteRequestDto;
+import com.se.its.domain.member.dto.request.MemberDeleteRequestDto;
 import com.se.its.domain.member.dto.request.MemberRoleUpdateRequestDto;
 import com.se.its.domain.member.dto.request.MemberSignInRequestDto;
 import com.se.its.domain.member.dto.request.MemberSignUpRequestDto;
@@ -39,11 +39,11 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.CREATED).body(memberService.adminCreate(memberSignUpRequestDto));
     }
 
-    @PostMapping("/signin")
-    public ApiResponseTemplate<MemberResponseDto> signIn(
+    @PostMapping("/signIn")
+    public ResponseEntity<MemberResponseDto> signIn(
             @Valid @RequestBody MemberSignInRequestDto memberSignInRequestDto
     ) {
-        return ApiResponseTemplate.ok(memberService.signIn(memberSignInRequestDto));
+        return ResponseEntity.ok(memberService.signIn(memberSignInRequestDto));
     }
 
     @GetMapping("/find")

@@ -82,15 +82,16 @@ public class MemberService {
 
     @Transactional
     public MemberResponseDto signIn(MemberSignInRequestDto memberSignInRequestDto) {
-        Member member = memberRepository.findByEmail(memberSignInRequestDto.getEmail())
-                .orElseThrow(() -> new UnauthorizedException(INVALID_SIGNIN, "유효하지 않은 이메일입니다."));
+        Member member = getUser(memberSignInRequestDto.getSignId());
         if (!member.getPassword().equals(memberSignInRequestDto.getPassword())) {
             throw new UnauthorizedException(INVALID_SIGNIN, "유효하지 않은 비밀번호입니다.");
         }
 
         return MemberResponseDto.builder()
-                .id(member.getId())
-                .email(member.getEmail())
+                .signId(member.getSignId())
+                .name(member.getName())
+                .isDeleted(member.getIsDeleted())
+                .role(member.getRole())
                 .build();
     }
 

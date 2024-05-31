@@ -7,8 +7,8 @@ import lombok.Data;
 @Data
 public class MemberSignInRequestDto {
 
-    @Email(message = "올바른 이메일 주소를 입력해주세요.")
-    private String email;
+    @NotBlank(message = "id를 입력해주세요")
+    private String signId;
 
     @NotBlank(message = "PW는 공백이면 안 됩니다.")
     private String password;

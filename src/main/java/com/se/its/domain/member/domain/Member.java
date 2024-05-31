@@ -16,9 +16,26 @@ public class Member extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "email")
-    private String email;
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
+    @Column(name = "signId")
+    private String signId;
+
+    @Column(name = "name")
+    private String name;
 
     @Column(name = "password")
     private String password;
+
+    @Column(name = "isDeleted")
+    private Boolean isDeleted;
+
+    public void setIsDeleted(Boolean isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
+    public void updateRole(Role role){
+        this.role = role;
+    }
 }
