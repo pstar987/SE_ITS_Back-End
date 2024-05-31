@@ -36,7 +36,10 @@ public class ProjectService {
             throw  new BadRequestException(INVALID_REQUEST_ROLE, "관리자가 아니기 때문에 프로젝트를 생성할 수 없습니다.");
         }
 
-        Member projectLeader = getUser(projectCreateRequestDto.getProjectLeaderId());
+        //멤버 유효성 검사
+        List<Member> validMembers = projectCreateRequestDto.getMemberIds().stream()
+                .map(memberId -> getUser(memberId))
+                .collect(Collectors.toList());
 
 
         Project project = Project.builder()
@@ -46,15 +49,7 @@ public class ProjectService {
         projectRepository.save(project);
 
 
-        ProjectMember leaderProjectMember = ProjectMember.builder()
-                .project(project)
-                .member(projectLeader)
-                .build();
-        projectMemberRepository.save(leaderProjectMember);
-
-
-        List<ProjectMember> projectMembers = projectCreateRequestDto.getMemberIds().stream()
-                .map(memberId -> getUser(memberId))
+        List<ProjectMember> projectMembers = validMembers.stream()
                 .map(member -> ProjectMember.builder()
                         .project(project)
                         .member(member)
