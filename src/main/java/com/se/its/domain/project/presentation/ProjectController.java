@@ -25,8 +25,7 @@ public class ProjectController {
             @RequestHeader Long id,
             @RequestBody ProjectCreateRequestDto projectCreateRequestDto
     ) {
-        ProjectResponseDto projectResponseDto = projectService.createProject(id, projectCreateRequestDto);
-        return ResponseEntity.ok(projectResponseDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(projectService.createProject(id, projectCreateRequestDto));
     }
 
     @GetMapping("")
