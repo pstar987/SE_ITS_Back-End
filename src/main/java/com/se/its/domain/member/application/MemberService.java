@@ -111,8 +111,7 @@ public class MemberService {
 
     @Transactional(readOnly = true)
     public List<MemberResponseDto> findMembersByAdmin(Long id){
-        Member admin = memberRepository.findByIdAndIsDeletedFalse(id)
-                .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "잘못된 ID 입니다."));
+        Member admin = getUser(id);
 
         if(!admin.getRole().equals(Role.ADMIN)){
             throw  new BadRequestException(INVALID_REQUEST_ROLE, "관리자가 아닙니다.");
@@ -121,6 +120,7 @@ public class MemberService {
         List<Member> allMembers = memberRepository.findByIsDeletedIsFalse();
 
         List<MemberResponseDto> memberResponseDtos = allMembers.stream()
+                .filter(member -> !member.getRole().equals(Role.ADMIN))
                 .map(member -> MemberResponseDto.builder()
                         .id(member.getId())
                         .name(member.getName())
