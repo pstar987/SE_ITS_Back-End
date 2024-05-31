@@ -1,15 +1,17 @@
 package com.se.its.domain.member.domain;
 
+import com.se.its.domain.project.domain.ProjectMember;
 import com.se.its.global.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Table(name = "member")
 public class Member extends BaseEntity {
 
     @Id
@@ -30,6 +32,9 @@ public class Member extends BaseEntity {
 
     @Column(name = "isDeleted")
     private Boolean isDeleted;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProjectMember> projects;
 
     public void setIsDeleted(Boolean isDeleted) {
         this.isDeleted = isDeleted;

@@ -4,6 +4,8 @@ package com.se.its.domain.project.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Builder
@@ -19,4 +21,7 @@ public class Project {
 
     @Column(name = "isDeleted")
     private Boolean isDeleted;
+
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProjectMember> projectMembers;
 }
