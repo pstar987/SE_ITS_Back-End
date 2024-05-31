@@ -4,6 +4,7 @@ package com.se.its.domain.project.presentation;
 import com.se.its.domain.project.application.ProjectService;
 import com.se.its.domain.project.dto.request.ProjectCreateRequestDto;
 import com.se.its.domain.project.dto.request.ProjectMemberAddRequestDto;
+import com.se.its.domain.project.dto.request.ProjectMemberRemoveRequestDto;
 import com.se.its.domain.project.dto.response.ProjectResponseDto;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

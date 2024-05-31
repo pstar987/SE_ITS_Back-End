@@ -24,4 +24,8 @@ public class Project {
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectMember> projectMembers;
+
+    public void setIsDeleted(Boolean isDeleted){
+        this.isDeleted = isDeleted;
+    }
 }
