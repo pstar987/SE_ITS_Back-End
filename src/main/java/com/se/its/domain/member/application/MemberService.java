@@ -105,4 +105,83 @@ public class MemberService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
+    public List<MemberResponseDto> findMembersByAdmin(String signId){
+        Member admin = memberRepository.findBySignIdAndIsDeletedFalse(signId)
+                .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "잘못된 ID 입니다."));
+
+        if(!admin.getRole().equals(Role.ADMIN)){
+            throw  new BadRequestException(INVALID_REQUEST_ROLE, "관리자가 아닙니다.");
+        }
+
+        List<Member> allMembers = memberRepository.findByIsDeletedIsFalse();
+
+        List<MemberResponseDto> memberResponseDtos = allMembers.stream()
+                .map(member -> MemberResponseDto.builder()
+                        .signId(member.getSignId())
+                        .name(member.getName())
+                        .isDeleted(member.getIsDeleted())
+                        .role(member.getRole())
+                        .build())
+                .collect(Collectors.toList());
+
+        return memberResponseDtos;
+    }
+
+    @Transactional
+    public MemberResponseDto deleteMember(String signId, MemberDeleteRequestDto memberDeleteRequestDto){
+        Member admin = getUser(signId);
+        Member target = getUser(memberDeleteRequestDto.getSignId());
+
+        if(!admin.getRole().equals(Role.ADMIN)){
+            throw  new BadRequestException(INVALID_REQUEST_ROLE, "관리자가 아닙니다.");
+        }
+
+        // 5. isDeleted를 true로 변경
+        target.setIsDeleted(true);
+
+        return MemberResponseDto.builder()
+                .signId(target.getSignId())
+                .role(target.getRole())
+                .name(target.getName())
+                .isDeleted(target.getIsDeleted())
+                .build();
+
+    }
+
+
+    @Transactional
+    public MemberResponseDto updateMemberRole(String signId, MemberRoleUpdateRequestDto memberRoleUpdateRequestDto){
+        Member admin = getUser(signId);
+        Member target = getUser(memberRoleUpdateRequestDto.getSignId());
+
+        if(!admin.getRole().equals(Role.ADMIN)){
+            throw  new BadRequestException(INVALID_REQUEST_ROLE, "관리자가 아닙니다.");
+        }
+
+        if(memberRoleUpdateRequestDto.getRole().equals(Role.ADMIN)){
+            throw new BadRequestException(INVALID_REQUEST_ROLE, "관리자를 부여할 수 없습니다.");
+        }
+
+        target.updateRole(memberRoleUpdateRequestDto.getRole());
+
+        return MemberResponseDto.builder()
+                .signId(target.getSignId())
+                .role(target.getRole())
+                .name(target.getName())
+                .isDeleted(target.getIsDeleted())
+                .build();
+
+    }
+
+
+    private Member getUser(String targetId){
+        return memberRepository.findBySignIdAndIsDeletedFalse(targetId)
+                .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 사용자입니다."));
+    }
+
+    private Boolean isDuplicateSignId(String signId){
+        return memberRepository.findBySignIdAndIsDeletedFalse(signId).isPresent();
+    }
+
 }
