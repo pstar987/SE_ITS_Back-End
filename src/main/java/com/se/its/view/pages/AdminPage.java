@@ -21,11 +21,14 @@ public class AdminPage extends JFrame {
 
     private JButton accountDeleteBtn;
 
+    private JButton projectCreateBtn;
+    private JButton projectManageBtn;
+
     public AdminPage() {
         initComponents();
 
         setTitle("CITS");
-        setSize(1500, 1000);
+        setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -36,9 +39,7 @@ public class AdminPage extends JFrame {
         setLayout(new GridLayout(1, 2));
 
         accountPanel = new JPanel(new GridBagLayout());
-        projectPanel = new JPanel();
-
-        projectPanel.setBackground(Color.BLUE);
+        projectPanel = new JPanel(new GridBagLayout());
 
         GridBagConstraints accountGbc = new GridBagConstraints();
 
@@ -47,30 +48,24 @@ public class AdminPage extends JFrame {
         accountGbc.gridx = 0;
         accountGbc.gridy = 0;
         accountGbc.gridwidth = 2;
-        accountGbc.anchor = GridBagConstraints.CENTER;
+        accountGbc.anchor = GridBagConstraints.PAGE_START;
 
         JLabel titleLabel = new JLabel("관리자 페이지");
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 32));
         accountPanel.add(titleLabel, accountGbc);
 
-        accountGbc.gridx = 0;
+        accountGbc.gridx = 1;
         accountGbc.gridy = 1;
         accountGbc.gridwidth = 2;
         accountGbc.anchor = GridBagConstraints.CENTER;
         accountCreateBtn = new JButton("계정 생성하기");
         accountPanel.add(accountCreateBtn, accountGbc);
 
-        accountGbc.gridx = 0;
         accountGbc.gridy = 2;
-        accountGbc.gridwidth = 2;
-        accountGbc.anchor = GridBagConstraints.CENTER;
         accountRuleChangeBtn = new JButton("계정 직책 변경하기");
         accountPanel.add(accountRuleChangeBtn, accountGbc);
 
-        accountGbc.gridx = 0;
         accountGbc.gridy = 3;
-        accountGbc.gridwidth = 2;
-        accountGbc.anchor = GridBagConstraints.CENTER;
         accountDeleteBtn = new JButton("계정 삭제하기");
         accountPanel.add(accountDeleteBtn, accountGbc);
 
@@ -95,6 +90,31 @@ public class AdminPage extends JFrame {
             }
         });
 
+        projectPanel = new JPanel(new GridBagLayout());
+
+        GridBagConstraints projectGbc = new GridBagConstraints();
+
+        projectGbc.insets = new Insets(10, 10, 10, 10);
+
+        projectGbc.gridx = 0;
+        projectGbc.gridy = 0;
+        projectGbc.gridwidth = 2;
+        projectGbc.anchor = GridBagConstraints.PAGE_START;
+
+        JLabel projectTitleLabel = new JLabel("프로젝트");
+        projectTitleLabel.setFont(new Font("SansSerif", Font.BOLD, 32));
+        projectPanel.add(projectTitleLabel, projectGbc);
+
+        projectGbc.gridwidth = 1;
+        projectGbc.gridy = 1;
+        projectGbc.anchor = GridBagConstraints.CENTER;
+        projectCreateBtn = new JButton("프로젝트 생성");
+        projectPanel.add(projectCreateBtn, projectGbc);
+
+        projectGbc.gridy = 2;
+        projectGbc.anchor = GridBagConstraints.CENTER;
+        projectManageBtn = new JButton("프로젝트 관리");
+        projectPanel.add(projectManageBtn, projectGbc);
 
         add(accountPanel);
         add(projectPanel);
