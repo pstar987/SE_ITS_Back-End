@@ -95,7 +95,7 @@ public class AccountCreationPage extends JFrame {
         add(new JLabel("직책"), accountGbc);
 
         accountGbc.gridx = 1;
-        accountGbc.gridy = 4;
+        accountGbc.gridy = 5;
         accountGbc.anchor = GridBagConstraints.WEST;
 
         //TODO 컨트롤러에서 직책 리스트 받기
@@ -105,7 +105,7 @@ public class AccountCreationPage extends JFrame {
 
 
         accountGbc.gridx = 0;
-        accountGbc.gridy = 5;
+        accountGbc.gridy = 6;
         accountGbc.gridwidth =  2;
         accountGbc.anchor = GridBagConstraints.CENTER;
         accountCreateBtn = new JButton("계정 생성하기");
