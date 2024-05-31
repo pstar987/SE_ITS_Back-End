@@ -3,8 +3,10 @@ package com.se.its.domain.project.presentation;
 
 import com.se.its.domain.project.application.ProjectService;
 import com.se.its.domain.project.dto.request.ProjectCreateRequestDto;
+import com.se.its.domain.project.dto.request.ProjectMemberAddRequestDto;
 import com.se.its.domain.project.dto.response.ProjectResponseDto;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +24,7 @@ public class ProjectController {
 
     @PostMapping("/create")
     public ResponseEntity<ProjectResponseDto> createProject(
-            @RequestHeader Long id,
+            @Valid @RequestHeader Long id,
             @RequestBody ProjectCreateRequestDto projectCreateRequestDto
     ) {
         return ResponseEntity.status(HttpStatus.CREATED).body(projectService.createProject(id, projectCreateRequestDto));
@@ -30,7 +32,7 @@ public class ProjectController {
 
     @GetMapping("")
     public ResponseEntity<List<ProjectResponseDto>> getAllProject(
-            @RequestHeader Long id
+            @Valid @RequestHeader Long id
     ) {
         return ResponseEntity.ok(projectService.getAllProject(id));
     }
@@ -38,10 +40,20 @@ public class ProjectController {
 
     @GetMapping("/{projectId}")
     public ResponseEntity<ProjectResponseDto> getProject(
-            @RequestHeader Long id,
+            @Valid @RequestHeader Long id,
             @PathVariable Long projectId
     ) {
         return ResponseEntity.ok(projectService.getProjectById(id, projectId));
+    }
+
+    @PutMapping("/{projectId}/member/add")
+    public ResponseEntity<ProjectResponseDto> addMember(
+            @Valid @RequestHeader Long id,
+            @PathVariable Long projectId,
+            @Valid @RequestBody ProjectMemberAddRequestDto projectMemberAddRequestDto
+    ){
+        return ResponseEntity.status(HttpStatus.CREATED).body(projectService.addMember(id, projectId, projectMemberAddRequestDto));
+
     }
 
 
