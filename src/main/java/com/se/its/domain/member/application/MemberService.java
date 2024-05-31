@@ -1,9 +1,9 @@
 package com.se.its.domain.member.application;
 
 import com.se.its.domain.member.domain.Member;
+import com.se.its.domain.member.domain.Role;
 import com.se.its.domain.member.domain.respository.MemberRepository;
-import com.se.its.domain.member.dto.request.MemberSignInRequestDto;
-import com.se.its.domain.member.dto.request.MemberSignUpRequestDto;
+import com.se.its.domain.member.dto.request.*;
 import com.se.its.domain.member.dto.response.MemberResponseDto;
 import com.se.its.global.error.exceptions.BadRequestException;
 import com.se.its.global.error.exceptions.UnauthorizedException;
@@ -11,12 +11,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.se.its.global.error.ErrorCode.INVALID_SIGNIN;
-import static com.se.its.global.error.ErrorCode.ROW_DOES_NOT_EXIST;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.se.its.global.error.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class MemberService {
 
     private final MemberRepository memberRepository;
@@ -55,6 +56,31 @@ public class MemberService {
                 .build();
     }
 
+    @Transactional
+    public MemberResponseDto adminCreate(MemberSignUpRequestDto memberSignUpRequestDto){
+        if (isDuplicateSignId(memberSignUpRequestDto.getSignId())) {
+            throw new BadRequestException(ROW_ALREADY_EXIST, "중복되는 ID가 존재합니다.");
+        }
+
+        Member admin = Member.builder()
+                .signId(memberSignUpRequestDto.getSignId())
+                .password(memberSignUpRequestDto.getPassword())
+                .role(memberSignUpRequestDto.getRole())
+                .name(memberSignUpRequestDto.getName())
+                .isDeleted(false)
+                .build();
+
+        memberRepository.save(admin);
+
+        return MemberResponseDto.builder()
+                .signId(admin.getSignId())
+                .role(admin.getRole())
+                .name(admin.getName())
+                .isDeleted(admin.getIsDeleted())
+                .build();
+    }
+
+    @Transactional
     public MemberResponseDto signIn(MemberSignInRequestDto memberSignInRequestDto) {
         Member member = memberRepository.findByEmail(memberSignInRequestDto.getEmail())
                 .orElseThrow(() -> new UnauthorizedException(INVALID_SIGNIN, "유효하지 않은 이메일입니다."));
