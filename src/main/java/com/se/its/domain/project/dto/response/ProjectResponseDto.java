@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @Builder
 public class ProjectResponseDto {
-    private Long projectId;
+    private Long id;
     private String name;
     private List<MemberResponseDto> members;
 
