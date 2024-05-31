@@ -41,6 +41,11 @@ public class ProjectService {
                 .map(memberId -> getUser(memberId))
                 .collect(Collectors.toList());
 
+        boolean hasPL = validMembers.stream().anyMatch(member -> member.getRole().equals(Role.PL));
+        if (!hasPL) {
+            throw new BadRequestException(INVALID_REQUEST_ROLE, "프로젝트 리더가 설정되지 않았습니다.");
+        }
+
 
         Project project = Project.builder()
                 .name(projectCreateRequestDto.getName())
