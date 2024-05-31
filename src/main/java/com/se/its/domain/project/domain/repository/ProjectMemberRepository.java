@@ -7,11 +7,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ProjectMemberRepository extends JpaRepository<ProjectMember, Long> {
     List<ProjectMember> findByProjectId(Long ProjectId);
 
-    boolean existsByMemberAndProject(Member member, Project project);
+    boolean existsByMemberIdAndProjectId(Long memberId, Long projectId);
 
-    List<ProjectMember> findByMember(Member member);
+    List<ProjectMember> findByMemberId(Long memberId);
+
+    Optional<ProjectMember> findByProjectIdAndMemberId(Long projectId, Long memberId);
 }

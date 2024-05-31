@@ -11,6 +11,7 @@ import com.se.its.domain.project.domain.repository.ProjectMemberRepository;
 import com.se.its.domain.project.domain.repository.ProjectRepository;
 import com.se.its.domain.project.dto.request.ProjectCreateRequestDto;
 import com.se.its.domain.project.dto.request.ProjectMemberAddRequestDto;
+import com.se.its.domain.project.dto.request.ProjectMemberRemoveRequestDto;
 import com.se.its.domain.project.dto.response.ProjectResponseDto;
 import com.se.its.global.error.exceptions.BadRequestException;
 import lombok.RequiredArgsConstructor;
@@ -73,7 +74,7 @@ public class ProjectService {
         Member member = getUser(signId);
         Project project = getProject(projectId);
 
-        boolean isMemberOfProject = projectMemberRepository.existsByMemberAndProject(member, project);
+        boolean isMemberOfProject = projectMemberRepository.existsByMemberIdAndProjectId(member.getId(), project.getId());
 
         //admin일 경우 모든 프로젝트 조회 가능
         if(!member.getRole().equals(Role.ADMIN)){
@@ -96,7 +97,7 @@ public class ProjectService {
             projects = projectRepository.findAll();
         } else {
             // 일반 멤버는 본인이 속한 프로젝트만 조회
-            projects = projectMemberRepository.findByMember(member).stream()
+            projects = projectMemberRepository.findByMemberId(member.getId()).stream()
                     .map(ProjectMember::getProject)
                     .collect(Collectors.toList());
         }
@@ -120,7 +121,7 @@ public class ProjectService {
         if(admin.getRole().equals(Role.ADMIN)){
             addProjectMember(project, newMember);
         }else{
-            boolean isMemberOfProject = projectMemberRepository.existsByMemberAndProject(admin, project);
+            boolean isMemberOfProject = projectMemberRepository.existsByMemberIdAndProjectId(admin.getId(), project.getId());
             if (!isMemberOfProject) {
                 throw new BadRequestException(ROW_DOES_NOT_EXIST, "해당 프로젝트의 멤버가 아니기 때문에 권한이 없습니다.");
             }
@@ -149,7 +150,7 @@ public class ProjectService {
 
     private void addProjectMember(Project project, Member newMember) {
         // 프로젝트에 이미 존재하는 멤버인지 확인
-        boolean isAlreadyMember = projectMemberRepository.existsByMemberAndProject(newMember, project);
+        boolean isAlreadyMember = projectMemberRepository.existsByMemberIdAndProjectId(newMember.getId(), project.getId());
         if (isAlreadyMember) {
             throw new BadRequestException(ROW_ALREADY_EXIST, "해당 사용자는 이미 이 프로젝트의 멤버입니다.");
         }
