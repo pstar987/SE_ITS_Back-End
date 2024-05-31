@@ -21,29 +21,32 @@ public class AccountRuleChangePage extends JFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(300, 400);
         setLocationRelativeTo(null);
-        setVisible(true);
 
+        initData();
         initComponents();
     }
 
-//    private initData() {
-//        accounts = new ArrayList<>();
-//        Map<String, String> account1 = new HashMap<>();
-//        account1.put("id", "user1");
-//        account1.put("role", "PL");
-//
-//        Map<String, String> account2 = new HashMap<>();
-//        account2.put("id", "user2");
-//        account2.put("role", "DEV");
-//
-//        Map<String, String> account3 = new HashMap<>();
-//        account3.put("id", "user3");
-//        account3.put("role", "TESTER");
-//
-//        accounts.add(account1);
-//        accounts.add(account2);
-//        accounts.add(account3);
-//    }
+    private void initData() {
+        accounts = new ArrayList<>();
+        Map<String, String> account1 = new HashMap<>();
+        account1.put("id", "user1");
+        account1.put("name", "이영재");
+        account1.put("role", "PL");
+
+        Map<String, String> account2 = new HashMap<>();
+        account2.put("id", "user2");
+        account2.put("name", "강민규");
+        account2.put("role", "DEV");
+
+        Map<String, String> account3 = new HashMap<>();
+        account3.put("id", "user3");
+        account3.put("name", "이해강");
+        account3.put("role", "TESTER");
+
+        accounts.add(account1);
+        accounts.add(account2);
+        accounts.add(account3);
+    }
 
     private void initComponents() {
         setLayout(new GridBagLayout());
@@ -75,6 +78,7 @@ public class AccountRuleChangePage extends JFrame {
                 if(e.getClickCount() ==2) {
                     int index = accountList.locationToIndex(e.getPoint());
                     Map<String, String> selectedAccount = accountList.getModel().getElementAt(index);
+                    showEditDialog(selectedAccount);
 
                 }
             }
@@ -96,23 +100,48 @@ public class AccountRuleChangePage extends JFrame {
 
         JLabel idLabel = new JLabel("ID: "+ account.get("id"));
         gbc.gridx = 0;
-        gbc.gridy = 1;
+        gbc.gridy = 0;
         gbc.gridwidth = 2;
         dialog.add(idLabel, gbc);
 
+        JLabel nameLabel = new JLabel("이름: " + account.get("name"));
+        gbc.gridy = 1;
+        dialog.add(nameLabel, gbc);
+
         JLabel roleLabel = new JLabel("Role:");
         gbc.gridwidth = 1;
-        gbc.gridy = 1;
+        gbc.gridy = 2;
         gbc.anchor = GridBagConstraints.WEST;
         dialog.add(roleLabel, gbc);
 
         String []  roles = {"PL", "DEV","TESTER"};
-     //   JComboBox<String>
+        JComboBox<String> roleComboBox = new JComboBox<>(roles);
+        roleComboBox.setSelectedItem(account.get("role"));
+        gbc.gridx = 2;
+        dialog.add(roleComboBox, gbc);
+
+        JButton confirmBtn = new JButton("변경");
+        confirmBtn.addActionListener(e -> {
+            account.put("role", (String) roleComboBox.getSelectedItem());
+            accountList.repaint();
+            dialog.dispose();
+        });
+        gbc.gridx = 3;
+        gbc.gridy= 2;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        dialog.add(confirmBtn, gbc);
+
+        dialog.pack();
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+
     }
 
     class AccountListRender extends JPanel implements ListCellRenderer<Map<String, String>> {
         private JLabel idLabel;
         private JLabel roleLabel;
+        private JLabel nameLabel;
 
         public AccountListRender() {
             setLayout(new GridBagLayout());
@@ -120,6 +149,7 @@ public class AccountRuleChangePage extends JFrame {
             gbc.insets = new Insets(5, 5, 5, 5);
 
             idLabel = new JLabel();
+            nameLabel = new JLabel();
             roleLabel = new JLabel();
             roleLabel.setFont(roleLabel.getFont().deriveFont(Font.PLAIN, 12f));
 
@@ -129,6 +159,9 @@ public class AccountRuleChangePage extends JFrame {
             add(idLabel, gbc);
 
             gbc.gridx = 1;
+            add(nameLabel, gbc);
+
+            gbc.gridx = 2;
             add(roleLabel, gbc);
         }
 
@@ -137,6 +170,7 @@ public class AccountRuleChangePage extends JFrame {
                                                       Map<String, String> account, int index, boolean isSelected,
                                                       boolean cellHasFocus) {
             idLabel.setText(account.get("id"));
+            nameLabel.setText(account.get("name"));
             roleLabel.setText(account.get("role"));
 
             if (isSelected) {
