@@ -95,13 +95,15 @@ public class MemberService {
                 .build();
     }
 
-    public MemberResponseDto findMemberById(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "잘못된 Member ID 입니다."));
+    @Transactional(readOnly = true)
+    public MemberResponseDto findMemberById(String signId) {
+        Member member = getUser(signId);
+
         return MemberResponseDto.builder()
-                .id(member.getId())
-                .email(member.getEmail())
-                .password(member.getPassword())
+                .signId(member.getSignId())
+                .name(member.getName())
+                .isDeleted(member.getIsDeleted())
+                .role(member.getRole())
                 .build();
     }
 

@@ -47,10 +47,35 @@ public class MemberController {
     }
 
     @GetMapping("/find")
-    public ApiResponseTemplate<MemberResponseDto> findMemberById(
-            @Valid @RequestHeader Long memberId
+    public ResponseEntity<MemberResponseDto> findMemberById(
+            @Valid @RequestHeader String signId
     ) {
-        return ApiResponseTemplate.ok(memberService.findMemberById(memberId));
+        return ResponseEntity.ok(memberService.findMemberById(signId));
+    }
+
+
+    @GetMapping("/account")
+    public ResponseEntity<List<MemberResponseDto>> findMembersByAdmin(
+            @Valid @RequestHeader String signId
+    ){
+        return ResponseEntity.ok(memberService.findMembersByAdmin(signId));
+    }
+
+
+    @PutMapping("/account/delete")
+    public ResponseEntity<MemberResponseDto> deleteMember(
+            @Valid @RequestHeader String signId,
+            @Valid @RequestBody MemberDeleteRequestDto memberDeleteRequestDto
+    ){
+        return ResponseEntity.ok(memberService.deleteMember(signId, memberDeleteRequestDto));
+    }
+
+    @PutMapping("/account/update")
+    public ResponseEntity<MemberResponseDto> updateMember(
+            @Valid @RequestHeader String signId,
+            @Valid @RequestBody MemberRoleUpdateRequestDto memberRoleUpdateRequestDto
+    ){
+        return ResponseEntity.ok(memberService.updateMemberRole(signId, memberRoleUpdateRequestDto));
     }
 
 }
