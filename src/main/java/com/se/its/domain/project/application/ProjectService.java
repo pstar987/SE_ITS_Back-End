@@ -82,6 +82,77 @@ public class ProjectService {
 
     }
 
+    @Transactional(readOnly = true)
+    public ProjectResponseDto getProjectById(Long signId, Long projectId) {
+        Member member = getUser(signId);
+
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "프로젝트가 존재하지 않습니다."));
+
+        boolean isMemberOfProject = projectMemberRepository.existsByMemberAndProject(member, project);
+
+        //admin일 경우 모든 프로젝트 조회 가능
+        if(!member.getRole().equals(Role.ADMIN)){
+            if (!isMemberOfProject) {
+                throw new BadRequestException(ROW_DOES_NOT_EXIST, "해당 프로젝트의 멤버가 아닙니다.");
+            }
+        }
+
+        //프로젝트 멤버 조회
+        List<MemberResponseDto> memberResponseDtos = projectMemberRepository.findByProjectId(project.getId()).stream()
+                .map(pm -> MemberResponseDto.builder()
+                        .id(pm.getMember().getId())
+                        .name(pm.getMember().getName())
+                        .role(pm.getMember().getRole())
+                        .isDeleted(pm.getMember().getIsDeleted())
+                        .build())
+                .collect(Collectors.toList());
+
+        //todo : 프로젝트 이슈 조회
+
+        return ProjectResponseDto.builder()
+                .projectId(project.getId())
+                .name(project.getName())
+                .members(memberResponseDtos)
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProjectResponseDto> getAllProject(Long id){
+        Member member = getUser(id);
+
+        List<Project> projects;
+        if (member.getRole().equals(Role.ADMIN)) {
+            // 관리자는 모든 프로젝트를 조회
+            projects = projectRepository.findAll();
+        } else {
+            // 일반 멤버는 본인이 속한 프로젝트만 조회
+            projects = projectMemberRepository.findByMember(member).stream()
+                    .map(ProjectMember::getProject)
+                    .collect(Collectors.toList());
+        }
+
+        return projects.stream()
+                .map(project -> {
+                    List<MemberResponseDto> memberResponseDtos = projectMemberRepository.findByProjectId(project.getId()).stream()
+                            .map(pm -> MemberResponseDto.builder()
+                                    .id(pm.getMember().getId())
+                                    .name(pm.getMember().getName())
+                                    .role(pm.getMember().getRole())
+                                    .isDeleted(pm.getMember().getIsDeleted())
+                                    .build())
+                            .collect(Collectors.toList());
+
+                    return ProjectResponseDto.builder()
+                            .projectId(project.getId())
+                            .name(project.getName())
+                            .members(memberResponseDtos)
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+    }
+
 
     private Member getUser(Long targetId){
         return memberRepository.findByIdAndIsDeletedFalse(targetId)
