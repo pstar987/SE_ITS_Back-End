@@ -21,4 +21,11 @@ public class ProjectMember {
     @ManyToOne
     @JoinColumn(name = "projectId")
     private Project project;
+
+    @Column(name = "isDeleted")
+    private Boolean isDeleted = false;
+
+    public void setIsDeleted(Boolean isDeleted){
+        this.isDeleted = isDeleted;
+    }
 }
