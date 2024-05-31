@@ -10,6 +10,8 @@ public class AccountCreationPage extends JFrame {
     private JTextField idTextField;
     private JPasswordField passwordField;
     private JPasswordField confirmPasswordField;
+
+    private JTextField nameTextField;
     private  JComboBox<String> roleComboBox;
     private JButton accountCreateBtn;
 
@@ -78,12 +80,26 @@ public class AccountCreationPage extends JFrame {
         accountGbc.gridx = 0;
         accountGbc.gridy = 4;
         accountGbc.anchor = GridBagConstraints.EAST;
+        add(new JLabel("이름:"), accountGbc);
+
+        accountGbc.gridx = 1;
+        accountGbc.gridy = 4;
+        accountGbc.anchor = GridBagConstraints.WEST;
+        nameTextField = new JTextField(15);
+        add(nameTextField, accountGbc);
+
+
+        accountGbc.gridx = 0;
+        accountGbc.gridy = 5;
+        accountGbc.anchor = GridBagConstraints.EAST;
         add(new JLabel("직책"), accountGbc);
 
         accountGbc.gridx = 1;
         accountGbc.gridy = 4;
         accountGbc.anchor = GridBagConstraints.WEST;
-        String[] roles = {"PL" ,"Dev", "Tester" };
+
+        //TODO 컨트롤러에서 직책 리스트 받기
+        String[] roles = {"PL" ,"DEV", "TESTER" };
         roleComboBox = new JComboBox<>(roles);
         add(roleComboBox, accountGbc);
 
