@@ -23,6 +23,7 @@ public class AdminPage extends JFrame {
 
     private JButton projectCreateBtn;
     private JButton projectManageBtn;
+    private JButton projectDeleteBtn;
 
     public AdminPage() {
         initComponents();
@@ -112,9 +113,26 @@ public class AdminPage extends JFrame {
         projectPanel.add(projectCreateBtn, projectGbc);
 
         projectGbc.gridy = 2;
-        projectGbc.anchor = GridBagConstraints.CENTER;
         projectManageBtn = new JButton("프로젝트 관리");
         projectPanel.add(projectManageBtn, projectGbc);
+
+        projectGbc.gridy = 3;
+        projectDeleteBtn = new JButton("프로젝트 삭제");
+        projectPanel.add(projectDeleteBtn, projectGbc);
+
+        projectCreateBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new ProjectCreationPage().setVisible(true);
+            }
+        });
+
+        projectManageBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new ProjectMangePage().setVisible(true);
+            }
+        });
 
         add(accountPanel);
         add(projectPanel);
