@@ -40,5 +40,4 @@ public class SwingProjectController {
     ){
         return projectService.addMember(id, projectId, projectMemberAddRequestDto);
     }
-
 }
