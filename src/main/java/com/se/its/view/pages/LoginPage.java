@@ -13,14 +13,16 @@ import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.*;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.security.core.parameters.P;
+import com.se.its.domain.member.application.MemberService;
+import com.se.its.domain.member.dto.request.MemberSignInRequestDto;
+import com.se.its.domain.member.dto.response.MemberResponseDto;
 
 public class LoginPage extends JFrame {
 
     //TODO 로그인 시 계정의 직책에 따라 페이지가 달라져야됨
-
-    private final String url = "http://3.34.107.220:8080/api/v1";
-
+    private final MemberService memberSerivice;
     private String ID = "admin";
     private String PASSWORD = "1234";
 
@@ -29,8 +31,8 @@ public class LoginPage extends JFrame {
     private JButton signInBtn;
     private JPanel mainPanel;
 
-    public LoginPage() {
-
+    public LoginPage(MemberService memberSerivice) {
+        this.memberSerivice = memberSerivice;
         initComponents();
         ActionListener signInAction = new ActionListener() {
             @Override
@@ -46,37 +48,26 @@ public class LoginPage extends JFrame {
             String id = idTextField.getText();
             String password = new String(pwTextField.getText());
             try {
-                if (authenticateUser(id, password)) {
+                MemberSignInRequestDto requestDto =
+                        MemberSignInRequestDto.builder()
+                        .signId(id)
+                        .password(password)
+                        .build();
+                MemberResponseDto responseDto = memberSerivice.signIn(requestDto);
+                if(responseDto != null) {
                     JOptionPane.showMessageDialog(signInBtn, "로그인 성공");
                     new AdminPage();
                     dispose();
-                } else {
+                } else{
                     showError(ErrorMessage.FAILED_TO_SIGNIN.getMessage());
                 }
             } catch (Exception e) {
                 e.printStackTrace();
                 showError("로그인 오류 발생");
             }
-
         }
     }
 
-    private boolean authenticateUser(String id, String password) throws Exception {
-        String url = "http://3.34.107.220:8080/api/v1/member/signIn";
-        Map<String, String> headers = new HashMap<>();
-        headers.put("accept", "*/*");
-        headers.put("Content-Type", "application/json");
-
-        Map<String, String> requestBody = new HashMap<>();
-        requestBody.put("signId", id);
-        requestBody.put("password", password);
-
-        HttpResponse<String> response = ApiClient.post(url, headers, requestBody);
-
-        // 여기서는 단순히 "성공"이라는 문자열을 반환한다고 가정합니다.
-        // 실제 응답 형식에 맞게 수정해야 합니다.
-        return response.statusCode() == 200;
-    }
 
     private void initComponents() {
         mainPanel = new JPanel(new GridBagLayout());
@@ -177,7 +168,7 @@ public class LoginPage extends JFrame {
     }
 
     public static void main(String[] args) {
-        LoginPage loginPage = new LoginPage();
+
     }
 
 }
