@@ -1,10 +1,11 @@
 package com.se.its.domain.member.dto.request;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
+import lombok.Builder;
+import lombok.Getter;
 
-@Data
+@Getter
+@Builder
 public class MemberSignInRequestDto {
 
     @NotBlank(message = "id를 입력해주세요")

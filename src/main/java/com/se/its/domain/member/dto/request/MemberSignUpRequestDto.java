@@ -2,9 +2,12 @@ package com.se.its.domain.member.dto.request;
 
 import com.se.its.domain.member.domain.Role;
 import jakarta.validation.constraints.*;
+import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
+@Builder
 public class MemberSignUpRequestDto {
 
     @NotBlank(message = "id를 입력해주세요.")
