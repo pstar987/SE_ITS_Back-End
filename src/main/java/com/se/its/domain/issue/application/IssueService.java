@@ -177,7 +177,7 @@ public class IssueService {
 
 
         if (!issue.getReporter().getId().equals(tester.getId())) {
-            throw new BadRequestException(INVALID_REQUEST_ROLE, "본인이 생성한 이슈만 수정할 수 있습니다.");
+            throw new BadRequestException(ROW_DOES_NOT_EXIST, "본인이 생성한 이슈만 수정할 수 있습니다.");
         }
         if (!tester.getRole().equals(Role.TESTER)) {
             throw new BadRequestException(INVALID_REQUEST_ROLE, "TESTER만 이슈를 수정할 수 있습니다.");
@@ -185,6 +185,28 @@ public class IssueService {
 
         issue.setDescription(issueUpdateRequestDto.getDescription());
         issue.setStatus(issueUpdateRequestDto.getStatus());
+        issueRepository.save(issue);
+        return createIssueResponseDto(issue);
+    }
+
+    public IssueResponseDto reassignIssue(Long signId, IssueAssignRequestDto issueAssignRequestDto){
+        Member assigner = getUser(signId);
+        Member assignee = getUser(issueAssignRequestDto.getAssigneeId());
+        Issue issue = getIssue(issueAssignRequestDto.getIssueId());
+        Project project = getProject(issue.getProject().getId());
+        isMemberOfProject(assignee, project);
+
+        if(!assigner.getRole().equals(Role.DEV)){
+            throw new BadRequestException(INVALID_REQUEST_ROLE, "개발자만 양도가 가능합니다.");
+        }
+        if(!issue.getAssignee().getId().equals(assigner.getId())){
+            throw new BadRequestException(ROW_DOES_NOT_EXIST, "본인이 담당한 이슈가 아닙니다.");
+        }
+        if(!assignee.getRole().equals(Role.DEV)){
+            throw new BadRequestException(INVALID_REQUEST_ROLE, "개발자만 양도 받을 수 있습니다.");
+        }
+
+        issue.setAssignee(assignee);
         issueRepository.save(issue);
         return createIssueResponseDto(issue);
     }

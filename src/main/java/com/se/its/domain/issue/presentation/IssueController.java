@@ -85,4 +85,11 @@ public class IssueController {
         return ResponseEntity.ok(issueService.updateIssue(id ,issueUpdateRequestDto));
     }
 
+    @PutMapping("/reassign")
+    public ResponseEntity<IssueResponseDto> reassign(
+            @Valid @RequestHeader Long id,
+            @Valid @RequestBody IssueAssignRequestDto issueAssignRequestDto
+    ) {
+        return ResponseEntity.ok(issueService.reassignIssue(id ,issueAssignRequestDto));
+    }
 }
