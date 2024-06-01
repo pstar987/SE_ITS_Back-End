@@ -1,11 +1,14 @@
 package com.se.its.domain.issue.domain;
 
 
+import com.se.its.domain.comment.domain.Comment;
 import com.se.its.domain.member.domain.Member;
 import com.se.its.domain.project.domain.Project;
 import com.se.its.global.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -32,6 +35,9 @@ public class Issue extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "projectId")
     private Project project;
+
+    @OneToMany(mappedBy = "issue", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments;
 
     @Column(nullable = false)
     private String title;
