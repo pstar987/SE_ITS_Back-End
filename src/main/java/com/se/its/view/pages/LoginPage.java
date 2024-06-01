@@ -1,9 +1,9 @@
 package com.se.its.view.pages;
 
-import com.se.its.domain.member.application.MemberService;
 import com.se.its.domain.member.dto.request.MemberSignInRequestDto;
 import com.se.its.domain.member.dto.response.MemberResponseDto;
 import com.se.its.domain.member.presentation.SwingMemberController;
+import com.se.its.domain.project.presentation.SwingProjectController;
 import com.se.its.view.exception.EmptyIdException;
 import com.se.its.view.exception.EmptyPasswordException;
 import com.se.its.view.util.ErrorMessage;
@@ -18,17 +18,15 @@ public class LoginPage extends JFrame {
 
     //TODO 로그인 시 계정의 직책에 따라 페이지가 달라져야됨
     private SwingMemberController swingMemberController;
-    private String ID = "admin";
-    private String PASSWORD = "1234";
-
+    private SwingProjectController swingProjectController;
     private JTextField idTextField;
     private JPasswordField pwTextField;
     private JButton signInBtn;
     private JPanel mainPanel;
 
-    public LoginPage(SwingMemberController swingMemberController) {
+    public LoginPage(SwingMemberController swingMemberController, SwingProjectController swingProjectController) {
         this.swingMemberController =swingMemberController;
-
+        this.swingProjectController = swingProjectController;
         //TODO 페이지 권한마다 달라진
         initComponents();
         ActionListener signInAction = new ActionListener() {
@@ -52,7 +50,7 @@ public class LoginPage extends JFrame {
                 MemberResponseDto responseDto = swingMemberController.signIn(requestDto);
                 if (responseDto != null) {
                     JOptionPane.showMessageDialog(signInBtn, "로그인 성공");
-                    new AdminPage(swingMemberController, responseDto.getId());
+                    new AdminPage(swingMemberController, swingProjectController,responseDto.getId());
                     dispose();
                 } else {
                     showError(ErrorMessage.FAILED_TO_SIGNIN.getMessage());
