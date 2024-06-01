@@ -18,6 +18,7 @@ import com.se.its.domain.project.domain.repository.ProjectMemberRepository;
 import com.se.its.domain.project.domain.repository.ProjectRepository;
 import com.se.its.global.error.exceptions.BadRequestException;
 import com.se.its.global.util.dto.DtoConverter;
+import com.se.its.global.util.validator.EntityValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,20 +31,19 @@ import static com.se.its.global.error.ErrorCode.*;
 @RequiredArgsConstructor
 public class IssueService {
     private final IssueRepository issueRepository;
-    private final MemberRepository memberRepository;
-    private final ProjectRepository projectRepository;
     private final ProjectMemberRepository projectMemberRepository;
     private final DtoConverter dtoConverter;
+    private final EntityValidator entityValidator;
 
     @Transactional
     public IssueResponseDto createIssue(Long signId, IssueCreateRequestDto issueCreateRequestDto){
-        Member reporter = getUser(signId);
-        Project project = getProject(issueCreateRequestDto.getProjectId());
+        Member reporter = entityValidator.validateMember(signId);
+        Project project = entityValidator.validateProject(issueCreateRequestDto.getProjectId());
 
         if(!reporter.getRole().equals(Role.TESTER)){
             throw new BadRequestException(INVALID_REQUEST_ROLE, "TESTER가 아닙니다.");
         }
-        isMemberOfProject(reporter, project);
+        entityValidator.isMemberOfProject(reporter, project);
 
         Issue issue = Issue.builder()
                 .title(issueCreateRequestDto.getTitle())
@@ -64,10 +64,10 @@ public class IssueService {
 
     @Transactional(readOnly = true)
     public List<IssueResponseDto> getIssues(Long signId, Long projectId) {
-        Member member = getUser(signId);
-        Project project = getProject(projectId);
+        Member member = entityValidator.validateMember(signId);
+        Project project = entityValidator.validateProject(projectId);
 
-        isMemberOfProject(member, project);
+        entityValidator.isMemberOfProject(member, project);
 
 
         if (member.getRole().equals(Role.ADMIN)) {
@@ -89,7 +89,7 @@ public class IssueService {
 
     @Transactional(readOnly = true)
     public List<IssueResponseDto> getAllIssues(Long signId) {
-        Member admin = getUser(signId);
+        Member admin = entityValidator.validateMember(signId);
         if (!admin.getRole().equals(Role.ADMIN)) {
             throw new BadRequestException(ROW_DOES_NOT_EXIST, "관리자만 모든 이슈를 조회할 수 있습니다.");
         }
@@ -100,13 +100,13 @@ public class IssueService {
 
     @Transactional
     public IssueResponseDto assignIssue(Long signId, IssueAssignRequestDto issueAssignRequestDto) {
-        Member plMember = getUser(signId);
-        Issue issue = getIssue(issueAssignRequestDto.getIssueId());
+        Member plMember = entityValidator.validateMember(signId);
+        Issue issue = entityValidator.validateIssue(issueAssignRequestDto.getIssueId());
         Project project = issue.getProject();
-        Member assignee = getUser(issueAssignRequestDto.getAssigneeId());
+        Member assignee = entityValidator.validateMember(issueAssignRequestDto.getAssigneeId());
 
-        isMemberOfProject(plMember, project);
-        isMemberOfProject(assignee, project);
+        entityValidator.isMemberOfProject(plMember, project);
+        entityValidator.isMemberOfProject(assignee, project);
 
         if (!plMember.getRole().equals(Role.PL)) {
             throw new BadRequestException(INVALID_REQUEST_ROLE, "프로젝트 리더만 이슈를 할당할 수 있습니다.");
@@ -127,8 +127,8 @@ public class IssueService {
 
     @Transactional
     public IssueResponseDto removeRequest(Long signId, IssueDeleteRequestDto issueDeleteRequestDto) {
-        Member tester = getUser(signId);
-        Issue issue = getIssue(issueDeleteRequestDto.getIssueId());
+        Member tester = entityValidator.validateMember(signId);
+        Issue issue = entityValidator.validateIssue(issueDeleteRequestDto.getIssueId());
 
         if (!tester.getRole().equals(Role.TESTER)) {
             throw new BadRequestException(INVALID_REQUEST_ROLE, "TESTER만 이슈 삭제를 요청할 수 있습니다.");
@@ -144,7 +144,7 @@ public class IssueService {
 
     @Transactional(readOnly = true)
     public List<IssueResponseDto> getRemoveRequestIssues(Long signId) {
-        Member admin = getUser(signId);
+        Member admin = entityValidator.validateMember(signId);
 
         if (!admin.getRole().equals(Role.ADMIN)) {
             throw new BadRequestException(INVALID_REQUEST_ROLE, "관리자만 삭제 요청 이슈를 조회할 수 있습니다.");
@@ -156,8 +156,8 @@ public class IssueService {
 
     @Transactional
     public IssueResponseDto removeIssue(Long signId, IssueDeleteRequestDto issueDeleteRequestDto){
-        Member admin = getUser(signId);
-        Issue issue = getIssue(issueDeleteRequestDto.getIssueId());
+        Member admin = entityValidator.validateMember(signId);
+        Issue issue = entityValidator.validateIssue(issueDeleteRequestDto.getIssueId());
 
         if(!admin.getRole().equals(Role.ADMIN)){
             throw new BadRequestException(INVALID_REQUEST_ROLE, "관리자만 이슈를 삭제할 수 있습니다.");
@@ -173,8 +173,8 @@ public class IssueService {
 
     @Transactional
     public IssueResponseDto updateIssue(Long signId, IssueUpdateRequestDto issueUpdateRequestDto){
-        Member tester = getUser(signId);
-        Issue issue = getIssue(issueUpdateRequestDto.getIssueId());
+        Member tester = entityValidator.validateMember(signId);
+        Issue issue = entityValidator.validateIssue(issueUpdateRequestDto.getIssueId());
 
 
         if (!issue.getReporter().getId().equals(tester.getId())) {
@@ -193,11 +193,11 @@ public class IssueService {
 
     @Transactional
     public IssueResponseDto reassignIssue(Long signId, IssueAssignRequestDto issueAssignRequestDto){
-        Member assigner = getUser(signId);
-        Member assignee = getUser(issueAssignRequestDto.getAssigneeId());
-        Issue issue = getIssue(issueAssignRequestDto.getIssueId());
-        Project project = getProject(issue.getProject().getId());
-        isMemberOfProject(assignee, project);
+        Member assigner = entityValidator.validateMember(signId);
+        Member assignee = entityValidator.validateMember(issueAssignRequestDto.getAssigneeId());
+        Issue issue = entityValidator.validateIssue(issueAssignRequestDto.getIssueId());
+        Project project = entityValidator.validateProject(issue.getProject().getId());
+        entityValidator.isMemberOfProject(assignee, project);
 
         if(!assigner.getRole().equals(Role.DEV)){
             throw new BadRequestException(INVALID_REQUEST_ROLE, "개발자만 양도가 가능합니다.");
@@ -214,30 +214,5 @@ public class IssueService {
         return dtoConverter.createIssueResponseDto(issue);
     }
 
-    private void isMemberOfProject(Member member, Project project) {
-        if(!member.getRole().equals(Role.ADMIN)){
-            projectMemberRepository.findByMemberIdAndProjectIdAndIsDeletedFalse(member.getId(), project.getId())
-                    .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "해당 프로젝트의 멤버가 아닙니다."));
-        }
-    }
-
-
-
-
-    private Member getUser(Long targetId){
-        return memberRepository.findByIdAndIsDeletedFalse(targetId)
-                .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 사용자입니다."));
-    }
-
-    private Project getProject(Long projectId){
-        return projectRepository.findByIdAndIsDeletedIsFalse(projectId)
-                .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "프로젝트가 존재하지 않습니다."));
-    }
-
-
-    private Issue getIssue(Long issueId) {
-        return issueRepository.findByIdAndIsDeletedFalse(issueId)
-                .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 이슈입니다."));
-    }
 
 }

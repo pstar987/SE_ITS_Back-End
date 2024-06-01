@@ -8,6 +8,7 @@ import com.se.its.domain.member.dto.response.MemberResponseDto;
 import com.se.its.global.error.exceptions.BadRequestException;
 import com.se.its.global.error.exceptions.UnauthorizedException;
 import com.se.its.global.util.dto.DtoConverter;
+import com.se.its.global.util.validator.EntityValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,10 +23,11 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final DtoConverter dtoConverter;
+    private final EntityValidator entityValidator;
 
     @Transactional
     public MemberResponseDto signUp(Long id, MemberSignUpRequestDto memberSignUpRequestDto) {
-        Member admin = getUser(id);
+        Member admin = entityValidator.validateMember(id);
 
         if(!admin.getRole().equals(Role.ADMIN)){
             throw  new BadRequestException(INVALID_REQUEST_ROLE, "관리자가 아닙니다.");
@@ -83,14 +85,14 @@ public class MemberService {
 
     @Transactional(readOnly = true)
     public MemberResponseDto findMemberById(Long id) {
-        Member member = getUser(id);
+        Member member = entityValidator.validateMember(id);
 
         return dtoConverter.createMemberResponseDto(member);
     }
 
     @Transactional(readOnly = true)
     public List<MemberResponseDto> findMembersByAdmin(Long id){
-        Member admin = getUser(id);
+        Member admin = entityValidator.validateMember(id);
 
         if(!admin.getRole().equals(Role.ADMIN)){
             throw  new BadRequestException(INVALID_REQUEST_ROLE, "관리자가 아닙니다.");
@@ -106,8 +108,8 @@ public class MemberService {
 
     @Transactional
     public MemberResponseDto deleteMember(Long id, MemberDeleteRequestDto memberDeleteRequestDto){
-        Member admin = getUser(id);
-        Member target = getUser(memberDeleteRequestDto.getId());
+        Member admin = entityValidator.validateMember(id);
+        Member target = entityValidator.validateMember(memberDeleteRequestDto.getId());
 
         if(!admin.getRole().equals(Role.ADMIN)){
             throw  new BadRequestException(INVALID_REQUEST_ROLE, "관리자가 아닙니다.");
@@ -122,8 +124,8 @@ public class MemberService {
 
     @Transactional
     public MemberResponseDto updateMemberRole(Long id, MemberRoleUpdateRequestDto memberRoleUpdateRequestDto){
-        Member admin = getUser(id);
-        Member target = getUser(memberRoleUpdateRequestDto.getId());
+        Member admin = entityValidator.validateMember(id);
+        Member target = entityValidator.validateMember(memberRoleUpdateRequestDto.getId());
 
         if(!admin.getRole().equals(Role.ADMIN)){
             throw  new BadRequestException(INVALID_REQUEST_ROLE, "관리자가 아닙니다.");
@@ -136,12 +138,6 @@ public class MemberService {
         target.updateRole(memberRoleUpdateRequestDto.getRole());
 
         return dtoConverter.createMemberResponseDto(target);
-    }
-
-
-    private Member getUser(Long targetId){
-        return memberRepository.findByIdAndIsDeletedFalse(targetId)
-                .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 사용자입니다."));
     }
 
     private Boolean isDuplicateSignId(String signId){
