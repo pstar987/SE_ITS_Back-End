@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.se.its.global.error.ErrorCode.*;
 
@@ -97,12 +96,10 @@ public class MemberService {
 
         List<Member> allMembers = memberRepository.findByIsDeletedIsFalse();
 
-        List<MemberResponseDto> memberResponseDtos = allMembers.stream()
+        return allMembers.stream()
                 .filter(member -> !member.getRole().equals(Role.ADMIN))
                 .map(this::createMemberResponseDto)
                 .toList();
-
-        return memberResponseDtos;
     }
 
     @Transactional
