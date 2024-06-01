@@ -1,6 +1,5 @@
 package com.se.its.domain.issue.dto.response;
 
-import com.se.its.domain.comment.domain.Comment;
 import com.se.its.domain.issue.domain.Priority;
 import com.se.its.domain.issue.domain.Status;
 import com.se.its.domain.member.dto.response.MemberResponseDto;

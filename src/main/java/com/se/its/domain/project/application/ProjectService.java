@@ -40,8 +40,8 @@ public class ProjectService {
 
         //멤버 유효성 검사
         List<Member> validMembers = projectCreateRequestDto.getMemberIds().stream()
-                .map(memberId -> getUser(memberId))
-                .collect(Collectors.toList());
+                .map(this::getUser)
+                .toList();
 
         boolean hasPL = validMembers.stream().anyMatch(member -> member.getRole().equals(Role.PL));
         if (!hasPL) {

@@ -4,8 +4,6 @@ package com.se.its.domain.issue.presentation;
 import com.se.its.domain.issue.application.IssueService;
 import com.se.its.domain.issue.dto.request.IssueCreateRequestDto;
 import com.se.its.domain.issue.dto.response.IssueResponseDto;
-import com.se.its.domain.member.dto.request.MemberSignUpRequestDto;
-import com.se.its.domain.member.dto.response.MemberResponseDto;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
