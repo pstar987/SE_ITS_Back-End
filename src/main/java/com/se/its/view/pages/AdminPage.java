@@ -1,5 +1,7 @@
 package com.se.its.view.pages;
 
+import com.se.its.domain.member.application.MemberService;
+import com.se.its.domain.member.presentation.SwingMemberController;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -24,8 +26,13 @@ public class AdminPage extends JFrame {
     private JButton projectCreateBtn;
     private JButton projectManageBtn;
     private JButton projectDeleteBtn;
+    private SwingMemberController swingMemberController;
+    private final Long userId;
 
-    public AdminPage() {
+    public AdminPage(SwingMemberController swingMemberController, Long userId) {
+        this.swingMemberController= swingMemberController;
+        this.userId = userId;
+
         initComponents();
 
         setTitle("CITS");
@@ -73,14 +80,14 @@ public class AdminPage extends JFrame {
         accountCreateBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new AccountCreationPage().setVisible(true);
+                new AccountCreationPage(swingMemberController, userId).setVisible(true);
             }
         });
 
         accountRuleChangeBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new AccountRuleChangePage().setVisible(true);
+                new AccountRuleChangePage(swingMemberController, userId).setVisible(true);
             }
         });
 

@@ -1,5 +1,8 @@
 package com.se.its.view.pages;
 
+import com.se.its.domain.member.application.MemberService;
+import com.se.its.domain.member.dto.response.MemberResponseDto;
+import com.se.its.domain.member.presentation.SwingMemberController;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -16,7 +19,16 @@ import javax.swing.*;
 public class AccountRuleChangePage extends JFrame {
     private List<Map<String, String>> accounts;
     private JList<Map<String, String>> accountList;
-    public AccountRuleChangePage() {
+
+    private SwingMemberController swingMemberController;
+    private final Long userId;
+
+    private List<MemberResponseDto> memberResponseDtos;
+
+    public AccountRuleChangePage(SwingMemberController swingMemberController, Long userId) {
+        this.swingMemberController = swingMemberController;
+        this.userId = userId;
+
         setTitle("계정 직책 변경");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(300, 400);
@@ -27,25 +39,7 @@ public class AccountRuleChangePage extends JFrame {
     }
 
     private void initData() {
-        accounts = new ArrayList<>();
-        Map<String, String> account1 = new HashMap<>();
-        account1.put("id", "user1");
-        account1.put("name", "이영재");
-        account1.put("role", "PL");
-
-        Map<String, String> account2 = new HashMap<>();
-        account2.put("id", "user2");
-        account2.put("name", "강민규");
-        account2.put("role", "DEV");
-
-        Map<String, String> account3 = new HashMap<>();
-        account3.put("id", "user3");
-        account3.put("name", "이해강");
-        account3.put("role", "TESTER");
-
-        accounts.add(account1);
-        accounts.add(account2);
-        accounts.add(account3);
+        memberResponseDtos = new ArrayList<>();
     }
 
     private void initComponents() {
@@ -67,15 +61,13 @@ public class AccountRuleChangePage extends JFrame {
         gbc.gridy = 1;
         gbc.fill = GridBagConstraints.BOTH;
 
-
-
         accountList = new JList<>(accounts.toArray(new HashMap[0]));
         accountList.setCellRenderer(new AccountListRender());
 
         accountList.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(e.getClickCount() ==2) {
+                if (e.getClickCount() == 2) {
                     int index = accountList.locationToIndex(e.getPoint());
                     Map<String, String> selectedAccount = accountList.getModel().getElementAt(index);
                     showEditDialog(selectedAccount);
@@ -92,13 +84,13 @@ public class AccountRuleChangePage extends JFrame {
         add(scrollPane, gbc);
     }
 
-    private void showEditDialog(Map<String,String> account) {
+    private void showEditDialog(Map<String, String> account) {
         JDialog dialog = new JDialog(this, "직책 변경", true);
         dialog.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5,5,5,5);
+        gbc.insets = new Insets(5, 5, 5, 5);
 
-        JLabel idLabel = new JLabel("ID: "+ account.get("id"));
+        JLabel idLabel = new JLabel("ID: " + account.get("id"));
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 2;
@@ -114,7 +106,7 @@ public class AccountRuleChangePage extends JFrame {
         gbc.anchor = GridBagConstraints.WEST;
         dialog.add(roleLabel, gbc);
 
-        String []  roles = {"PL", "DEV","TESTER"};
+        String[] roles = {"PL", "DEV", "TESTER"};
         JComboBox<String> roleComboBox = new JComboBox<>(roles);
         roleComboBox.setSelectedItem(account.get("role"));
         gbc.gridx = 2;
@@ -127,7 +119,7 @@ public class AccountRuleChangePage extends JFrame {
             dialog.dispose();
         });
         gbc.gridx = 3;
-        gbc.gridy= 2;
+        gbc.gridy = 2;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
         dialog.add(confirmBtn, gbc);

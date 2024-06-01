@@ -1,9 +1,21 @@
 package com.se.its.view.pages;
 
+import com.se.its.domain.member.application.MemberService;
+import com.se.its.domain.member.domain.Role;
+import com.se.its.domain.member.dto.request.MemberSignUpRequestDto;
+import com.se.its.domain.member.dto.response.MemberResponseDto;
+import com.se.its.domain.member.presentation.SwingMemberController;
+import com.se.its.view.exception.ConfirmPasswordException;
+import com.se.its.view.exception.EmptyIdException;
+import com.se.its.view.exception.EmptyNameException;
+import com.se.its.view.exception.EmptyPasswordException;
+import com.se.its.view.util.ErrorMessage;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.*;
 
 public class AccountCreationPage extends JFrame {
@@ -12,21 +24,25 @@ public class AccountCreationPage extends JFrame {
     private JPasswordField confirmPasswordField;
 
     private JTextField nameTextField;
-    private  JComboBox<String> roleComboBox;
+    private JComboBox<String> roleComboBox;
     private JButton accountCreateBtn;
 
+    private SwingMemberController swingMemberController;
+    private final Long userId;
+    public AccountCreationPage(SwingMemberController swingMemberController, Long userId) {
+        this.swingMemberController = swingMemberController;
+        this.userId = userId;
 
-    public AccountCreationPage() {
         setTitle("계정 생성");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setSize(300,400);
+        setSize(350, 400);
         setLocationRelativeTo(null);
 
         initComponents();
 
     }
 
-    private void initComponents()  {
+    private void initComponents() {
         setLayout(new GridBagLayout());
 
         GridBagConstraints accountGbc = new GridBagConstraints();
@@ -88,7 +104,6 @@ public class AccountCreationPage extends JFrame {
         nameTextField = new JTextField(15);
         add(nameTextField, accountGbc);
 
-
         accountGbc.gridx = 0;
         accountGbc.gridy = 5;
         accountGbc.anchor = GridBagConstraints.EAST;
@@ -98,18 +113,100 @@ public class AccountCreationPage extends JFrame {
         accountGbc.gridy = 5;
         accountGbc.anchor = GridBagConstraints.WEST;
 
-        //TODO 컨트롤러에서 직책 리스트 받기
-        String[] roles = {"PL" ,"DEV", "TESTER" };
+        String[] roles = {"PL", "DEV", "TESTER"};
         roleComboBox = new JComboBox<>(roles);
         add(roleComboBox, accountGbc);
 
-
         accountGbc.gridx = 0;
         accountGbc.gridy = 6;
-        accountGbc.gridwidth =  2;
+        accountGbc.gridwidth = 2;
         accountGbc.anchor = GridBagConstraints.CENTER;
         accountCreateBtn = new JButton("계정 생성하기");
         add(accountCreateBtn, accountGbc);
 
+        accountCreateBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleAccountCreation();
+            }
+        });
     }
+
+    Role getRole(String role) {
+        switch (role) {
+            case "PL":
+                return Role.PL;
+            case "DEV":
+                return Role.DEV;
+            default:
+                return Role.TESTER;
+
+        }
+    }
+
+    private void handleAccountCreation() {
+        String id = idTextField.getText();
+        String password = new String(passwordField.getText());
+        String confirmPassword = new String(confirmPasswordField.getText());
+        String name = nameTextField.getText();
+        Role role = getRole ((String) roleComboBox.getSelectedItem());
+
+        if(checkValidation()) {
+            MemberSignUpRequestDto requestDto = MemberSignUpRequestDto.builder()
+                    .signId(id)
+                    .password(password)
+                    .name(name)
+                    .role(role)
+                    .build();
+            try {
+                MemberResponseDto responseDto = swingMemberController.signUp(userId, requestDto);
+
+                JOptionPane.showMessageDialog(this, "계정 생성 성공", "계정 생성", JOptionPane.INFORMATION_MESSAGE);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "계정 생성 실패: " + e.getMessage(), "오류", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+
+
+    }
+    private void checkIdEmpty() {
+        if (idTextField.getText().isEmpty()) {
+            throw new EmptyIdException();
+        }
+    }
+
+    private void checkPassword() {
+        if (passwordField.getText().isEmpty() || confirmPasswordField.getText().isEmpty()) {
+            throw new EmptyPasswordException();
+        }
+    }
+    private void checkName() {
+        if(nameTextField.getText().isEmpty()) {
+            throw new EmptyNameException();
+        }
+    }
+
+    private void checkPasswordIsSame() {
+        if(!passwordField.getText().equals(confirmPasswordField.getText())) {
+            throw new ConfirmPasswordException();
+        }
+    }
+
+    private boolean checkValidation() {
+        try {
+            checkIdEmpty();
+            checkPassword();
+            checkName();
+            checkPasswordIsSame();
+            return true;
+        } catch (EmptyIdException | EmptyPasswordException| EmptyNameException | ConfirmPasswordException e) {
+            showError(e.getMessage());
+            return false;
+        }
+    }
+
+    public void showError(String message) {
+        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
 }
