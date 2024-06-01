@@ -140,6 +140,19 @@ public class IssueService {
         return createIssueResponseDto(issue);
     }
 
+    @Transactional(readOnly = true)
+    public List<IssueResponseDto> getRemoveRequestIssues(Long adminId) {
+        Member admin = getUser(adminId);
+
+        if (!admin.getRole().equals(Role.ADMIN)) {
+            throw new BadRequestException(INVALID_REQUEST_ROLE, "관리자만 삭제 요청 이슈를 조회할 수 있습니다.");
+        }
+
+        return issueRepository.findByStatusAndIsDeletedFalse(Status.DELETE_REQUEST).stream()
+                .map(this::createIssueResponseDto)
+                .toList();
+    }
+
 
     private void isMemberOfProject(Member member, Project project) {
         if(!member.getRole().equals(Role.ADMIN)){

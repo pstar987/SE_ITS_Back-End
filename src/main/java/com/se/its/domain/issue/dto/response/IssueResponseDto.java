@@ -3,7 +3,6 @@ package com.se.its.domain.issue.dto.response;
 import com.se.its.domain.issue.domain.Priority;
 import com.se.its.domain.issue.domain.Status;
 import com.se.its.domain.member.dto.response.MemberResponseDto;
-import com.se.its.domain.project.dto.response.ProjectResponseDto;
 import lombok.Builder;
 import lombok.Getter;
 

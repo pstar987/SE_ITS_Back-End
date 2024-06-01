@@ -1,13 +1,10 @@
 package com.se.its.domain.issue.domain.repository;
 
 import com.se.its.domain.issue.domain.Issue;
-import org.aspectj.weaver.ast.Literal;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.se.its.domain.issue.domain.Status;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.net.http.HttpHeaders;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,4 +21,6 @@ public interface IssueRepository extends JpaRepository<Issue, Long> {
     List<Issue> findByProjectIdAndAssigneeIdAndIsDeletedFalse(Long projectId, Long assigneeId);
 
     Optional<Issue> findByIdAndIsDeletedFalse(Long id);
+
+    List<Issue> findByStatusAndIsDeletedFalse(Status status);
 }

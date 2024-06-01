@@ -60,4 +60,11 @@ public class IssueController {
     ) {
         return ResponseEntity.ok(issueService.removeRequest(id ,issueDeleteRequestDto));
     }
+
+    @GetMapping("/deleteRequest/find")
+    public ResponseEntity<List<IssueResponseDto>> getRemoveRequest(
+            @Valid @RequestHeader Long id
+    ) {
+        return ResponseEntity.ok(issueService.getRemoveRequestIssues(id));
+    }
 }
