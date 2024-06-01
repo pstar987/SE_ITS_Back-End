@@ -143,6 +143,7 @@ public class MemberService {
 
         // 5. isDeleted를 true로 변경
         target.setIsDeleted(true);
+        memberRepository.save(target);
 
         return MemberResponseDto.builder()
                 .id(target.getId())
@@ -168,6 +169,7 @@ public class MemberService {
         }
 
         target.updateRole(memberRoleUpdateRequestDto.getRole());
+        memberRepository.save(target);
 
         return MemberResponseDto.builder()
                 .id(target.getId())

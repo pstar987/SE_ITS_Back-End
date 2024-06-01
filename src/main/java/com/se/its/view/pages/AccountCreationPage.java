@@ -1,6 +1,5 @@
 package com.se.its.view.pages;
 
-import com.se.its.domain.member.application.MemberService;
 import com.se.its.domain.member.domain.Role;
 import com.se.its.domain.member.dto.request.MemberSignUpRequestDto;
 import com.se.its.domain.member.dto.response.MemberResponseDto;
@@ -9,7 +8,6 @@ import com.se.its.view.exception.ConfirmPasswordException;
 import com.se.its.view.exception.EmptyIdException;
 import com.se.its.view.exception.EmptyNameException;
 import com.se.its.view.exception.EmptyPasswordException;
-import com.se.its.view.util.ErrorMessage;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -162,6 +160,7 @@ public class AccountCreationPage extends JFrame {
                 MemberResponseDto responseDto = swingMemberController.signUp(userId, requestDto);
 
                 JOptionPane.showMessageDialog(this, "계정 생성 성공", "계정 생성", JOptionPane.INFORMATION_MESSAGE);
+                dispose();
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this, "계정 생성 실패: " + e.getMessage(), "오류", JOptionPane.ERROR_MESSAGE);
             }

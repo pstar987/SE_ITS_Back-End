@@ -94,7 +94,7 @@ public class AdminPage extends JFrame {
         accountDeleteBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new AccountDeletePage().setVisible(true);
+                new AccountDeletePage(swingMemberController, userId).setVisible(true);
             }
         });
 
