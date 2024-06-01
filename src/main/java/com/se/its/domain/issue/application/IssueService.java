@@ -62,6 +62,17 @@ public class IssueService {
 
     }
 
+    public IssueResponseDto getIssue(Long signId, Long issueId){
+        Member member = entityValidator.validateMember(signId);
+        Issue issue = entityValidator.validateIssue(issueId);
+        Project project = entityValidator.validateProject(issue.getProject().getId());
+
+        entityValidator.isMemberOfProject(member, project);
+
+        return dtoConverter.createIssueResponseDto(issue);
+
+    }
+
     @Transactional(readOnly = true)
     public List<IssueResponseDto> getIssues(Long signId, Long projectId) {
         Member member = entityValidator.validateMember(signId);
@@ -69,20 +80,9 @@ public class IssueService {
 
         entityValidator.isMemberOfProject(member, project);
 
+        return issueRepository.findByProjectIdAndIsDeletedFalse(project.getId()).stream()
+                .map(dtoConverter::createIssueResponseDto).toList();
 
-        if (member.getRole().equals(Role.ADMIN)) {
-            // admin은 모든 프로젝트의 모든 이슈 조회 가능
-            return issueRepository.findByProjectIdAndIsDeletedFalse(project.getId()).stream()
-                    .map(dtoConverter::createIssueResponseDto).toList();
-        } else if (member.getRole().equals(Role.PL) || member.getRole().equals(Role.TESTER)) {
-            return issueRepository.findByProjectIdAndIsDeletedFalse(projectId).stream()
-                    .map(dtoConverter::createIssueResponseDto).toList();
-        } else if(member.getRole().equals(Role.DEV)){
-            return issueRepository.findByProjectIdAndAssigneeIdAndIsDeletedFalse(project.getId(), member.getId()).stream()
-                    .map(dtoConverter::createIssueResponseDto).toList();
-        } else {
-            throw new BadRequestException(ROW_DOES_NOT_EXIST, "권한이 없는 사용자입니다.");
-        }
     }
 
 
@@ -187,6 +187,8 @@ public class IssueService {
         issue.setDescription(issueUpdateRequestDto.getDescription());
         issue.setStatus(issueUpdateRequestDto.getStatus());
         issue.setCategory(issueUpdateRequestDto.getCategory());
+        issue.setPriority(issueUpdateRequestDto.getPriority());
+
         issueRepository.save(issue);
         return dtoConverter.createIssueResponseDto(issue);
     }

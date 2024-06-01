@@ -31,7 +31,15 @@ public class IssueController {
         return ResponseEntity.status(HttpStatus.CREATED).body(issueService.createIssue(id, issueCreateRequestDto));
     }
 
-    @GetMapping("{projectId}")
+    @GetMapping("/{issueId}")
+    public ResponseEntity<IssueResponseDto> getIssue(
+            @Valid @RequestHeader Long id,
+            @PathVariable Long issueId
+    ) {
+        return ResponseEntity.ok(issueService.getIssue(id ,issueId));
+    }
+
+    @GetMapping("/{projectId}")
     public ResponseEntity<List<IssueResponseDto>> getIssues(
             @Valid @RequestHeader Long id,
             @PathVariable Long projectId

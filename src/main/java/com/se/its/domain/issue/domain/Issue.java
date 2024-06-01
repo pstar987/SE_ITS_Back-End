@@ -69,7 +69,9 @@ public class Issue extends BaseEntity {
 
     public void setStatus(Status status) {
         if (status != null) this.status = status;
-
+    }
+    public void setPriority(Priority priority) {
+        if (priority != null) this.priority = priority;
     }
 
     public void setDescription(String description) {
@@ -79,6 +81,5 @@ public class Issue extends BaseEntity {
 
     public void setCategory(String category) {
         if (category != null && !category.trim().isEmpty()) this.category = category;
-
     }
 }
