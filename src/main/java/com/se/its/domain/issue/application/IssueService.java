@@ -5,6 +5,7 @@ import com.se.its.domain.issue.domain.Issue;
 import com.se.its.domain.issue.domain.Priority;
 import com.se.its.domain.issue.domain.Status;
 import com.se.its.domain.issue.domain.repository.IssueRepository;
+import com.se.its.domain.issue.dto.request.IssueAssignRequestDto;
 import com.se.its.domain.issue.dto.request.IssueCreateRequestDto;
 import com.se.its.domain.issue.dto.response.IssueResponseDto;
 import com.se.its.domain.member.domain.Member;
@@ -21,8 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static com.se.its.global.error.ErrorCode.INVALID_REQUEST_ROLE;
-import static com.se.its.global.error.ErrorCode.ROW_DOES_NOT_EXIST;
+import static com.se.its.global.error.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -93,6 +93,36 @@ public class IssueService {
     }
 
 
+    @Transactional
+    public IssueResponseDto assignIssue(Long signId, IssueAssignRequestDto issueAssignRequestDto) {
+        Member plMember = getUser(signId);
+        Issue issue = getIssue(issueAssignRequestDto.getIssueId());
+        Project project = issue.getProject();
+        Member assignee = getUser(issueAssignRequestDto.getAssigneeId());
+
+        isMemberOfProject(plMember, project);
+        isMemberOfProject(assignee, project);
+
+        if (!plMember.getRole().equals(Role.PL)) {
+            throw new BadRequestException(INVALID_REQUEST_ROLE, "프로젝트 리더만 이슈를 할당할 수 있습니다.");
+        }
+        if (!assignee.getRole().equals(Role.DEV)) {
+            throw new BadRequestException(INVALID_REQUEST_ROLE, "할당할 멤버는 DEV 역할이어야 합니다.");
+        }
+        if (!issue.getStatus().equals(Status.NEW)) {
+            throw new BadRequestException(INVALID_REQUEST_STATUS, "이슈는 NEW 상태일 때만 할당할 수 있습니다.");
+        }
+
+
+        issue.setAssignee(assignee);
+        issue.setStatus(Status.ASSIGNED); // 상태를 ASSIGNED로 변경
+        Issue savedIssue = issueRepository.save(issue);
+
+        return createIssueResponseDto(savedIssue);
+    }
+
+
+
     private void isMemberOfProject(Member member, Project project) {
         if(!member.getRole().equals(Role.ADMIN)){
             projectMemberRepository.findByMemberIdAndProjectIdAndIsDeletedFalse(member.getId(), project.getId())
@@ -136,5 +166,10 @@ public class IssueService {
                 .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "프로젝트가 존재하지 않습니다."));
     }
 
+
+    private Issue getIssue(Long issueId) {
+        return issueRepository.findByIdAndIsDeletedFalse(issueId)
+                .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 이슈입니다."));
+    }
 
 }

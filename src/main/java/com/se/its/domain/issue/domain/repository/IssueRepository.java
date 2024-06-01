@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.net.http.HttpHeaders;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public interface IssueRepository extends JpaRepository<Issue, Long> {
     List<Issue> findAll();
@@ -21,4 +22,6 @@ public interface IssueRepository extends JpaRepository<Issue, Long> {
     List<Issue> findByProjectIdAndReporterIdAndIsDeletedFalse(Long projectId, Long reporterId);
 
     List<Issue> findByProjectIdAndAssigneeIdAndIsDeletedFalse(Long projectId, Long assigneeId);
+
+    Optional<Issue> findByIdAndIsDeletedFalse(Long id);
 }

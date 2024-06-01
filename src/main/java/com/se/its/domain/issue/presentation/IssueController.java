@@ -2,6 +2,7 @@ package com.se.its.domain.issue.presentation;
 
 
 import com.se.its.domain.issue.application.IssueService;
+import com.se.its.domain.issue.dto.request.IssueAssignRequestDto;
 import com.se.its.domain.issue.dto.request.IssueCreateRequestDto;
 import com.se.its.domain.issue.dto.response.IssueResponseDto;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -41,5 +42,13 @@ public class IssueController {
             @Valid @RequestHeader Long id
     ){
         return ResponseEntity.ok(issueService.getAllIssues(id));
+    }
+
+    @PutMapping("/assign")
+    public ResponseEntity<IssueResponseDto> assign(
+            @Valid @RequestHeader Long id,
+            @Valid @RequestBody IssueAssignRequestDto issueAssignRequestDto
+    ) {
+        return ResponseEntity.ok(issueService.assignIssue(id ,issueAssignRequestDto));
     }
 }
