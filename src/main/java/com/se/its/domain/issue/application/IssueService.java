@@ -12,10 +12,7 @@ import com.se.its.domain.issue.dto.request.IssueUpdateRequestDto;
 import com.se.its.domain.issue.dto.response.IssueResponseDto;
 import com.se.its.domain.member.domain.Member;
 import com.se.its.domain.member.domain.Role;
-import com.se.its.domain.member.domain.respository.MemberRepository;
 import com.se.its.domain.project.domain.Project;
-import com.se.its.domain.project.domain.repository.ProjectMemberRepository;
-import com.se.its.domain.project.domain.repository.ProjectRepository;
 import com.se.its.global.error.exceptions.BadRequestException;
 import com.se.its.global.util.dto.DtoConverter;
 import com.se.its.global.util.validator.EntityValidator;
@@ -31,7 +28,6 @@ import static com.se.its.global.error.ErrorCode.*;
 @RequiredArgsConstructor
 public class IssueService {
     private final IssueRepository issueRepository;
-    private final ProjectMemberRepository projectMemberRepository;
     private final DtoConverter dtoConverter;
     private final EntityValidator entityValidator;
 
