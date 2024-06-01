@@ -19,7 +19,7 @@ public class IssueResponseDto {
     private Priority priority;
     private Status status;
     private MemberResponseDto reporter;
-    private LocalDateTime reporterDate;
+    private LocalDateTime reportedDate;
     private MemberResponseDto fixer;
     private MemberResponseDto assignee;
     private Long projectId;
