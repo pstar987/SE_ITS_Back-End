@@ -23,5 +23,6 @@ public class IssueResponseDto {
     private MemberResponseDto fixer;
     private MemberResponseDto assignee;
     private Long projectId;
+    private Boolean isDeleted;
 //    private List<> comments;
 }

@@ -7,6 +7,7 @@ import com.se.its.domain.issue.domain.Status;
 import com.se.its.domain.issue.domain.repository.IssueRepository;
 import com.se.its.domain.issue.dto.request.IssueAssignRequestDto;
 import com.se.its.domain.issue.dto.request.IssueCreateRequestDto;
+import com.se.its.domain.issue.dto.request.IssueDeleteRequestDto;
 import com.se.its.domain.issue.dto.response.IssueResponseDto;
 import com.se.its.domain.member.domain.Member;
 import com.se.its.domain.member.domain.Role;
@@ -47,6 +48,7 @@ public class IssueService {
                 .description(issueCreateRequestDto.getDescription())
                 .reporter(reporter)
                 .project(project)
+                .isDeleted(false)
                 .priority(Priority.MINOR) // 기본 값 설정
                 .status(Status.NEW) // 기본 값 설정
                 .build();
@@ -121,6 +123,22 @@ public class IssueService {
         return createIssueResponseDto(savedIssue);
     }
 
+    @Transactional
+    public IssueResponseDto removeRequest(Long signId, IssueDeleteRequestDto issueDeleteRequestDto) {
+        Member tester = getUser(signId);
+        Issue issue = getIssue(issueDeleteRequestDto.getIssueId());
+
+        if (!tester.getRole().equals(Role.TESTER)) {
+            throw new BadRequestException(INVALID_REQUEST_ROLE, "TESTER만 이슈 삭제를 요청할 수 있습니다.");
+        }
+        if (!issue.getReporter().getId().equals(tester.getId())) {
+            throw new BadRequestException(INVALID_REQUEST_ROLE, "본인이 생성한 이슈만 삭제 요청할 수 있습니다.");
+        }
+
+        issue.setStatus(Status.DELETE_REQUEST);
+        issueRepository.save(issue);
+        return createIssueResponseDto(issue);
+    }
 
 
     private void isMemberOfProject(Member member, Project project) {
@@ -142,6 +160,7 @@ public class IssueService {
                 .fixer(issue.getFixer() != null ? createMemberResponseDto(issue.getFixer()) : null)
                 .assignee(issue.getAssignee() != null ? createMemberResponseDto(issue.getAssignee()) : null)
                 .projectId(issue.getProject().getId())
+                .isDeleted(issue.getIsDeleted())
                 .build();
     }
 
