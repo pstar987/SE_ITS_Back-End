@@ -6,7 +6,6 @@ import com.se.its.domain.issue.domain.repository.IssueRepository;
 import com.se.its.domain.member.domain.Member;
 import com.se.its.domain.member.domain.Role;
 import com.se.its.domain.member.domain.respository.MemberRepository;
-import com.se.its.domain.member.dto.response.MemberResponseDto;
 import com.se.its.domain.project.domain.Project;
 import com.se.its.domain.project.domain.ProjectMember;
 import com.se.its.domain.project.domain.repository.ProjectMemberRepository;
@@ -16,11 +15,10 @@ import com.se.its.domain.project.dto.request.ProjectMemberAddRequestDto;
 import com.se.its.domain.project.dto.request.ProjectMemberRemoveRequestDto;
 import com.se.its.domain.project.dto.response.ProjectResponseDto;
 import com.se.its.global.error.exceptions.BadRequestException;
+import com.se.its.global.util.dto.DtoConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,6 +31,7 @@ public class ProjectService {
     private final MemberRepository memberRepository;
     private final ProjectMemberRepository projectMemberRepository;
     private final IssueRepository issueRepository;
+    private final DtoConverter dtoConverter;
 
     @Transactional
     public ProjectResponseDto createProject(Long signId, ProjectCreateRequestDto projectCreateRequestDto){
@@ -75,7 +74,7 @@ public class ProjectService {
         projectMemberRepository.saveAll(projectMembers);
 
 
-        return createProjectResponseDto(project);
+        return dtoConverter.createProjectResponseDto(project);
 
     }
 
@@ -86,7 +85,7 @@ public class ProjectService {
         isMemberOfProject(member, project);
 
         //프로젝트 멤버 조회
-        return createProjectResponseDto(project);
+        return dtoConverter.createProjectResponseDto(project);
     }
 
     @Transactional(readOnly = true)
@@ -106,7 +105,7 @@ public class ProjectService {
         }
 
         return projects.stream()
-                .map(this::createProjectResponseDto)
+                .map(dtoConverter::createProjectResponseDto)
                 .toList();
 
     }
@@ -135,7 +134,7 @@ public class ProjectService {
             }
             addProjectMember(project, newMember);
         }
-        return createProjectResponseDto(project);
+        return dtoConverter.createProjectResponseDto(project);
     }
 
     @Transactional
@@ -157,7 +156,7 @@ public class ProjectService {
             }
             removeProjectMember(project, removeMember);
         }
-        return createProjectResponseDto(project);
+        return dtoConverter.createProjectResponseDto(project);
     }
 
     @Transactional
@@ -222,29 +221,6 @@ public class ProjectService {
                 .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "해당 프로젝트의 멤버가 아닙니다."));
 
         projectMember.setIsDeleted(true);
-    }
-
-
-
-    private ProjectResponseDto createProjectResponseDto(Project project) {
-        List<MemberResponseDto> memberResponseDtos = projectMemberRepository.findByProjectIdAndIsDeletedFalse(project.getId()).stream()
-                .map(pm -> MemberResponseDto.builder()
-                        .id(pm.getMember().getId())
-                        .name(pm.getMember().getName())
-                        .role(pm.getMember().getRole())
-                        .isDeleted(pm.getMember().getIsDeleted())
-                        .build())
-                .collect(Collectors.toList());
-
-        List<Long> tempIssues = Collections.emptyList();
-
-        return ProjectResponseDto.builder()
-                .id(project.getId())
-                .name(project.getName())
-                .members(memberResponseDtos)
-                .leaderId(project.getLeaderId())
-                .issues(tempIssues)
-                .build();
     }
 
 

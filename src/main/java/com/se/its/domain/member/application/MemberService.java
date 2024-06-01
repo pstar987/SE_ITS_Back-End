@@ -7,6 +7,7 @@ import com.se.its.domain.member.dto.request.*;
 import com.se.its.domain.member.dto.response.MemberResponseDto;
 import com.se.its.global.error.exceptions.BadRequestException;
 import com.se.its.global.error.exceptions.UnauthorizedException;
+import com.se.its.global.util.dto.DtoConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ import static com.se.its.global.error.ErrorCode.*;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final DtoConverter dtoConverter;
 
     @Transactional
     public MemberResponseDto signUp(Long id, MemberSignUpRequestDto memberSignUpRequestDto) {
@@ -45,7 +47,7 @@ public class MemberService {
 
         memberRepository.save(member);
 
-        return createMemberResponseDto(member);
+        return dtoConverter.createMemberResponseDto(member);
     }
 
     @Transactional
@@ -64,7 +66,7 @@ public class MemberService {
 
         memberRepository.save(admin);
 
-        return createMemberResponseDto(admin);
+        return dtoConverter.createMemberResponseDto(admin);
     }
 
     @Transactional
@@ -76,14 +78,14 @@ public class MemberService {
             throw new UnauthorizedException(INVALID_SIGNIN, "유효하지 않은 비밀번호입니다.");
         }
 
-        return createMemberResponseDto(member);
+        return dtoConverter.createMemberResponseDto(member);
     }
 
     @Transactional(readOnly = true)
     public MemberResponseDto findMemberById(Long id) {
         Member member = getUser(id);
 
-        return createMemberResponseDto(member);
+        return dtoConverter.createMemberResponseDto(member);
     }
 
     @Transactional(readOnly = true)
@@ -98,7 +100,7 @@ public class MemberService {
 
         return allMembers.stream()
                 .filter(member -> !member.getRole().equals(Role.ADMIN))
-                .map(this::createMemberResponseDto)
+                .map(dtoConverter::createMemberResponseDto)
                 .toList();
     }
 
@@ -114,7 +116,7 @@ public class MemberService {
         // 5. isDeleted를 true로 변경
         target.setIsDeleted(true);
 
-        return createMemberResponseDto(target);
+        return dtoConverter.createMemberResponseDto(target);
     }
 
 
@@ -133,17 +135,9 @@ public class MemberService {
 
         target.updateRole(memberRoleUpdateRequestDto.getRole());
 
-        return createMemberResponseDto(target);
+        return dtoConverter.createMemberResponseDto(target);
     }
 
-    private MemberResponseDto createMemberResponseDto(Member member) {
-        return MemberResponseDto.builder()
-                .id(member.getId())
-                .name(member.getName())
-                .role(member.getRole())
-                .isDeleted(member.getIsDeleted())
-                .build();
-    }
 
     private Member getUser(Long targetId){
         return memberRepository.findByIdAndIsDeletedFalse(targetId)

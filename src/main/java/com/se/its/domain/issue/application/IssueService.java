@@ -13,11 +13,11 @@ import com.se.its.domain.issue.dto.response.IssueResponseDto;
 import com.se.its.domain.member.domain.Member;
 import com.se.its.domain.member.domain.Role;
 import com.se.its.domain.member.domain.respository.MemberRepository;
-import com.se.its.domain.member.dto.response.MemberResponseDto;
 import com.se.its.domain.project.domain.Project;
 import com.se.its.domain.project.domain.repository.ProjectMemberRepository;
 import com.se.its.domain.project.domain.repository.ProjectRepository;
 import com.se.its.global.error.exceptions.BadRequestException;
+import com.se.its.global.util.dto.DtoConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +33,7 @@ public class IssueService {
     private final MemberRepository memberRepository;
     private final ProjectRepository projectRepository;
     private final ProjectMemberRepository projectMemberRepository;
+    private final DtoConverter dtoConverter;
 
     @Transactional
     public IssueResponseDto createIssue(Long signId, IssueCreateRequestDto issueCreateRequestDto){
@@ -57,7 +58,7 @@ public class IssueService {
 
         Issue savedIssue = issueRepository.save(issue);
 
-        return createIssueResponseDto(savedIssue);
+        return dtoConverter.createIssueResponseDto(savedIssue);
 
     }
 
@@ -72,13 +73,13 @@ public class IssueService {
         if (member.getRole().equals(Role.ADMIN)) {
             // admin은 모든 프로젝트의 모든 이슈 조회 가능
             return issueRepository.findByProjectIdAndIsDeletedFalse(project.getId()).stream()
-                    .map(this::createIssueResponseDto).toList();
+                    .map(dtoConverter::createIssueResponseDto).toList();
         } else if (member.getRole().equals(Role.PL) || member.getRole().equals(Role.TESTER)) {
             return issueRepository.findByProjectIdAndIsDeletedFalse(projectId).stream()
-                    .map(this::createIssueResponseDto).toList();
+                    .map(dtoConverter::createIssueResponseDto).toList();
         } else if(member.getRole().equals(Role.DEV)){
             return issueRepository.findByProjectIdAndAssigneeIdAndIsDeletedFalse(project.getId(), member.getId()).stream()
-                    .map(this::createIssueResponseDto).toList();
+                    .map(dtoConverter::createIssueResponseDto).toList();
         } else {
             throw new BadRequestException(ROW_DOES_NOT_EXIST, "권한이 없는 사용자입니다.");
         }
@@ -93,7 +94,7 @@ public class IssueService {
             throw new BadRequestException(ROW_DOES_NOT_EXIST, "관리자만 모든 이슈를 조회할 수 있습니다.");
         }
         return issueRepository.findAllByIsDeletedFalse().stream()
-                .map(this::createIssueResponseDto).toList();
+                .map(dtoConverter::createIssueResponseDto).toList();
     }
 
 
@@ -121,7 +122,7 @@ public class IssueService {
         issue.setAssignee(assignee);
         issue.setStatus(Status.ASSIGNED); // 상태를 ASSIGNED로 변경
         issueRepository.save(issue);
-        return createIssueResponseDto(issue);
+        return dtoConverter.createIssueResponseDto(issue);
     }
 
     @Transactional
@@ -138,7 +139,7 @@ public class IssueService {
 
         issue.setStatus(Status.DELETE_REQUEST);
         issueRepository.save(issue);
-        return createIssueResponseDto(issue);
+        return dtoConverter.createIssueResponseDto(issue);
     }
 
     @Transactional(readOnly = true)
@@ -149,7 +150,7 @@ public class IssueService {
             throw new BadRequestException(INVALID_REQUEST_ROLE, "관리자만 삭제 요청 이슈를 조회할 수 있습니다.");
         }
         return issueRepository.findByStatusAndIsDeletedFalse(Status.DELETE_REQUEST).stream()
-                .map(this::createIssueResponseDto)
+                .map(dtoConverter::createIssueResponseDto)
                 .toList();
     }
 
@@ -167,7 +168,7 @@ public class IssueService {
 
         issue.setIsDeleted(true);
         issueRepository.save(issue);
-        return createIssueResponseDto(issue);
+        return dtoConverter.createIssueResponseDto(issue);
     }
 
     @Transactional
@@ -187,7 +188,7 @@ public class IssueService {
         issue.setStatus(issueUpdateRequestDto.getStatus());
         issue.setCategory(issueUpdateRequestDto.getCategory());
         issueRepository.save(issue);
-        return createIssueResponseDto(issue);
+        return dtoConverter.createIssueResponseDto(issue);
     }
 
     @Transactional
@@ -210,7 +211,7 @@ public class IssueService {
 
         issue.setAssignee(assignee);
         issueRepository.save(issue);
-        return createIssueResponseDto(issue);
+        return dtoConverter.createIssueResponseDto(issue);
     }
 
     private void isMemberOfProject(Member member, Project project) {
@@ -220,31 +221,6 @@ public class IssueService {
         }
     }
 
-    private IssueResponseDto createIssueResponseDto(Issue issue) {
-        return IssueResponseDto.builder()
-                .id(issue.getId())
-                .title(issue.getTitle())
-                .description(issue.getDescription())
-                .priority(issue.getPriority())
-                .category(issue.getCategory())
-                .status(issue.getStatus())
-                .reporter(createMemberResponseDto(issue.getReporter()))
-                .reportedDate(issue.getCreatedAt())
-                .fixer(issue.getFixer() != null ? createMemberResponseDto(issue.getFixer()) : null)
-                .assignee(issue.getAssignee() != null ? createMemberResponseDto(issue.getAssignee()) : null)
-                .projectId(issue.getProject().getId())
-                .isDeleted(issue.getIsDeleted())
-                .build();
-    }
-
-    private MemberResponseDto createMemberResponseDto(Member member) {
-        return MemberResponseDto.builder()
-                .id(member.getId())
-                .name(member.getName())
-                .role(member.getRole())
-                .isDeleted(member.getIsDeleted())
-                .build();
-    }
 
 
 
