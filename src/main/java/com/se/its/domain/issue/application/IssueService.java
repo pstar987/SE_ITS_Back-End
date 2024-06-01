@@ -12,10 +12,14 @@ import com.se.its.domain.member.domain.Role;
 import com.se.its.domain.member.domain.respository.MemberRepository;
 import com.se.its.domain.member.dto.response.MemberResponseDto;
 import com.se.its.domain.project.domain.Project;
+import com.se.its.domain.project.domain.repository.ProjectMemberRepository;
 import com.se.its.domain.project.domain.repository.ProjectRepository;
 import com.se.its.global.error.exceptions.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static com.se.its.global.error.ErrorCode.INVALID_REQUEST_ROLE;
 import static com.se.its.global.error.ErrorCode.ROW_DOES_NOT_EXIST;
@@ -26,7 +30,9 @@ public class IssueService {
     private final IssueRepository issueRepository;
     private final MemberRepository memberRepository;
     private final ProjectRepository projectRepository;
+    private final ProjectMemberRepository projectMemberRepository;
 
+    @Transactional
     public IssueResponseDto createIssue(Long signId, IssueCreateRequestDto issueCreateRequestDto){
         Member reporter = getUser(signId);
         Project project = getProject(issueCreateRequestDto.getProjectId());
@@ -34,6 +40,7 @@ public class IssueService {
         if(!reporter.getRole().equals(Role.TESTER)){
             throw new BadRequestException(INVALID_REQUEST_ROLE, "TESTER가 아닙니다.");
         }
+        isMemberOfProject(reporter, project);
 
         Issue issue = Issue.builder()
                 .title(issueCreateRequestDto.getTitle())
@@ -50,6 +57,49 @@ public class IssueService {
 
     }
 
+    @Transactional(readOnly = true)
+    public List<IssueResponseDto> getIssues(Long signId, Long projectId) {
+        Member member = getUser(signId);
+        Project project = getProject(projectId);
+
+        isMemberOfProject(member, project);
+
+
+        if (member.getRole().equals(Role.ADMIN)) {
+            // admin은 모든 프로젝트의 모든 이슈 조회 가능
+            return issueRepository.findByProjectIdAndIsDeletedFalse(project.getId()).stream()
+                    .map(this::createIssueResponseDto).toList();
+        } else if (member.getRole().equals(Role.PL) || member.getRole().equals(Role.TESTER)) {
+            return issueRepository.findByProjectIdAndIsDeletedFalse(projectId).stream()
+                    .map(this::createIssueResponseDto).toList();
+        } else if(member.getRole().equals(Role.DEV)){
+            return issueRepository.findByProjectIdAndAssigneeIdAndIsDeletedFalse(project.getId(), member.getId()).stream()
+                    .map(this::createIssueResponseDto).toList();
+        } else {
+            throw new BadRequestException(ROW_DOES_NOT_EXIST, "권한이 없는 사용자입니다.");
+        }
+    }
+
+
+
+    @Transactional(readOnly = true)
+    public List<IssueResponseDto> getAllIssues(Long signId) {
+        Member admin = getUser(signId);
+        if (!admin.getRole().equals(Role.ADMIN)) {
+            throw new BadRequestException(ROW_DOES_NOT_EXIST, "관리자만 모든 이슈를 조회할 수 있습니다.");
+        }
+        return issueRepository.findAllByIsDeletedFalse().stream()
+                .map(this::createIssueResponseDto).toList();
+    }
+
+
+    private void isMemberOfProject(Member member, Project project) {
+        if(!member.getRole().equals(Role.ADMIN)){
+            projectMemberRepository.findByMemberIdAndProjectIdAndIsDeletedFalse(member.getId(), project.getId())
+                    .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "해당 프로젝트의 멤버가 아닙니다."));
+        }
+    }
+
     private IssueResponseDto createIssueResponseDto(Issue issue) {
         return IssueResponseDto.builder()
                 .id(issue.getId())
@@ -61,6 +111,7 @@ public class IssueService {
                 .reporterDate(issue.getCreatedAt())
                 .fixer(issue.getFixer() != null ? createMemberResponseDto(issue.getFixer()) : null)
                 .assignee(issue.getAssignee() != null ? createMemberResponseDto(issue.getAssignee()) : null)
+                .projectId(issue.getProject().getId())
                 .build();
     }
 

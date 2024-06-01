@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/issue")
@@ -24,5 +26,20 @@ public class IssueController {
             @Valid @RequestBody IssueCreateRequestDto issueCreateRequestDto
             ) {
         return ResponseEntity.status(HttpStatus.CREATED).body(issueService.createIssue(id, issueCreateRequestDto));
+    }
+
+    @GetMapping("{projectId}")
+    public ResponseEntity<List<IssueResponseDto>> getIssues(
+            @Valid @RequestHeader Long id,
+            @PathVariable Long projectId
+    ) {
+        return ResponseEntity.ok(issueService.getIssues(id ,projectId));
+    }
+
+    @GetMapping("")
+    public ResponseEntity<List<IssueResponseDto>> getAllIssues(
+            @Valid @RequestHeader Long id
+    ){
+        return ResponseEntity.ok(issueService.getAllIssues(id));
     }
 }
