@@ -1,6 +1,8 @@
 package com.se.its.domain.project.domain;
 
 
+//import com.se.its.domain.issue.domain.Issue;
+import com.se.its.domain.issue.domain.Issue;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,6 +26,9 @@ public class Project {
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectMember> projectMembers;
+
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Issue> Issues;
 
     public void setIsDeleted(Boolean isDeleted){
         this.isDeleted = isDeleted;
