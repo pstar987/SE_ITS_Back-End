@@ -1,9 +1,11 @@
 package com.se.its.domain.member.dto.request;
 
 import jakarta.validation.constraints.*;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
+@Builder
 public class MemberUpdateRequestDto {
 
     private Long id;
