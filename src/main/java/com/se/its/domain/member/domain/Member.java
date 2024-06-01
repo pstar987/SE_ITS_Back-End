@@ -1,5 +1,7 @@
 package com.se.its.domain.member.domain;
 
+//import com.se.its.domain.issue.domain.Issue;
+import com.se.its.domain.issue.domain.Issue;
 import com.se.its.domain.project.domain.ProjectMember;
 import com.se.its.global.domain.BaseEntity;
 import jakarta.persistence.*;
@@ -35,6 +37,15 @@ public class Member extends BaseEntity {
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectMember> projects;
+
+    @OneToMany(mappedBy = "reporter")
+    private List<Issue> reportedIssues;
+
+    @OneToMany(mappedBy = "fixer")
+    private List<Issue> fixedIssues;
+
+    @OneToMany(mappedBy = "assignee")
+    private List<Issue> assignedIssues;
 
     public void setIsDeleted(Boolean isDeleted) {
         this.isDeleted = isDeleted;

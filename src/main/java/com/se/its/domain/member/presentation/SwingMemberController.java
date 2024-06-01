@@ -3,7 +3,6 @@ package com.se.its.domain.member.presentation;
 import com.se.its.domain.member.application.MemberService;
 import com.se.its.domain.member.dto.request.MemberDeleteRequestDto;
 import com.se.its.domain.member.dto.request.MemberRoleUpdateRequestDto;
-import com.se.its.domain.member.dto.request.MemberSignInRequestDto;
 import com.se.its.domain.member.dto.request.MemberSignUpRequestDto;
 import com.se.its.domain.member.dto.response.MemberResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -28,9 +27,9 @@ public class SwingMemberController {
     }
 
     public MemberResponseDto signIn(
-            MemberSignInRequestDto memberSignInRequestDto
+            MemberSignUpRequestDto memberSignUpRequestDto
     ) {
-        return memberService.signIn(memberSignInRequestDto);
+        return memberService.adminCreate(memberSignUpRequestDto);
     }
 
     public MemberResponseDto findMemberById(
