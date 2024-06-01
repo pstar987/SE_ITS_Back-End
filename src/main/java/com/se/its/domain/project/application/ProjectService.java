@@ -167,7 +167,7 @@ public class ProjectService {
             throw new BadRequestException(INVALID_REQUEST_ROLE, "관리자가 아닙니다.");
         }
         project.setIsDeleted(true);
-
+        projectRepository.save(project);
         List<ProjectMember> projectMembers = projectMemberRepository.findByProjectIdAndIsDeletedFalse(projectId);
         projectMembers.forEach(pm -> pm.setIsDeleted(true));
 
@@ -207,6 +207,7 @@ public class ProjectService {
         ProjectMember projectMember = ProjectMember.builder()
                 .project(project)
                 .member(newMember)
+                .isDeleted(false)
                 .build();
         projectMemberRepository.save(projectMember);
     }
@@ -220,6 +221,7 @@ public class ProjectService {
                 .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "해당 프로젝트의 멤버가 아닙니다."));
 
         projectMember.setIsDeleted(true);
+        projectMemberRepository.save(projectMember);
     }
 
     private ProjectResponseDto createProjectResponseDto(Project project) {
