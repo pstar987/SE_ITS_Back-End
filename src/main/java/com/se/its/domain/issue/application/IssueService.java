@@ -108,7 +108,7 @@ public class IssueService {
                 .priority(issue.getPriority())
                 .status(issue.getStatus())
                 .reporter(createMemberResponseDto(issue.getReporter()))
-                .reporterDate(issue.getCreatedAt())
+                .reportedDate(issue.getCreatedAt())
                 .fixer(issue.getFixer() != null ? createMemberResponseDto(issue.getFixer()) : null)
                 .assignee(issue.getAssignee() != null ? createMemberResponseDto(issue.getAssignee()) : null)
                 .projectId(issue.getProject().getId())
