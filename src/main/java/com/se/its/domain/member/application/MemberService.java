@@ -36,8 +36,6 @@ public class MemberService {
             throw new BadRequestException(INVALID_REQUEST_ROLE, "관리자를 생성할 수 없습니다.");
         }
 
-
-
         Member member = Member.builder()
                 .signId(memberSignUpRequestDto.getSignId())
                 .password(memberSignUpRequestDto.getPassword())
@@ -48,12 +46,7 @@ public class MemberService {
 
         memberRepository.save(member);
 
-        return MemberResponseDto.builder()
-                .id(member.getId())
-                .role(member.getRole())
-                .name(member.getName())
-                .isDeleted(member.getIsDeleted())
-                .build();
+        return createMemberResponseDto(member);
     }
 
     @Transactional
@@ -72,12 +65,7 @@ public class MemberService {
 
         memberRepository.save(admin);
 
-        return MemberResponseDto.builder()
-                .id(admin.getId())
-                .role(admin.getRole())
-                .name(admin.getName())
-                .isDeleted(admin.getIsDeleted())
-                .build();
+        return createMemberResponseDto(admin);
     }
 
     @Transactional
@@ -89,24 +77,14 @@ public class MemberService {
             throw new UnauthorizedException(INVALID_SIGNIN, "유효하지 않은 비밀번호입니다.");
         }
 
-        return MemberResponseDto.builder()
-                .id(member.getId())
-                .name(member.getName())
-                .isDeleted(member.getIsDeleted())
-                .role(member.getRole())
-                .build();
+        return createMemberResponseDto(member);
     }
 
     @Transactional(readOnly = true)
     public MemberResponseDto findMemberById(Long id) {
         Member member = getUser(id);
 
-        return MemberResponseDto.builder()
-                .id(member.getId())
-                .name(member.getName())
-                .isDeleted(member.getIsDeleted())
-                .role(member.getRole())
-                .build();
+        return createMemberResponseDto(member);
     }
 
     @Transactional(readOnly = true)
@@ -121,13 +99,8 @@ public class MemberService {
 
         List<MemberResponseDto> memberResponseDtos = allMembers.stream()
                 .filter(member -> !member.getRole().equals(Role.ADMIN))
-                .map(member -> MemberResponseDto.builder()
-                        .id(member.getId())
-                        .name(member.getName())
-                        .isDeleted(member.getIsDeleted())
-                        .role(member.getRole())
-                        .build())
-                .collect(Collectors.toList());
+                .map(this::createMemberResponseDto)
+                .toList();
 
         return memberResponseDtos;
     }
@@ -144,13 +117,7 @@ public class MemberService {
         // 5. isDeleted를 true로 변경
         target.setIsDeleted(true);
 
-        return MemberResponseDto.builder()
-                .id(target.getId())
-                .role(target.getRole())
-                .name(target.getName())
-                .isDeleted(target.getIsDeleted())
-                .build();
-
+        return createMemberResponseDto(target);
     }
 
 
@@ -169,15 +136,17 @@ public class MemberService {
 
         target.updateRole(memberRoleUpdateRequestDto.getRole());
 
-        return MemberResponseDto.builder()
-                .id(target.getId())
-                .role(target.getRole())
-                .name(target.getName())
-                .isDeleted(target.getIsDeleted())
-                .build();
-
+        return createMemberResponseDto(target);
     }
 
+    private MemberResponseDto createMemberResponseDto(Member member) {
+        return MemberResponseDto.builder()
+                .id(member.getId())
+                .name(member.getName())
+                .role(member.getRole())
+                .isDeleted(member.getIsDeleted())
+                .build();
+    }
 
     private Member getUser(Long targetId){
         return memberRepository.findByIdAndIsDeletedFalse(targetId)

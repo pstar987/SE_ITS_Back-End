@@ -106,10 +106,8 @@ public class ProjectService {
         }
 
         return projects.stream()
-                .map(project -> {
-                    return createProjectResponseDto(project);
-                })
-                .collect(Collectors.toList());
+                .map(this::createProjectResponseDto)
+                .toList();
 
     }
 
@@ -225,6 +223,8 @@ public class ProjectService {
 
         projectMember.setIsDeleted(true);
     }
+
+
 
     private ProjectResponseDto createProjectResponseDto(Project project) {
         List<MemberResponseDto> memberResponseDtos = projectMemberRepository.findByProjectIdAndIsDeletedFalse(project.getId()).stream()
