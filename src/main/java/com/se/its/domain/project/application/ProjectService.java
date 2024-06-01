@@ -1,6 +1,8 @@
 package com.se.its.domain.project.application;
 
 
+import com.se.its.domain.issue.domain.Issue;
+import com.se.its.domain.issue.domain.repository.IssueRepository;
 import com.se.its.domain.member.domain.Member;
 import com.se.its.domain.member.domain.Role;
 import com.se.its.domain.member.domain.respository.MemberRepository;
@@ -30,6 +32,7 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final MemberRepository memberRepository;
     private final ProjectMemberRepository projectMemberRepository;
+    private final IssueRepository issueRepository;
 
     @Transactional
     public ProjectResponseDto createProject(Long signId, ProjectCreateRequestDto projectCreateRequestDto){
@@ -168,8 +171,9 @@ public class ProjectService {
         }
         project.setIsDeleted(true);
         List<ProjectMember> projectMembers = projectMemberRepository.findByProjectIdAndIsDeletedFalse(projectId);
+        List<Issue> issues = issueRepository.findByProjectIdAndIsDeletedFalse(projectId);
         projectMembers.forEach(pm -> pm.setIsDeleted(true));
-
+        issues.forEach(issue -> issue.setIsDeleted(true));
     }
 
 
