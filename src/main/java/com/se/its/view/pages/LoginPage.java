@@ -2,18 +2,24 @@ package com.se.its.view.pages;
 
 import com.se.its.view.exception.EmptyIdException;
 import com.se.its.view.exception.EmptyPasswordException;
+import com.se.its.view.httpCilent.ApiClient;
 import com.se.its.view.util.ErrorMessage;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.http.HttpResponse;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.*;
+import org.springframework.security.core.parameters.P;
 
 public class LoginPage extends JFrame {
 
     //TODO 로그인 시 계정의 직책에 따라 페이지가 달라져야됨
 
+    private final String url = "http://3.34.107.220:8080/api/v1";
 
     private String ID = "admin";
     private String PASSWORD = "1234";
@@ -39,14 +45,37 @@ public class LoginPage extends JFrame {
         if (checkValidation()) {
             String id = idTextField.getText();
             String password = new String(pwTextField.getText());
-            if (id.equals(ID) && password.equals(PASSWORD)) {
-                JOptionPane.showMessageDialog(signInBtn, "로그인 성공");
-                new AdminPage();
-                dispose();
-            } else {
-                showError(ErrorMessage.FAILED_TO_SIGNIN.getMessage());
+            try {
+                if (authenticateUser(id, password)) {
+                    JOptionPane.showMessageDialog(signInBtn, "로그인 성공");
+                    new AdminPage();
+                    dispose();
+                } else {
+                    showError(ErrorMessage.FAILED_TO_SIGNIN.getMessage());
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                showError("로그인 오류 발생");
             }
+
         }
+    }
+
+    private boolean authenticateUser(String id, String password) throws Exception {
+        String url = "http://3.34.107.220:8080/api/v1/member/signIn";
+        Map<String, String> headers = new HashMap<>();
+        headers.put("accept", "*/*");
+        headers.put("Content-Type", "application/json");
+
+        Map<String, String> requestBody = new HashMap<>();
+        requestBody.put("signId", id);
+        requestBody.put("password", password);
+
+        HttpResponse<String> response = ApiClient.post(url, headers, requestBody);
+
+        // 여기서는 단순히 "성공"이라는 문자열을 반환한다고 가정합니다.
+        // 실제 응답 형식에 맞게 수정해야 합니다.
+        return response.statusCode() == 200;
     }
 
     private void initComponents() {
