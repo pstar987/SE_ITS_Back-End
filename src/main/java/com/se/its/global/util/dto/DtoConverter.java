@@ -1,5 +1,7 @@
 package com.se.its.global.util.dto;
 
+import com.se.its.domain.comment.domain.Comment;
+import com.se.its.domain.comment.dto.response.CommentResponseDto;
 import com.se.its.domain.issue.domain.Issue;
 import com.se.its.domain.issue.dto.response.IssueResponseDto;
 import com.se.its.domain.member.domain.Member;
@@ -12,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -32,7 +33,7 @@ public class DtoConverter {
     public ProjectResponseDto createProjectResponseDto(Project project) {
         List<MemberResponseDto> memberResponseDtos = projectMemberRepository.findByProjectIdAndIsDeletedFalse(project.getId()).stream()
                 .map(pm -> createMemberResponseDto(pm.getMember()))
-                .collect(Collectors.toList());
+                .toList();
 
         List<IssueResponseDto> issueIds = issueRepository.findByProjectIdAndIsDeletedFalse(project.getId()).stream()
                 .map(this::createIssueResponseDto)
@@ -59,6 +60,15 @@ public class DtoConverter {
                 .fixer(issue.getFixer() != null ? createMemberResponseDto(issue.getFixer()) : null)
                 .assignee(issue.getAssignee() != null ? createMemberResponseDto(issue.getAssignee()) : null)
                 .projectId(issue.getProject().getId())
+                .build();
+    }
+
+    public CommentResponseDto createCommentResponseDto(Comment comment){
+        return CommentResponseDto.builder()
+                .id(comment.getId())
+                .content(comment.getContent())
+                .issueId(comment.getIssue().getId())
+                .writerId(comment.getWriter().getId())
                 .build();
     }
 }
