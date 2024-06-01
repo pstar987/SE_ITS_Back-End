@@ -184,6 +184,7 @@ public class IssueService {
         }
 
         issue.setDescription(issueUpdateRequestDto.getDescription());
+        issue.setStatus(issueUpdateRequestDto.getStatus());
         issueRepository.save(issue);
         return createIssueResponseDto(issue);
     }
