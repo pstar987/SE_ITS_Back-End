@@ -4,6 +4,7 @@ import com.se.its.domain.member.application.MemberService;
 import com.se.its.domain.member.domain.respository.MemberRepository;
 import com.se.its.domain.member.presentation.SwingMemberController;
 import com.se.its.global.util.dto.DtoConverter;
+import com.se.its.global.util.validator.EntityValidator;
 import com.se.its.view.pages.LoginPage;
 import javax.swing.SwingUtilities;
 import org.springframework.boot.SpringApplication;
@@ -22,7 +23,8 @@ public class ITSApplication {
         //SpringApplication.run(ITSApplication.class, args);
         MemberRepository memberRepository = context.getBean(MemberRepository.class);
         DtoConverter dtoConverter = context.getBean(DtoConverter.class);
-        MemberService memberService = new MemberService(memberRepository, dtoConverter);
+        EntityValidator entityValidator = context.getBean(EntityValidator.class);
+        MemberService memberService = new MemberService(memberRepository, dtoConverter,entityValidator);
         SwingMemberController swingMemberController = new SwingMemberController(memberService);
 
         SwingUtilities.invokeLater(() -> {
