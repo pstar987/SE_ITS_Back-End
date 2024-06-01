@@ -43,15 +43,20 @@ public class ProjectService {
                 .map(this::getUser)
                 .toList();
 
-        boolean hasPL = validMembers.stream().anyMatch(member -> member.getRole().equals(Role.PL));
-        if (!hasPL) {
-            throw new BadRequestException(INVALID_REQUEST_ROLE, "프로젝트 리더가 설정되지 않았습니다.");
+        List<Member> plMembers = validMembers.stream()
+                .filter(member -> member.getRole().equals(Role.PL))
+                .toList();
+
+        if (plMembers.size() != 1) {
+            throw new BadRequestException(INVALID_REQUEST_ROLE, "프로젝트 리더 한명 필요합니다.");
         }
 
+        Member plMember = plMembers.get(0);
 
         Project project = Project.builder()
                 .name(projectCreateRequestDto.getName())
                 .isDeleted(false)
+                .leaderId(plMember.getId())
                 .build();
         projectRepository.save(project);
 
@@ -75,15 +80,7 @@ public class ProjectService {
     public ProjectResponseDto getProjectById(Long signId, Long projectId) {
         Member member = getUser(signId);
         Project project = getProject(projectId);
-
-        boolean isMemberOfProject = projectMemberRepository.existsByMemberIdAndProjectIdAndIsDeletedFalse(member.getId(), project.getId());
-
-        //admin일 경우 모든 프로젝트 조회 가능
-        if(!member.getRole().equals(Role.ADMIN)){
-            if (!isMemberOfProject) {
-                throw new BadRequestException(ROW_DOES_NOT_EXIST, "해당 프로젝트의 멤버가 아닙니다.");
-            }
-        }
+        isMemberOfProject(member, project);
 
         //프로젝트 멤버 조회
         return createProjectResponseDto(project);
@@ -120,16 +117,19 @@ public class ProjectService {
         Project project = getProject(projectId);
         Member newMember = getUser(projectMemberAddRequestDto.getAddMemberId());
         isAdminOrPL(admin);
+        isMemberOfProject(admin, project);
+
+        if (projectMemberRepository.existsByProjectIdAndMemberRole(projectId, Role.PL)) {
+            if (newMember.getRole().equals(Role.PL)) {
+                throw new BadRequestException(INVALID_REQUEST_ROLE, "대상 프로젝트에 이미 PL이 존재합니다.");
+            }
+        }
 
         if(admin.getRole().equals(Role.ADMIN)){
             addProjectMember(project, newMember);
         }else{
             if (newMember.getRole().equals(Role.PL)) {
                 throw new BadRequestException(INVALID_REQUEST_ROLE, "프로젝트 리더는 다른 프로젝트 리더를 추가할 수 없습니다.");
-            }
-            boolean isMemberOfProject = projectMemberRepository.existsByMemberIdAndProjectIdAndIsDeletedFalse(admin.getId(), project.getId());
-            if (!isMemberOfProject) {
-                throw new BadRequestException(ROW_DOES_NOT_EXIST, "해당 프로젝트의 멤버가 아니기 때문에 권한이 없습니다.");
             }
             addProjectMember(project, newMember);
         }
@@ -143,16 +143,13 @@ public class ProjectService {
         Project project = getProject(projectId);
         Member removeMember = getUser(projectMemberRemoveRequestDto.getRemoveMemberId());
         isAdminOrPL(admin);
+        isMemberOfProject(admin, project);
 
         if(admin.getRole().equals(Role.ADMIN)){
             removeProjectMember(project, removeMember);
         }else{
             if (removeMember.getRole().equals(Role.PL)) {
                 throw new BadRequestException(INVALID_REQUEST_ROLE, "프로젝트 리더는 프로젝트 리더를 삭제할 수 없습니다.");
-            }
-            boolean isMemberOfProject = projectMemberRepository.existsByMemberIdAndProjectIdAndIsDeletedFalse(admin.getId(), project.getId());
-            if (!isMemberOfProject) {
-                throw new BadRequestException(ROW_DOES_NOT_EXIST, "해당 프로젝트의 멤버가 아니기 때문에 권한이 없습니다.");
             }
             removeProjectMember(project, removeMember);
         }
@@ -167,7 +164,6 @@ public class ProjectService {
             throw new BadRequestException(INVALID_REQUEST_ROLE, "관리자가 아닙니다.");
         }
         project.setIsDeleted(true);
-
         List<ProjectMember> projectMembers = projectMemberRepository.findByProjectIdAndIsDeletedFalse(projectId);
         projectMembers.forEach(pm -> pm.setIsDeleted(true));
 
@@ -238,10 +234,18 @@ public class ProjectService {
                 .id(project.getId())
                 .name(project.getName())
                 .members(memberResponseDtos)
+                .leaderId(project.getLeaderId())
                 .issues(tempIssues)
                 .build();
     }
 
+
+    private void isMemberOfProject(Member member, Project project) {
+        if(!member.getRole().equals(Role.ADMIN)){
+            projectMemberRepository.findByMemberIdAndProjectIdAndIsDeletedFalse(member.getId(), project.getId())
+                    .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "해당 프로젝트의 멤버가 아닙니다."));
+        }
+    }
 
 
 

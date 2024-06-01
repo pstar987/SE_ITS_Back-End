@@ -13,4 +13,5 @@ public class ProjectResponseDto {
     private String name;
     private List<MemberResponseDto> members;
     private List<Long> issues;
+    private Long leaderId;
 }
