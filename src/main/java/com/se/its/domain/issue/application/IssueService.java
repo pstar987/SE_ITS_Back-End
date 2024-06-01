@@ -141,8 +141,8 @@ public class IssueService {
     }
 
     @Transactional(readOnly = true)
-    public List<IssueResponseDto> getRemoveRequestIssues(Long adminId) {
-        Member admin = getUser(adminId);
+    public List<IssueResponseDto> getRemoveRequestIssues(Long signId) {
+        Member admin = getUser(signId);
 
         if (!admin.getRole().equals(Role.ADMIN)) {
             throw new BadRequestException(INVALID_REQUEST_ROLE, "관리자만 삭제 요청 이슈를 조회할 수 있습니다.");
@@ -151,6 +151,24 @@ public class IssueService {
         return issueRepository.findByStatusAndIsDeletedFalse(Status.DELETE_REQUEST).stream()
                 .map(this::createIssueResponseDto)
                 .toList();
+    }
+
+    @Transactional
+    public IssueResponseDto removeIssue(Long signId, IssueDeleteRequestDto issueDeleteRequestDto){
+        Member admin = getUser(signId);
+        Issue issue = getIssue(issueDeleteRequestDto.getIssueId());
+
+        if(!admin.getRole().equals(Role.ADMIN)){
+            throw new BadRequestException(INVALID_REQUEST_ROLE, "관리자만 이슈를 삭제할 수 있습니다.");
+        }
+        if (!issue.getStatus().equals(Status.DELETE_REQUEST)) {
+            throw new BadRequestException(INVALID_REQUEST_ROLE, "삭제 요청된 이슈만 삭제할 수 있습니다.");
+        }
+
+        issue.setIsDeleted(true);
+
+        return createIssueResponseDto(issue);
+
     }
 
 

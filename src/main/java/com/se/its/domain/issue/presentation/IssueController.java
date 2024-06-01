@@ -67,4 +67,14 @@ public class IssueController {
     ) {
         return ResponseEntity.ok(issueService.getRemoveRequestIssues(id));
     }
+
+    @PutMapping("/deleteRequest/delete")
+    public ResponseEntity<IssueResponseDto> remove(
+            @Valid @RequestHeader Long id,
+            @Valid @RequestBody IssueDeleteRequestDto issueDeleteRequestDto
+    ) {
+
+        return ResponseEntity.ok(issueService.removeIssue(id ,issueDeleteRequestDto));
+    }
+
 }
