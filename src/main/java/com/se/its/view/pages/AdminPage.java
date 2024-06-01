@@ -1,8 +1,7 @@
 package com.se.its.view.pages;
 
-import com.se.its.domain.member.application.MemberService;
 import com.se.its.domain.member.presentation.SwingMemberController;
-import java.awt.Color;
+import com.se.its.domain.project.presentation.SwingProjectController;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -27,10 +26,13 @@ public class AdminPage extends JFrame {
     private JButton projectManageBtn;
     private JButton projectDeleteBtn;
     private SwingMemberController swingMemberController;
+    private SwingProjectController swingProjectController;
     private final Long userId;
 
-    public AdminPage(SwingMemberController swingMemberController, Long userId) {
-        this.swingMemberController= swingMemberController;
+    public AdminPage(SwingMemberController swingMemberController, SwingProjectController swingProjectController,
+                     Long userId) {
+        this.swingMemberController = swingMemberController;
+        this.swingProjectController = swingProjectController;
         this.userId = userId;
 
         initComponents();
@@ -130,16 +132,24 @@ public class AdminPage extends JFrame {
         projectCreateBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new ProjectCreationPage().setVisible(true);
+                new ProjectCreationPage(swingMemberController, swingProjectController, userId).setVisible(true);
             }
         });
 
         projectManageBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new ProjectMangePage().setVisible(true);
+                new ProjectMangePage(swingMemberController, swingProjectController, userId).setVisible(true);
             }
         });
+
+        projectDeleteBtn.addActionListener(new ActionListener() {
+                                               @Override
+                                               public void actionPerformed(ActionEvent e) {
+                                                   new ProjectDeletePage(swingProjectController, userId).setVisible(true);
+                                               }
+                                           }
+        );
 
         add(accountPanel);
         add(projectPanel);
