@@ -5,6 +5,7 @@ import com.se.its.domain.issue.application.IssueService;
 import com.se.its.domain.issue.dto.request.IssueAssignRequestDto;
 import com.se.its.domain.issue.dto.request.IssueCreateRequestDto;
 import com.se.its.domain.issue.dto.request.IssueDeleteRequestDto;
+import com.se.its.domain.issue.dto.request.IssueUpdateRequestDto;
 import com.se.its.domain.issue.dto.response.IssueResponseDto;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -73,8 +74,15 @@ public class IssueController {
             @Valid @RequestHeader Long id,
             @Valid @RequestBody IssueDeleteRequestDto issueDeleteRequestDto
     ) {
-
         return ResponseEntity.ok(issueService.removeIssue(id ,issueDeleteRequestDto));
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<IssueResponseDto> update(
+            @Valid @RequestHeader Long id,
+            @Valid @RequestBody IssueUpdateRequestDto issueUpdateRequestDto
+    ) {
+        return ResponseEntity.ok(issueService.updateIssue(id ,issueUpdateRequestDto));
     }
 
 }

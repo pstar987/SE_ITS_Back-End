@@ -8,6 +8,7 @@ import com.se.its.domain.issue.domain.repository.IssueRepository;
 import com.se.its.domain.issue.dto.request.IssueAssignRequestDto;
 import com.se.its.domain.issue.dto.request.IssueCreateRequestDto;
 import com.se.its.domain.issue.dto.request.IssueDeleteRequestDto;
+import com.se.its.domain.issue.dto.request.IssueUpdateRequestDto;
 import com.se.its.domain.issue.dto.response.IssueResponseDto;
 import com.se.its.domain.member.domain.Member;
 import com.se.its.domain.member.domain.Role;
@@ -118,9 +119,8 @@ public class IssueService {
 
         issue.setAssignee(assignee);
         issue.setStatus(Status.ASSIGNED); // 상태를 ASSIGNED로 변경
-        Issue savedIssue = issueRepository.save(issue);
-
-        return createIssueResponseDto(savedIssue);
+        issueRepository.save(issue);
+        return createIssueResponseDto(issue);
     }
 
     @Transactional
@@ -147,7 +147,6 @@ public class IssueService {
         if (!admin.getRole().equals(Role.ADMIN)) {
             throw new BadRequestException(INVALID_REQUEST_ROLE, "관리자만 삭제 요청 이슈를 조회할 수 있습니다.");
         }
-
         return issueRepository.findByStatusAndIsDeletedFalse(Status.DELETE_REQUEST).stream()
                 .map(this::createIssueResponseDto)
                 .toList();
@@ -166,9 +165,27 @@ public class IssueService {
         }
 
         issue.setIsDeleted(true);
-
+        issueRepository.save(issue);
         return createIssueResponseDto(issue);
 
+    }
+
+    @Transactional
+    public IssueResponseDto updateIssue(Long signId, IssueUpdateRequestDto issueUpdateRequestDto){
+        Member tester = getUser(signId);
+        Issue issue = getIssue(issueUpdateRequestDto.getIssueId());
+
+
+        if (!issue.getReporter().getId().equals(tester.getId())) {
+            throw new BadRequestException(INVALID_REQUEST_ROLE, "본인이 생성한 이슈만 수정할 수 있습니다.");
+        }
+        if (!tester.getRole().equals(Role.TESTER)) {
+            throw new BadRequestException(INVALID_REQUEST_ROLE, "TESTER만 이슈를 수정할 수 있습니다.");
+        }
+
+        issue.setDescription(issueUpdateRequestDto.getDescription());
+        issueRepository.save(issue);
+        return createIssueResponseDto(issue);
     }
 
 

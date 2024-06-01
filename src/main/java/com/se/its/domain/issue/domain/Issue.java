@@ -54,4 +54,6 @@ public class Issue extends BaseEntity {
 
     public void setAssignee(Member assignee) { this.assignee = assignee; }
     public void setStatus(Status status) { this.status = status; }
+
+    public void setDescription(String description) { this.description = description;}
 }
