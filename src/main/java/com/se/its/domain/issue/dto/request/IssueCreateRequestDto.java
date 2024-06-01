@@ -18,4 +18,6 @@ public class IssueCreateRequestDto {
     private Long projectId;
 
 
+    private String category;
+
 }

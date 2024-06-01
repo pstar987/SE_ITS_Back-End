@@ -48,12 +48,31 @@ public class Issue extends BaseEntity {
     @Column(nullable = false)
     private Boolean isDeleted;
 
-    public void setIsDeleted(Boolean isDeleted){
-        this.isDeleted = isDeleted;
+    private String category;
+
+
+    public void setIsDeleted(Boolean isDeleted) {
+        if (isDeleted != null) this.isDeleted = isDeleted;
+
     }
 
-    public void setAssignee(Member assignee) { this.assignee = assignee; }
-    public void setStatus(Status status) { this.status = status; }
+    public void setAssignee(Member assignee) {
+        if (assignee != null) this.assignee = assignee;
 
-    public void setDescription(String description) { this.description = description;}
+    }
+
+    public void setStatus(Status status) {
+        if (status != null) this.status = status;
+
+    }
+
+    public void setDescription(String description) {
+        if (description != null && !description.trim().isEmpty()) this.description = description;
+
+    }
+
+    public void setCategory(String category) {
+        if (category != null && !category.trim().isEmpty()) this.category = category;
+
+    }
 }

@@ -48,10 +48,10 @@ public class Member extends BaseEntity {
     private List<Issue> assignedIssues;
 
     public void setIsDeleted(Boolean isDeleted) {
-        this.isDeleted = isDeleted;
+        if(isDeleted != null) this.isDeleted = isDeleted;
     }
 
     public void updateRole(Role role){
-        this.role = role;
+        if(role != null) this.role = role;
     }
 }

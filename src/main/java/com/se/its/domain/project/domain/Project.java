@@ -34,10 +34,10 @@ public class Project {
     private List<Issue> Issues;
 
     public void setIsDeleted(Boolean isDeleted){
-        this.isDeleted = isDeleted;
+        if(isDeleted != null) this.isDeleted = isDeleted;
     }
 
     public void setLeaderId(Long leaderId){
-        this.leaderId = leaderId;
+        if(leaderId != null) this.leaderId = leaderId;
     }
 }

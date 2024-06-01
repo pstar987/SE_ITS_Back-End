@@ -12,9 +12,10 @@ public class IssueUpdateRequestDto {
     @NotNull(message = "이슈 ID를 입력해주세요.")
     private Long issueId;
 
-    @NotBlank(message = "업데이트할 설명을 입력해주세요.")
     private String description;
 
     @NotNull(message = "상태를 입력해주세요.")
     private Status status;
+
+    private String category;
 }

@@ -52,6 +52,7 @@ public class IssueService {
                 .isDeleted(false)
                 .priority(Priority.MINOR) // 기본 값 설정
                 .status(Status.NEW) // 기본 값 설정
+                .category(issueCreateRequestDto.getCategory())
                 .build();
 
         Issue savedIssue = issueRepository.save(issue);
@@ -167,7 +168,6 @@ public class IssueService {
         issue.setIsDeleted(true);
         issueRepository.save(issue);
         return createIssueResponseDto(issue);
-
     }
 
     @Transactional
@@ -185,10 +185,12 @@ public class IssueService {
 
         issue.setDescription(issueUpdateRequestDto.getDescription());
         issue.setStatus(issueUpdateRequestDto.getStatus());
+        issue.setCategory(issueUpdateRequestDto.getCategory());
         issueRepository.save(issue);
         return createIssueResponseDto(issue);
     }
 
+    @Transactional
     public IssueResponseDto reassignIssue(Long signId, IssueAssignRequestDto issueAssignRequestDto){
         Member assigner = getUser(signId);
         Member assignee = getUser(issueAssignRequestDto.getAssigneeId());
@@ -211,7 +213,6 @@ public class IssueService {
         return createIssueResponseDto(issue);
     }
 
-
     private void isMemberOfProject(Member member, Project project) {
         if(!member.getRole().equals(Role.ADMIN)){
             projectMemberRepository.findByMemberIdAndProjectIdAndIsDeletedFalse(member.getId(), project.getId())
@@ -225,6 +226,7 @@ public class IssueService {
                 .title(issue.getTitle())
                 .description(issue.getDescription())
                 .priority(issue.getPriority())
+                .category(issue.getCategory())
                 .status(issue.getStatus())
                 .reporter(createMemberResponseDto(issue.getReporter()))
                 .reportedDate(issue.getCreatedAt())
