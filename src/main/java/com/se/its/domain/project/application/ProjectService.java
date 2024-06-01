@@ -119,14 +119,15 @@ public class ProjectService {
         isAdminOrPL(admin);
         isMemberOfProject(admin, project);
 
-        if (projectMemberRepository.existsByProjectIdAndMemberRole(projectId, Role.PL)) {
-            if (newMember.getRole().equals(Role.PL)) {
-                throw new BadRequestException(INVALID_REQUEST_ROLE, "대상 프로젝트에 이미 PL이 존재합니다.");
-            }
+        if (project.getLeaderId() != null && newMember.getRole().equals(Role.PL)) {
+            throw new BadRequestException(ROW_ALREADY_EXIST, "대상 프로젝트에 이미 PL이 존재합니다.");
         }
 
         if(admin.getRole().equals(Role.ADMIN)){
             addProjectMember(project, newMember);
+            if(newMember.getRole().equals(Role.PL)){
+                project.setLeaderId(newMember.getId());
+            }
         }else{
             if (newMember.getRole().equals(Role.PL)) {
                 throw new BadRequestException(INVALID_REQUEST_ROLE, "프로젝트 리더는 다른 프로젝트 리더를 추가할 수 없습니다.");
@@ -134,7 +135,6 @@ public class ProjectService {
             addProjectMember(project, newMember);
         }
         return createProjectResponseDto(project);
-
     }
 
     @Transactional
@@ -147,6 +147,9 @@ public class ProjectService {
 
         if(admin.getRole().equals(Role.ADMIN)){
             removeProjectMember(project, removeMember);
+            if(removeMember.getRole().equals(Role.PL)){
+                project.setLeaderId(null);
+            }
         }else{
             if (removeMember.getRole().equals(Role.PL)) {
                 throw new BadRequestException(INVALID_REQUEST_ROLE, "프로젝트 리더는 프로젝트 리더를 삭제할 수 없습니다.");
@@ -203,6 +206,7 @@ public class ProjectService {
         ProjectMember projectMember = ProjectMember.builder()
                 .project(project)
                 .member(newMember)
+                .isDeleted(false)
                 .build();
         projectMemberRepository.save(projectMember);
     }
