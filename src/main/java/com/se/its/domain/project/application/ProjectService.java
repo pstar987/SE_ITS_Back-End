@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -231,10 +232,13 @@ public class ProjectService {
                         .build())
                 .collect(Collectors.toList());
 
+        List<Long> tempIssues = Collections.emptyList();
+
         return ProjectResponseDto.builder()
                 .id(project.getId())
                 .name(project.getName())
                 .members(memberResponseDtos)
+                .issues(tempIssues)
                 .build();
     }
 
