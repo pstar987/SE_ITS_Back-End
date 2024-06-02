@@ -25,6 +25,7 @@ public enum ErrorCode {
     INVALID_FILE_EXTENSION(4015),
     INVALID_EXPIRE_DATE(4016),
     INVALID_REQUEST_STATUS(4017),
+    MODEL_API_CALL_FAILED(4018),
 
     /**
      * 401 Unauthorized

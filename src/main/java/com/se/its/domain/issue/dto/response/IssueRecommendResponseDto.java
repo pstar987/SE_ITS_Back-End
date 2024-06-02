@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class IssueRecommendResponseDto {
     private Long issue_id;
-    private Double score;
+    private Long score;
 }

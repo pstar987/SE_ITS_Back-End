@@ -58,11 +58,26 @@ public class IssueService {
         );
 
         if (response == null) {
-            throw new BadRequestException(INVALID_REQUEST_ROLE, "이슈 추천 요청에 실패했습니다.");
+            throw new BadRequestException(MODEL_API_CALL_FAILED, "이슈 추천에 실패하였습니다.");
         }
 
         return Arrays.asList(response);
     }
+
+    private void saveIssueToModel(Issue issue){
+        IssueRecommendRequestDto issueRecommendRequestDto = dtoConverter.createIssueRecommendRequestDto(issue);
+        IssueRecommendResponseDto[] response = restTemplate.postForObject(
+                flaskApiUrl,
+                issueRecommendRequestDto,
+                IssueRecommendResponseDto[].class
+        );
+
+        if (response == null) {
+            throw new BadRequestException(MODEL_API_CALL_FAILED, "이슈 등록에 실패했습니다.");
+        }
+        System.out.println("response = " + response);
+    }
+
     @Transactional
     public IssueResponseDto createIssue(Long signId, IssueCreateRequestDto issueCreateRequestDto){
         Member reporter = entityValidator.validateMember(signId);
@@ -85,6 +100,7 @@ public class IssueService {
                 .build();
 
         Issue savedIssue = issueRepository.save(issue);
+        saveIssueToModel(savedIssue);
 
         return dtoConverter.createIssueResponseDto(savedIssue);
 
@@ -300,5 +316,6 @@ public class IssueService {
                 .map(dtoConverter::createIssueResponseDto)
                 .toList();
     }
+
 
 }
