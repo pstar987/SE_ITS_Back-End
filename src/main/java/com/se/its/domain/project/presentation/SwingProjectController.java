@@ -3,6 +3,7 @@ package com.se.its.domain.project.presentation;
 import com.se.its.domain.project.application.ProjectService;
 import com.se.its.domain.project.dto.request.ProjectCreateRequestDto;
 import com.se.its.domain.project.dto.request.ProjectMemberAddRequestDto;
+import com.se.its.domain.project.dto.request.ProjectMemberRemoveRequestDto;
 import com.se.its.domain.project.dto.response.ProjectResponseDto;
 import lombok.RequiredArgsConstructor;
 
@@ -39,5 +40,21 @@ public class SwingProjectController {
             ProjectMemberAddRequestDto projectMemberAddRequestDto
     ){
         return projectService.addMember(id, projectId, projectMemberAddRequestDto);
+    }
+
+    public ProjectResponseDto removeMember(
+            Long id,
+            Long projectId,
+            ProjectMemberRemoveRequestDto projectMemberRemoveRequestDto
+    ){
+        return projectService.removeMember(id, projectId, projectMemberRemoveRequestDto);
+    }
+
+    public String removeProject(
+            Long id,
+            Long projectId
+    ){
+        projectService.removeProject(id, projectId);
+        return "removed";
     }
 }
