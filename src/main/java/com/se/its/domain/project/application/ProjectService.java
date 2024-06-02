@@ -203,9 +203,11 @@ public class ProjectService {
             throw new BadRequestException(INVALID_REQUEST_ROLE, "관리자는 프로젝트에 할당되지 않습니다.");
         }
 
-        List<Issue> unresolvedIssues = issueRepository.findByAssigneeIdAndStatusNot(removeMember.getId(), Status.RESOLVED);
-        if (!unresolvedIssues.isEmpty()) {
-            throw new BadRequestException(INVALID_REQUEST_ROLE, "해당 사용자는 해결되지 않은 이슈에 할당되어 있어 삭제할 수 없습니다.");
+        if(removeMember.getRole().equals(Role.DEV)){
+            List<Issue> unresolvedIssues = issueRepository.findByAssigneeIdAndStatusNot(removeMember.getId(), Status.RESOLVED);
+            if (!unresolvedIssues.isEmpty()) {
+                throw new BadRequestException(INVALID_REQUEST_ROLE, "해당 사용자는 해결되지 않은 이슈에 할당되어 있어 역할을 변경할 수 없습니다.");
+            }
         }
 
         ProjectMember projectMember = projectMemberRepository.findByProjectIdAndMemberIdAndIsDeletedFalse(project.getId(), removeMember.getId())
