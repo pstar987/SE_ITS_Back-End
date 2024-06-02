@@ -1,5 +1,8 @@
 package com.se.its.domain.member.application;
 
+import com.se.its.domain.issue.domain.Issue;
+import com.se.its.domain.issue.domain.Status;
+import com.se.its.domain.issue.domain.repository.IssueRepository;
 import com.se.its.domain.member.domain.Member;
 import com.se.its.domain.member.domain.Role;
 import com.se.its.domain.member.domain.respository.MemberRepository;
@@ -26,6 +29,7 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final ProjectMemberRepository projectMemberRepository;
+    private final IssueRepository issueRepository;
     private final DtoConverter dtoConverter;
     private final EntityValidator entityValidator;
 
@@ -155,6 +159,10 @@ public class MemberService {
             throw  new BadRequestException(INVALID_REQUEST_ROLE, "관리자가 아닙니다.");
         }
 
+        List<Issue> unresolvedIssues = issueRepository.findByAssigneeIdAndStatusNot(target.getId(), Status.RESOLVED);
+        if (!unresolvedIssues.isEmpty()) {
+            throw new BadRequestException(INVALID_REQUEST_ROLE, "해당 사용자는 해결되지 않은 이슈에 할당되어 있어 삭제할 수 없습니다.");
+        }
         target.setIsDeleted(true);
         memberRepository.save(target);
 

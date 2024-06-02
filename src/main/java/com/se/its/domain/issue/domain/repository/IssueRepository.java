@@ -31,4 +31,6 @@ public interface IssueRepository extends JpaRepository<Issue, Long> {
     List<Issue> findByAssigneeIdAndProjectIdAndIsDeletedFalse(Long assigneeId, Long projectId);
 
     List<Issue> findByReporterIdAndProjectIdAndIsDeletedFalse(Long reporterId, Long projectId);
+
+    List<Issue> findByAssigneeIdAndStatusNot(Long assigneeId, Status status);
 }
