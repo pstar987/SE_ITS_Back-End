@@ -18,7 +18,6 @@ import com.se.its.global.error.exceptions.BadRequestException;
 import com.se.its.global.util.dto.DtoConverter;
 import com.se.its.global.util.validator.EntityValidator;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -36,8 +35,7 @@ public class IssueService {
     private final EntityValidator entityValidator;
     private final CommentService commentService;
 
-    @Value("${spring.flask.api.url}")
-    private String flaskApiUrl;
+    private final String flaskApiUrl = "http://3.34.107.220:5000/api/v1/issue/issue_recommend";
 
 
     private final RestTemplate restTemplate = new RestTemplate();
