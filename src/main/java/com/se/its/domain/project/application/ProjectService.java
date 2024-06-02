@@ -5,7 +5,6 @@ import com.se.its.domain.issue.domain.Issue;
 import com.se.its.domain.issue.domain.repository.IssueRepository;
 import com.se.its.domain.member.domain.Member;
 import com.se.its.domain.member.domain.Role;
-import com.se.its.domain.member.domain.respository.MemberRepository;
 import com.se.its.domain.project.domain.Project;
 import com.se.its.domain.project.domain.ProjectMember;
 import com.se.its.domain.project.domain.repository.ProjectMemberRepository;
@@ -127,6 +126,7 @@ public class ProjectService {
             addProjectMember(project, newMember);
             if(newMember.getRole().equals(Role.PL)){
                 project.setLeaderId(newMember.getId());
+                projectRepository.save(project);
             }
         }else if(admin.getRole().equals(Role.PL)) {
             if (newMember.getRole().equals(Role.PL)) {
@@ -166,10 +166,13 @@ public class ProjectService {
             throw new BadRequestException(INVALID_REQUEST_ROLE, "관리자가 아닙니다.");
         }
         project.setIsDeleted(true);
+        projectRepository.save(project);
         List<ProjectMember> projectMembers = projectMemberRepository.findByProjectIdAndIsDeletedFalse(projectId);
         List<Issue> issues = issueRepository.findByProjectIdAndIsDeletedFalse(projectId);
         projectMembers.forEach(pm -> pm.setIsDeleted(true));
         issues.forEach(issue -> issue.setIsDeleted(true));
+        projectMemberRepository.saveAll(projectMembers);
+        issueRepository.saveAll(issues);
     }
 
 
@@ -202,6 +205,7 @@ public class ProjectService {
                 .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "해당 프로젝트의 멤버가 아닙니다."));
 
         projectMember.setIsDeleted(true);
+        projectMemberRepository.save(projectMember);
     }
 
 
