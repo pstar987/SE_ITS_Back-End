@@ -17,6 +17,7 @@ import com.se.its.global.error.exceptions.BadRequestException;
 import com.se.its.global.util.dto.DtoConverter;
 import com.se.its.global.util.validator.EntityValidator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +32,9 @@ public class IssueService {
     private final DtoConverter dtoConverter;
     private final EntityValidator entityValidator;
     private final CommentService commentService;
+
+    @Value("${spring.flask.api.url}")
+    private String flaskApiUrl;
 
     @Transactional
     public IssueResponseDto createIssue(Long signId, IssueCreateRequestDto issueCreateRequestDto){

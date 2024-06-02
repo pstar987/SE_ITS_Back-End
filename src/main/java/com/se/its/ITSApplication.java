@@ -3,6 +3,7 @@ package com.se.its;
 import com.se.its.domain.member.application.MemberService;
 import com.se.its.domain.member.domain.respository.MemberRepository;
 import com.se.its.domain.member.presentation.SwingMemberController;
+import com.se.its.domain.project.domain.repository.ProjectMemberRepository;
 import com.se.its.global.util.dto.DtoConverter;
 import com.se.its.global.util.validator.EntityValidator;
 import com.se.its.view.pages.LoginPage;
@@ -22,9 +23,10 @@ public class ITSApplication {
         ConfigurableApplicationContext context = SpringApplication.run(ITSApplication.class, args);
         //SpringApplication.run(ITSApplication.class, args);
         MemberRepository memberRepository = context.getBean(MemberRepository.class);
+        ProjectMemberRepository projectMemberRepository = context.getBean(ProjectMemberRepository.class);
         DtoConverter dtoConverter = context.getBean(DtoConverter.class);
         EntityValidator entityValidator = context.getBean(EntityValidator.class);
-        MemberService memberService = new MemberService(memberRepository, dtoConverter,entityValidator);
+        MemberService memberService = new MemberService(memberRepository, projectMemberRepository, dtoConverter,entityValidator);
         SwingMemberController swingMemberController = new SwingMemberController(memberService);
 
         SwingUtilities.invokeLater(() -> {
