@@ -154,22 +154,13 @@ public class LoginPage extends JFrame {
         }
     }
 
-
-    public String getUserId() {
-        return idTextField.getText();
-    }
-
-    public String getPassword() {
-        return pwTextField.getText();
-    }
-
-    public void setSignInAction(ActionListener actionListener) {
+    private void setSignInAction(ActionListener actionListener) {
         signInBtn.addActionListener(actionListener);
         idTextField.addActionListener(actionListener);
         pwTextField.addActionListener(actionListener);
     }
 
-    public void showError(String message) {
+    private void showError(String message) {
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
