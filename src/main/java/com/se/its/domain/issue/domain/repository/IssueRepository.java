@@ -28,4 +28,7 @@ public interface IssueRepository extends JpaRepository<Issue, Long> {
     @Query("SELECT i FROM Issue i WHERE i.isDeleted = false AND (i.assignee.name LIKE %?1% OR i.assignee.signId LIKE %?1%)")
     List<Issue> findByAssigneeNameOrSignIdAndIsDeletedFalse(String keyword);
 
+    List<Issue> findByAssigneeIdAndProjectIdAndIsDeletedFalse(Long assigneeId, Long projectId);
+
+    List<Issue> findByReporterIdAndProjectIdAndIsDeletedFalse(Long reporterId, Long projectId);
 }

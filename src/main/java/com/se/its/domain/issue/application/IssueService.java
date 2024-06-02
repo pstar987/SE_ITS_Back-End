@@ -9,6 +9,7 @@ import com.se.its.domain.issue.domain.Priority;
 import com.se.its.domain.issue.domain.Status;
 import com.se.its.domain.issue.domain.repository.IssueRepository;
 import com.se.its.domain.issue.dto.request.*;
+import com.se.its.domain.issue.dto.response.IssueRecommendResponseDto;
 import com.se.its.domain.issue.dto.response.IssueResponseDto;
 import com.se.its.domain.member.domain.Member;
 import com.se.its.domain.member.domain.Role;
@@ -20,7 +21,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static com.se.its.global.error.ErrorCode.*;
@@ -35,6 +38,44 @@ public class IssueService {
 
     @Value("${spring.flask.api.url}")
     private String flaskApiUrl;
+
+
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    @Transactional
+    public List<IssueRecommendResponseDto> recommendIssues(Long signId, Long issueId) {
+        Member member = entityValidator.validateMember(signId);
+        Issue issue = entityValidator.validateIssue(issueId);
+        Project project = entityValidator.validateProject(issue.getProject().getId());
+        entityValidator.isMemberOfProject(member, project);
+
+        IssueRecommendRequestDto issueRecommendRequestDto = dtoConverter.createIssueRecommendRequestDto(issue);
+
+        IssueRecommendResponseDto[] response = restTemplate.postForObject(
+                flaskApiUrl,
+                issueRecommendRequestDto,
+                IssueRecommendResponseDto[].class
+        );
+
+        if (response == null) {
+            throw new BadRequestException(MODEL_API_CALL_FAILED, "이슈 추천에 실패하였습니다.");
+        }
+
+        return Arrays.asList(response);
+    }
+
+    private void saveIssueToModel(Issue issue){
+        IssueRecommendRequestDto issueRecommendRequestDto = dtoConverter.createIssueRecommendRequestDto(issue);
+        IssueRecommendResponseDto[] response = restTemplate.postForObject(
+                flaskApiUrl,
+                issueRecommendRequestDto,
+                IssueRecommendResponseDto[].class
+        );
+
+        if (response == null) {
+            throw new BadRequestException(MODEL_API_CALL_FAILED, "이슈 등록에 실패했습니다.");
+        }
+    }
 
     @Transactional
     public IssueResponseDto createIssue(Long signId, IssueCreateRequestDto issueCreateRequestDto){
@@ -58,6 +99,7 @@ public class IssueService {
                 .build();
 
         Issue savedIssue = issueRepository.save(issue);
+        saveIssueToModel(savedIssue);
 
         return dtoConverter.createIssueResponseDto(savedIssue);
 
@@ -95,6 +137,36 @@ public class IssueService {
             throw new BadRequestException(ROW_DOES_NOT_EXIST, "관리자만 모든 이슈를 조회할 수 있습니다.");
         }
         return issueRepository.findAllByIsDeletedFalse().stream()
+                .map(dtoConverter::createIssueResponseDto).toList();
+    }
+
+
+    //dev가 본인에게 할당된 이슈만 확인할 수 있게
+    @Transactional(readOnly = true)
+    public List<IssueResponseDto> getDevIssues(Long signId, Long projectId) {
+        Member developer = entityValidator.validateMember(signId);
+        Project project = entityValidator.validateProject(projectId);
+        entityValidator.isMemberOfProject(developer, project);
+
+        if (!developer.getRole().equals(Role.DEV)) {
+            throw new BadRequestException(ROW_DOES_NOT_EXIST, "개발자만 본인에게 할당된 이슈를 확인할 수 있습니다.");
+        }
+        return issueRepository.findByAssigneeIdAndProjectIdAndIsDeletedFalse(developer.getId(), project.getId()).stream()
+                .map(dtoConverter::createIssueResponseDto).toList();
+    }
+
+    //tester가 본인이 생성한 이슈만 확인할 수 있게
+    @Transactional(readOnly = true)
+    public List<IssueResponseDto> getTesterIssues(Long signId, Long projectId) {
+        Member tester = entityValidator.validateMember(signId);
+        Project project = entityValidator.validateProject(projectId);
+        entityValidator.isMemberOfProject(tester, project);
+
+        if (!tester.getRole().equals(Role.TESTER)) {
+            throw new BadRequestException(ROW_DOES_NOT_EXIST, "테스터만 본인이 생성한 이슈를 조회할 수 있습니다.");
+        }
+
+        return issueRepository.findByReporterIdAndProjectIdAndIsDeletedFalse(tester.getId(), project.getId()).stream()
                 .map(dtoConverter::createIssueResponseDto).toList();
     }
 
@@ -262,5 +334,6 @@ public class IssueService {
                 .map(dtoConverter::createIssueResponseDto)
                 .toList();
     }
+
 
 }

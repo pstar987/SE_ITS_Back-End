@@ -4,6 +4,7 @@ package com.se.its.domain.issue.presentation;
 import com.se.its.domain.issue.application.IssueService;
 import com.se.its.domain.issue.domain.IssueCategory;
 import com.se.its.domain.issue.dto.request.*;
+import com.se.its.domain.issue.dto.response.IssueRecommendResponseDto;
 import com.se.its.domain.issue.dto.response.IssueResponseDto;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -43,6 +44,21 @@ public class IssueController {
             @PathVariable Long projectId
     ) {
         return ResponseEntity.ok(issueService.getIssues(id ,projectId));
+    }
+    @GetMapping("/{projectId}/dev")
+    public ResponseEntity<List<IssueResponseDto>> getDevIssues(
+            @Valid @RequestHeader Long id,
+            @PathVariable Long projectId
+    ) {
+        return ResponseEntity.ok(issueService.getDevIssues(id ,projectId));
+    }
+
+    @GetMapping("/{projectId}/tester")
+    public ResponseEntity<List<IssueResponseDto>> getTesterIssues(
+            @Valid @RequestHeader Long id,
+            @PathVariable Long projectId
+    ) {
+        return ResponseEntity.ok(issueService.getTesterIssues(id ,projectId));
     }
 
     @GetMapping("/all")
@@ -107,5 +123,14 @@ public class IssueController {
             @RequestParam String keyword
     ) {
         return ResponseEntity.ok(issueService.searchIssues(id, category, projectId, keyword));
+    }
+
+    @GetMapping("/issueRecommend")
+    public ResponseEntity<List<IssueRecommendResponseDto>> recommendIssues(
+            @Valid @RequestHeader Long id,
+            @RequestParam Long issueId
+    ) {
+        List<IssueRecommendResponseDto> recommendedIssues = issueService.recommendIssues(id, issueId);
+        return ResponseEntity.ok(recommendedIssues);
     }
 }

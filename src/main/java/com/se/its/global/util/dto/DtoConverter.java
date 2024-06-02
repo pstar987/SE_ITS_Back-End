@@ -5,6 +5,7 @@ import com.se.its.domain.comment.domain.repository.CommentRepository;
 import com.se.its.domain.comment.dto.request.CommentCreateRequestDto;
 import com.se.its.domain.comment.dto.response.CommentResponseDto;
 import com.se.its.domain.issue.domain.Issue;
+import com.se.its.domain.issue.dto.request.IssueRecommendRequestDto;
 import com.se.its.domain.issue.dto.response.IssueResponseDto;
 import com.se.its.domain.member.domain.Member;
 import com.se.its.domain.member.dto.response.MemberResponseDto;
@@ -92,4 +93,16 @@ public class DtoConverter {
                 .content(content)
                 .build();
     }
+
+    @Transactional
+    public IssueRecommendRequestDto createIssueRecommendRequestDto(Issue issue){
+        return IssueRecommendRequestDto.builder()
+                .issue_id(issue.getId())
+                .title(issue.getTitle())
+                .description(issue.getDescription())
+                .category(issue.getCategory())
+                .priority(issue.getPriority().name())
+                .build();
+    }
+
 }
