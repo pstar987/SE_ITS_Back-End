@@ -1,5 +1,6 @@
 package com.se.its.view.pages;
 
+import com.se.its.domain.comment.presentation.SwingCommentController;
 import com.se.its.domain.issue.presentation.SwingIssueController;
 import com.se.its.domain.member.dto.request.MemberSignInRequestDto;
 import com.se.its.domain.member.dto.response.MemberResponseDto;
@@ -21,15 +22,18 @@ public class LoginPage extends JFrame {
     private SwingMemberController swingMemberController;
     private SwingProjectController swingProjectController;
     private SwingIssueController swingIssueController;
+    private SwingCommentController swingCommentController;
     private JTextField idTextField;
     private JPasswordField pwTextField;
     private JButton signInBtn;
     private JPanel mainPanel;
 
-    public LoginPage(SwingMemberController swingMemberController, SwingProjectController swingProjectController, SwingIssueController swingIssueController) {
-        this.swingMemberController =swingMemberController;
+    public LoginPage(SwingMemberController swingMemberController, SwingProjectController swingProjectController,
+                     SwingIssueController swingIssueController, SwingCommentController swingCommentController) {
+        this.swingMemberController = swingMemberController;
         this.swingProjectController = swingProjectController;
         this.swingIssueController = swingIssueController;
+        this.swingCommentController = swingCommentController;
         //TODO 페이지 권한마다 달라진
         initComponents();
         ActionListener signInAction = new ActionListener() {
@@ -53,13 +57,18 @@ public class LoginPage extends JFrame {
                 MemberResponseDto responseDto = swingMemberController.signIn(requestDto);
                 if (responseDto != null) {
                     JOptionPane.showMessageDialog(signInBtn, "로그인 성공");
-                    if(responseDto.getRole().toString() == "ADMIN") {
-                        new AdminPage(swingMemberController, swingProjectController,swingIssueController,responseDto.getId());
-                    }
-                    else if(responseDto.getRole().toString() =="PL") {
-                        new PlPage(swingMemberController, swingProjectController, swingIssueController, responseDto.getId());
+                    if (responseDto.getRole().toString() == "ADMIN") {
+                        new AdminPage(swingMemberController, swingProjectController, swingIssueController,
+                                swingCommentController,
+                                responseDto.getId());
+                    } else if (responseDto.getRole().toString() == "PL") {
+                        new PlPage(swingMemberController, swingProjectController, swingIssueController,
+                                swingCommentController,
+                                responseDto.getId());
                     } else {
-                        new DevTesterPage(swingMemberController, swingProjectController, swingIssueController, responseDto.getId());
+                        new DevTesterPage(swingMemberController, swingProjectController, swingIssueController,
+                                swingCommentController,
+                                responseDto.getId());
                     }
                     dispose();
                 } else {
@@ -72,7 +81,6 @@ public class LoginPage extends JFrame {
 
         }
     }
-
 
 
     private void initComponents() {

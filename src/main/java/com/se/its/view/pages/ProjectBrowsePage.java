@@ -1,5 +1,6 @@
 package com.se.its.view.pages;
 
+import com.se.its.domain.comment.presentation.SwingCommentController;
 import com.se.its.domain.issue.presentation.SwingIssueController;
 import com.se.its.domain.member.presentation.SwingMemberController;
 import com.se.its.domain.project.dto.response.ProjectResponseDto;
@@ -19,17 +20,19 @@ public class ProjectBrowsePage extends JFrame {
     private SwingMemberController swingMemberController;
     private SwingProjectController swingProjectController;
     private SwingIssueController swingIssueController;
+    private SwingCommentController swingCommentController;
     private Long userId;
     private List<ProjectResponseDto> projectDtos;
     private JList<ProjectResponseDto> projectDtoJList;
 
 
     public ProjectBrowsePage(SwingMemberController swingMemberController, SwingProjectController swingProjectController,
-                             SwingIssueController swingIssueController,
+                             SwingIssueController swingIssueController, SwingCommentController swingCommentController,
                              Long userId) {
         this.swingMemberController = swingMemberController;
         this.swingProjectController = swingProjectController;
         this.swingIssueController = swingIssueController;
+        this.swingCommentController = swingCommentController;
         this.userId = userId;
 
         setTitle("프로젝트 조회");
@@ -84,7 +87,7 @@ public class ProjectBrowsePage extends JFrame {
                     int index = projectDtoJList.locationToIndex(e.getPoint());
                     ProjectResponseDto selectedProject = projectDtoJList.getModel().getElementAt(index);
                     new ProjectDetailPage(selectedProject, swingMemberController, swingProjectController,
-                            swingIssueController, userId).setVisible(true);
+                            swingIssueController, swingCommentController, userId).setVisible(true);
                 }
             }
         });

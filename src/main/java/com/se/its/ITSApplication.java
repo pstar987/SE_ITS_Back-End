@@ -2,6 +2,7 @@ package com.se.its;
 
 import com.se.its.domain.comment.application.CommentService;
 import com.se.its.domain.comment.domain.repository.CommentRepository;
+import com.se.its.domain.comment.presentation.SwingCommentController;
 import com.se.its.domain.issue.application.IssueService;
 import com.se.its.domain.issue.domain.repository.IssueRepository;
 import com.se.its.domain.issue.presentation.SwingIssueController;
@@ -48,9 +49,10 @@ public class ITSApplication {
         SwingMemberController swingMemberController = new SwingMemberController(memberService);
         SwingProjectController swingProjectController = new SwingProjectController(projectService);
         SwingIssueController swingIssueController = new SwingIssueController(issueService);
+        SwingCommentController swingCommentController = new SwingCommentController(commentService);
 
         SwingUtilities.invokeLater(() -> {
-            LoginPage loginPage = new LoginPage(swingMemberController, swingProjectController, swingIssueController);
+            LoginPage loginPage = new LoginPage(swingMemberController, swingProjectController, swingIssueController, swingCommentController);
             loginPage.setVisible(true);
         });
     }

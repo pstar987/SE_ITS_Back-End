@@ -1,5 +1,6 @@
 package com.se.its.view.pages;
 
+import com.se.its.domain.comment.presentation.SwingCommentController;
 import com.se.its.domain.issue.dto.response.IssueResponseDto;
 import com.se.its.domain.issue.presentation.SwingIssueController;
 import com.se.its.domain.member.dto.response.MemberResponseDto;
@@ -23,6 +24,7 @@ public class ProjectDetailPage extends JFrame {
     private SwingMemberController swingMemberController;
     private SwingProjectController swingProjectController;
     private SwingIssueController swingIssueController;
+    private SwingCommentController swingCommentController;
     private ProjectResponseDto currentProject;
     private final Long userId;
     private List<IssueResponseDto> issueDtos;
@@ -30,11 +32,13 @@ public class ProjectDetailPage extends JFrame {
 
     public ProjectDetailPage(ProjectResponseDto selectedProject, SwingMemberController swingMemberController,
                              SwingProjectController swingProjectController, SwingIssueController swingIssueController,
+                             SwingCommentController swingCommentController,
                              Long userId) {
         this.currentProject = selectedProject;
         this.swingMemberController = swingMemberController;
         this.swingProjectController = swingProjectController;
         this.swingIssueController = swingIssueController;
+        this.swingCommentController = swingCommentController;
         this.userId = userId;
 
         initComponents();
@@ -74,7 +78,7 @@ public class ProjectDetailPage extends JFrame {
                 if(e.getClickCount() == 2) {
                     int index = issueDtoJList.locationToIndex(e.getPoint());
                     IssueResponseDto selectedIssue = issueDtoJList.getModel().getElementAt(index);
-                    new IssuePage(swingMemberController, swingProjectController, swingIssueController, currentProject, selectedIssue, userId).setVisible(true);
+                    new IssuePage(swingMemberController, swingProjectController, swingIssueController,swingCommentController,currentProject,selectedIssue, userId).setVisible(true);
                 }
             }
         });

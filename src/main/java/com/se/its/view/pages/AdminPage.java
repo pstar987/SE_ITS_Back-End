@@ -1,5 +1,6 @@
 package com.se.its.view.pages;
 
+import com.se.its.domain.comment.presentation.SwingCommentController;
 import com.se.its.domain.issue.presentation.SwingIssueController;
 import com.se.its.domain.member.presentation.SwingMemberController;
 import com.se.its.domain.project.presentation.SwingProjectController;
@@ -31,13 +32,16 @@ public class AdminPage extends JFrame {
     private SwingMemberController swingMemberController;
     private SwingProjectController swingProjectController;
     private SwingIssueController swingIssueController;
+    private SwingCommentController swingCommentController;
     private final Long userId;
 
-    public AdminPage(SwingMemberController swingMemberController, SwingProjectController swingProjectController, SwingIssueController swingIssueController,
+    public AdminPage(SwingMemberController swingMemberController, SwingProjectController swingProjectController,
+                     SwingIssueController swingIssueController, SwingCommentController swingCommentController,
                      Long userId) {
         this.swingMemberController = swingMemberController;
         this.swingProjectController = swingProjectController;
         this.swingIssueController = swingIssueController;
+        this.swingCommentController = swingCommentController;
         this.userId = userId;
 
         initComponents();
@@ -136,7 +140,7 @@ public class AdminPage extends JFrame {
 
         projectGbc.gridy = 4;
         projectBrowseBtn = new JButton("프로젝트 조회");
-        projectPanel.add(projectBrowseBtn,projectGbc);
+        projectPanel.add(projectBrowseBtn, projectGbc);
 
         projectCreateBtn.addActionListener(new ActionListener() {
             @Override
@@ -160,7 +164,10 @@ public class AdminPage extends JFrame {
                                            }
         );
 
-        projectBrowseBtn.addActionListener(e -> new ProjectBrowsePage(swingMemberController,swingProjectController, swingIssueController, userId).setVisible(true));
+        projectBrowseBtn.addActionListener(
+                e -> new ProjectBrowsePage(swingMemberController, swingProjectController, swingIssueController,
+                        swingCommentController,
+                        userId).setVisible(true));
 
         add(accountPanel);
         add(projectPanel);

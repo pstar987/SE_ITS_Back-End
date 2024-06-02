@@ -1,5 +1,6 @@
 package com.se.its.view.pages;
 
+import com.se.its.domain.comment.presentation.SwingCommentController;
 import com.se.its.domain.issue.presentation.SwingIssueController;
 import com.se.its.domain.member.presentation.SwingMemberController;
 import com.se.its.domain.project.presentation.SwingProjectController;
@@ -15,13 +16,16 @@ public class DevTesterPage extends JFrame {
     private SwingMemberController swingMemberController;
     private SwingProjectController swingProjectController;
     private SwingIssueController swingIssueController;
+    private SwingCommentController swingCommentController;
     private final Long userId;
 
     public DevTesterPage(SwingMemberController swingMemberController, SwingProjectController swingProjectController,
-                         SwingIssueController swingIssueController, Long userId) {
+                         SwingIssueController swingIssueController, SwingCommentController swingCommentController,
+                         Long userId) {
         this.swingMemberController = swingMemberController;
         this.swingProjectController = swingProjectController;
         this.swingIssueController = swingIssueController;
+        this.swingCommentController = swingCommentController;
         this.userId = userId;
 
         initComponents(swingMemberController, swingProjectController, swingIssueController, userId);
@@ -57,7 +61,8 @@ public class DevTesterPage extends JFrame {
         add(projectBrowseBtn, gbc);
 
         projectBrowseBtn.addActionListener(
-                e -> new ProjectBrowsePage(swingMemberController,swingProjectController, swingIssueController, userId).setVisible(true)
+                e -> new ProjectBrowsePage(swingMemberController, swingProjectController, swingIssueController,
+                        swingCommentController, userId).setVisible(true)
         );
 
 
