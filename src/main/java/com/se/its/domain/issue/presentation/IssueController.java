@@ -45,6 +45,21 @@ public class IssueController {
     ) {
         return ResponseEntity.ok(issueService.getIssues(id ,projectId));
     }
+    @GetMapping("/{projectId}/dev")
+    public ResponseEntity<List<IssueResponseDto>> getDevIssues(
+            @Valid @RequestHeader Long id,
+            @PathVariable Long projectId
+    ) {
+        return ResponseEntity.ok(issueService.getDevIssues(id ,projectId));
+    }
+
+    @GetMapping("/{projectId}/tester")
+    public ResponseEntity<List<IssueResponseDto>> getTesterIssues(
+            @Valid @RequestHeader Long id,
+            @PathVariable Long projectId
+    ) {
+        return ResponseEntity.ok(issueService.getTesterIssues(id ,projectId));
+    }
 
     @GetMapping("/all")
     public ResponseEntity<List<IssueResponseDto>> getAllIssues(

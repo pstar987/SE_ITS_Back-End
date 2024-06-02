@@ -75,7 +75,6 @@ public class IssueService {
         if (response == null) {
             throw new BadRequestException(MODEL_API_CALL_FAILED, "이슈 등록에 실패했습니다.");
         }
-        System.out.println("response = " + response);
     }
 
     @Transactional
@@ -142,13 +141,32 @@ public class IssueService {
     }
 
 
+    //dev가 본인에게 할당된 이슈만 확인할 수 있게
     @Transactional(readOnly = true)
-    public List<IssueResponseDto> getDevIssues(Long signId) {
-        Member admin = entityValidator.validateMember(signId);
-        if (!admin.getRole().equals(Role.ADMIN)) {
-            throw new BadRequestException(ROW_DOES_NOT_EXIST, "관리자만 모든 이슈를 조회할 수 있습니다.");
+    public List<IssueResponseDto> getDevIssues(Long signId, Long projectId) {
+        Member developer = entityValidator.validateMember(signId);
+        Project project = entityValidator.validateProject(projectId);
+        entityValidator.isMemberOfProject(developer, project);
+
+        if (!developer.getRole().equals(Role.DEV)) {
+            throw new BadRequestException(ROW_DOES_NOT_EXIST, "개발자만 본인에게 할당된 이슈를 확인할 수 있습니다.");
         }
-        return issueRepository.findAllByIsDeletedFalse().stream()
+        return issueRepository.findByAssigneeIdAndProjectIdAndIsDeletedFalse(developer.getId(), project.getId()).stream()
+                .map(dtoConverter::createIssueResponseDto).toList();
+    }
+
+    //tester가 본인이 생성한 이슈만 확인할 수 있게
+    @Transactional(readOnly = true)
+    public List<IssueResponseDto> getTesterIssues(Long signId, Long projectId) {
+        Member tester = entityValidator.validateMember(signId);
+        Project project = entityValidator.validateProject(projectId);
+        entityValidator.isMemberOfProject(tester, project);
+
+        if (!tester.getRole().equals(Role.TESTER)) {
+            throw new BadRequestException(ROW_DOES_NOT_EXIST, "테스터만 본인이 생성한 이슈를 조회할 수 있습니다.");
+        }
+
+        return issueRepository.findByReporterIdAndProjectIdAndIsDeletedFalse(tester.getId(), project.getId()).stream()
                 .map(dtoConverter::createIssueResponseDto).toList();
     }
 
