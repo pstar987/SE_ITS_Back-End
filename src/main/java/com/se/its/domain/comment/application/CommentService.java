@@ -3,6 +3,7 @@ package com.se.its.domain.comment.application;
 import com.se.its.domain.comment.domain.Comment;
 import com.se.its.domain.comment.domain.repository.CommentRepository;
 import com.se.its.domain.comment.dto.request.CommentCreateRequestDto;
+import com.se.its.domain.comment.dto.request.CommentDeleteRequestDto;
 import com.se.its.domain.comment.dto.request.CommentUpdateRequestDto;
 import com.se.its.domain.comment.dto.response.CommentResponseDto;
 import com.se.its.domain.issue.domain.Issue;
@@ -64,6 +65,16 @@ public class CommentService {
         commentRepository.save(comment);
 
         return dtoConverter.createCommentResponseDto(comment);
+    }
+
+    @Transactional
+    public void removeComment(Long signId, CommentDeleteRequestDto commentDeleteRequestDto){
+        Member writer = entityValidator.validateMember(signId);
+        Comment comment = entityValidator.validateComment(commentDeleteRequestDto.getCommentId());
+        entityValidator.isWriterOfComment(writer, comment);
+
+        comment.setIsDeleted(true);
+        commentRepository.save(comment);
     }
 
 
