@@ -1,5 +1,7 @@
 package com.se.its;
 
+import com.se.its.domain.comment.application.CommentService;
+import com.se.its.domain.comment.domain.repository.CommentRepository;
 import com.se.its.domain.issue.application.IssueService;
 import com.se.its.domain.issue.domain.repository.IssueRepository;
 import com.se.its.domain.issue.presentation.SwingIssueController;
@@ -35,10 +37,13 @@ public class ITSApplication {
         ProjectRepository projectRepository = context.getBean(ProjectRepository.class);
         ProjectMemberRepository projectMemberRepository = context.getBean(ProjectMemberRepository.class);
         IssueRepository issueRepository = context.getBean(IssueRepository.class);
+        CommentRepository commentRepository = context.getBean(CommentRepository.class);
 
-        MemberService memberService = new MemberService(memberRepository, dtoConverter,entityValidator);
+
+        MemberService memberService = new MemberService(memberRepository,projectMemberRepository, dtoConverter,entityValidator);
         ProjectService projectService = new ProjectService(projectRepository, projectMemberRepository,issueRepository, dtoConverter, entityValidator);
-        IssueService issueService = new IssueService(issueRepository, dtoConverter, entityValidator);
+        CommentService commentService = new CommentService(commentRepository,dtoConverter, entityValidator);
+        IssueService issueService = new IssueService(issueRepository, dtoConverter, entityValidator, commentService);
 
         SwingMemberController swingMemberController = new SwingMemberController(memberService);
         SwingProjectController swingProjectController = new SwingProjectController(projectService);
