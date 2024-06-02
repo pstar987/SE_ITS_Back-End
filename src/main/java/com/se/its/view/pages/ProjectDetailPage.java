@@ -11,6 +11,8 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import javax.swing.*;
@@ -66,6 +68,17 @@ public class ProjectDetailPage extends JFrame {
         initIssueData(currentProject);
         issueDtoJList.setCellRenderer(new IssueListRender());
 
+        issueDtoJList.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if(e.getClickCount() == 2) {
+                    int index = issueDtoJList.locationToIndex(e.getPoint());
+                    IssueResponseDto selectedIssue = issueDtoJList.getModel().getElementAt(index);
+                    new IssuePage(swingMemberController, swingProjectController, swingIssueController, currentProject, selectedIssue, userId).setVisible(true);
+                }
+            }
+        });
+
         JScrollPane scrollPane = new JScrollPane(issueDtoJList);
         gbc.gridy = 2;
         gbc.gridwidth = 2;
@@ -84,23 +97,22 @@ public class ProjectDetailPage extends JFrame {
 
         add(issueSearchBtn, gbc);
 
-        checkUserIsPLAndInitComponent();
+        checkUserIsADMINAndPLAndInitComponent();
         checkUserIsDEVandInitComponent();
         checkUserIsTesterAndInitComponent();
     }
 
 
-
     private void checkUserIsTesterAndInitComponent() {
         MemberResponseDto member = swingMemberController.findMemberById(userId);
-        if(member.getRole().toString().equals("TESTER")) {
+        if (member.getRole().toString().equals("TESTER")) {
             initTESTERComponent();
         }
     }
 
     private void initTESTERComponent() {
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10,10,10,10);
+        gbc.insets = new Insets(10, 10, 10, 10);
 
         gbc.gridx = 0;
         gbc.gridy = 4;
@@ -115,7 +127,6 @@ public class ProjectDetailPage extends JFrame {
                     new TesterIssueBrowsePage(swingIssueController, currentProject, userId).setVisible(true);
                 }
         );
-
 
         gbc.gridy = 5;
         JButton createIssueBtn = new JButton("이슈 생성하기");
@@ -149,17 +160,21 @@ public class ProjectDetailPage extends JFrame {
 
         JButton browseAssignedIssueBtn = new JButton("할당된 이슈 조회하기");
         add(browseAssignedIssueBtn, gbc);
-        //TODO 할당된 이슈 조회 -> 할당된 이슈 상세정보 및 상태 변경 가능하게
+        browseAssignedIssueBtn.addActionListener(
+                e -> {
+                    new DevIssueBrowsePage(swingIssueController, currentProject, userId).setVisible(true);
+                }
+        );
     }
 
-    private void checkUserIsPLAndInitComponent() {
+    private void checkUserIsADMINAndPLAndInitComponent() {
         MemberResponseDto member = swingMemberController.findMemberById(userId);
-        if (member.getRole().toString().equals("PL")) {
-            initPLComponent();
+        if (member.getRole().toString().equals("PL") || member.getRole().toString().equals("ADMIN")) {
+            initADMINPLComponent();
         }
     }
 
-    private void initPLComponent() {
+    private void initADMINPLComponent() {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
 
@@ -171,18 +186,43 @@ public class ProjectDetailPage extends JFrame {
         JButton assignDevToIssueBtn = new JButton("이슈 담당자 지정");
         add(assignDevToIssueBtn, gbc);
 
-        //TODO 이슈 담당자 지정 페이지
+        assignDevToIssueBtn.addActionListener(
+                e -> {
+                    new SetIssueAssigneePage(ProjectDetailPage.this, swingMemberController, swingIssueController,
+                            currentProject, userId).setVisible(true);
+                }
+        );
 
         gbc.gridy = 5;
         JButton changeIssueStatusBtn = new JButton("이슈 상태 변경");
         add(changeIssueStatusBtn, gbc);
 
+        changeIssueStatusBtn.addActionListener(
+                e -> {
+                    new SetIssueStatusPage(ProjectDetailPage.this, swingIssueController, currentProject, userId).setVisible(true);
+                }
+        );
+
         gbc.gridy = 6;
-        JButton setIssuePrioryBtn = new JButton("이슈 우선순위 설정");
-        add(setIssuePrioryBtn, gbc);
+        JButton setIssuePriorityBtn = new JButton("이슈 우선순위 설정");
+        add(setIssuePriorityBtn, gbc);
+
+        setIssuePriorityBtn.addActionListener(
+                e -> {
+                    new SetIssuePriorityPage(ProjectDetailPage.this, swingIssueController, currentProject,
+                            userId).setVisible(true);
+                }
+        );
+
     }
 
-    class IssueListRender extends JPanel implements ListCellRenderer<IssueResponseDto> {
+    public void refreshIssueList() {
+        initIssueData(currentProject);
+        issueDtoJList.repaint();
+        issueDtoJList.revalidate();
+    }
+
+    private class IssueListRender extends JPanel implements ListCellRenderer<IssueResponseDto> {
         private JLabel issueName;
         private JLabel issuePriority;
         private JLabel issueStatus;
@@ -241,7 +281,7 @@ public class ProjectDetailPage extends JFrame {
 
     private void initIssueData(ProjectResponseDto projectDto) {
         currentProject = swingProjectController.getProject(userId, projectDto.getId());
-        issueDtos = currentProject.getIssues();
+        issueDtos = swingIssueController.getIssues(userId, currentProject.getId());
         DefaultListModel<IssueResponseDto> listModel = (DefaultListModel<IssueResponseDto>) issueDtoJList.getModel();
         listModel.clear();
         for (IssueResponseDto issueResponseDto : issueDtos) {
