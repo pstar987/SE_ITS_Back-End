@@ -106,10 +106,15 @@ public class ProjectDetailPage extends JFrame {
         gbc.gridy = 4;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
-        JButton browseMyIssue = new JButton("내가 생성한 이슈 조회하기");
+        JButton browseMyIssueBtn = new JButton("내가 생성한 이슈 조회하기");
         //TODO 내가 생성한 이슈 조회하기 -> 이슈 상세정보
-        add(browseMyIssue, gbc);
+        add(browseMyIssueBtn, gbc);
 
+        browseMyIssueBtn.addActionListener(
+                e -> {
+                    new TesterIssueBrowsePage(swingIssueController, currentProject, userId).setVisible(true);
+                }
+        );
 
 
         gbc.gridy = 5;
@@ -235,7 +240,8 @@ public class ProjectDetailPage extends JFrame {
     }
 
     private void initIssueData(ProjectResponseDto projectDto) {
-        issueDtos = projectDto.getIssues();
+        currentProject = swingProjectController.getProject(userId, projectDto.getId());
+        issueDtos = currentProject.getIssues();
         DefaultListModel<IssueResponseDto> listModel = (DefaultListModel<IssueResponseDto>) issueDtoJList.getModel();
         listModel.clear();
         for (IssueResponseDto issueResponseDto : issueDtos) {
