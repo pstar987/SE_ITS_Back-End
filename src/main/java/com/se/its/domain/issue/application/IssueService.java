@@ -255,7 +255,6 @@ public class IssueService {
             case STATUS -> issueRepository.findByStatusAndIsDeletedFalse(Status.valueOf(keyword.toUpperCase()));
             case PRIORITY -> issueRepository.findByPriorityAndIsDeletedFalse(Priority.valueOf(keyword.toUpperCase()));
             case ASSIGNEE -> issueRepository.findByAssigneeNameOrSignIdAndIsDeletedFalse(keyword);
-            default -> throw new BadRequestException(INVALID_REQUEST_ROLE, "유효하지 않은 검색 카테고리입니다.");
         };
 
 
