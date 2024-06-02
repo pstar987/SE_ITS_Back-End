@@ -249,7 +249,7 @@ public class IssueService {
             throw new BadRequestException(INVALID_REQUEST_ROLE, "관리자만 이슈를 삭제할 수 있습니다.");
         }
         if (!issue.getStatus().equals(Status.DELETE_REQUEST)) {
-            throw new BadRequestException(INVALID_REQUEST_ROLE, "삭제 요청된 이슈만 삭제할 수 있습니다.");
+            throw new BadRequestException(INVALID_REQUEST_STATUS, "삭제 요청된 이슈만 삭제할 수 있습니다.");
         }
 
         issue.setIsDeleted(true);
@@ -259,17 +259,19 @@ public class IssueService {
 
     @Transactional
     public IssueResponseDto updateIssue(Long signId, IssueUpdateRequestDto issueUpdateRequestDto){
-        Member tester = entityValidator.validateMember(signId);
+        Member member = entityValidator.validateMember(signId);
         Issue issue = entityValidator.validateIssue(issueUpdateRequestDto.getIssueId());
+        Project project = entityValidator.validateProject(issue.getProject().getId());
+        entityValidator.isMemberOfProject(member, project);
 
-
-        if (!issue.getReporter().getId().equals(tester.getId())) {
-            throw new BadRequestException(ROW_DOES_NOT_EXIST, "본인이 생성한 이슈만 수정할 수 있습니다.");
+        if(member.getRole().equals(Role.DEV)){
+            throw new BadRequestException(INVALID_REQUEST_STATUS, "개발자는 이슈 업데이트가 불가합니다.");
         }
-        if (!tester.getRole().equals(Role.TESTER)) {
-            throw new BadRequestException(INVALID_REQUEST_ROLE, "TESTER만 이슈를 수정할 수 있습니다.");
+        if(member.getRole().equals(Role.TESTER)){
+            if(!issue.getReporter().getId().equals(member.getId())){
+                throw new BadRequestException(ROW_DOES_NOT_EXIST, "테스터는 본인의 이슈만 업데이트 가능합니다.");
+            }
         }
-
         issue.setDescription(issueUpdateRequestDto.getDescription());
         issue.setStatus(issueUpdateRequestDto.getStatus());
         issue.setCategory(issueUpdateRequestDto.getCategory());
@@ -277,7 +279,33 @@ public class IssueService {
 
         CommentCreateRequestDto commentCreateRequestDto = dtoConverter.createCommentRequestDto(
                 issue,
-                tester.getName() + "가 이슈를 업데이트하였습니다.");
+                member.getName() + "가 이슈를 업데이트하였습니다.");
+
+        commentService.createComment(1L, commentCreateRequestDto);
+
+        issueRepository.save(issue);
+        return dtoConverter.createIssueResponseDto(issue);
+    }
+
+    @Transactional
+    public IssueResponseDto updateIssueDev(Long signId, IssueStatusUpdateRequestDto issueStatusUpdateRequestDto){
+        Member member = entityValidator.validateMember(signId);
+        Issue issue = entityValidator.validateIssue(issueStatusUpdateRequestDto.getIssueId());
+        Project project = entityValidator.validateProject(issue.getProject().getId());
+        entityValidator.isMemberOfProject(member, project);
+
+        if(!member.getRole().equals(Role.DEV)){
+            throw new BadRequestException(INVALID_REQUEST_ROLE, "개발자만 상태변경 기능을 사용가능합니다.");
+        }
+        if (!issue.getAssignee().getId().equals(member.getId())) {
+            throw new BadRequestException(ROW_DOES_NOT_EXIST, "본인에게 할당된 이슈의 상태만 수정할 수 있습니다.");
+        }
+
+        issue.setStatus(issueStatusUpdateRequestDto.getStatus());
+
+        CommentCreateRequestDto commentCreateRequestDto = dtoConverter.createCommentRequestDto(
+                issue,
+                member.getName() + "가 이슈의 상태를 변경하였습니다.");
 
         commentService.createComment(1L, commentCreateRequestDto);
 

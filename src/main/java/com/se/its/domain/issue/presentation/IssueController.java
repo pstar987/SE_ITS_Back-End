@@ -107,6 +107,14 @@ public class IssueController {
         return ResponseEntity.ok(issueService.updateIssue(id ,issueUpdateRequestDto));
     }
 
+    @PutMapping("/update/dev")
+    public ResponseEntity<IssueResponseDto> updateDev(
+            @Valid @RequestHeader Long id,
+            @Valid @RequestBody IssueStatusUpdateRequestDto issueStatusUpdateRequestDto
+    ) {
+        return ResponseEntity.ok(issueService.updateIssueDev(id ,issueStatusUpdateRequestDto));
+    }
+
     @PutMapping("/reassign")
     public ResponseEntity<IssueResponseDto> reassign(
             @Valid @RequestHeader Long id,
