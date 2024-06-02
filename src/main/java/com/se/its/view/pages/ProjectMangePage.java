@@ -331,7 +331,7 @@ public class ProjectMangePage extends JFrame {
     }
 
     private void initAllMember() {
-        memberResponseDtos = swingMemberController.findMembersByAdmin(userId);
+        memberResponseDtos = swingMemberController.findAllMembers(userId);
     }
 
     private void updateMemberResponseDtoJList() {

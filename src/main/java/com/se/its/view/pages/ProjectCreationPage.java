@@ -56,7 +56,7 @@ public class ProjectCreationPage extends JFrame {
     }
 
     private void initData() {
-        memberResponseDtos = swingMemberController.findMembersByAdmin(userId);
+        memberResponseDtos = swingMemberController.findAllMembers(userId);
         projectMemberDtos = new ArrayList<>();
     }
 
