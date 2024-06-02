@@ -1,6 +1,8 @@
 package com.se.its.domain.issue.application;
 
 
+import com.se.its.domain.comment.application.CommentService;
+import com.se.its.domain.comment.dto.request.CommentCreateRequestDto;
 import com.se.its.domain.issue.domain.Issue;
 import com.se.its.domain.issue.domain.Priority;
 import com.se.its.domain.issue.domain.Status;
@@ -30,6 +32,7 @@ public class IssueService {
     private final IssueRepository issueRepository;
     private final DtoConverter dtoConverter;
     private final EntityValidator entityValidator;
+    private final CommentService commentService;
 
     @Transactional
     public IssueResponseDto createIssue(Long signId, IssueCreateRequestDto issueCreateRequestDto){
@@ -82,7 +85,6 @@ public class IssueService {
     }
 
 
-
     @Transactional(readOnly = true)
     public List<IssueResponseDto> getAllIssues(Long signId) {
         Member admin = entityValidator.validateMember(signId);
@@ -118,6 +120,13 @@ public class IssueService {
         issue.setAssignee(assignee);
         issue.setStatus(Status.ASSIGNED); // 상태를 ASSIGNED로 변경
         issueRepository.save(issue);
+
+        CommentCreateRequestDto commentCreateRequestDto = dtoConverter.createCommentRequestDto(
+                issue,
+                assignee.getName() + "가 해당 이슈에 할당되었습니다.");
+
+        commentService.createComment(1L, commentCreateRequestDto);
+
         return dtoConverter.createIssueResponseDto(issue);
     }
 
@@ -135,6 +144,12 @@ public class IssueService {
 
         issue.setStatus(Status.DELETE_REQUEST);
         issueRepository.save(issue);
+
+        CommentCreateRequestDto commentCreateRequestDto = dtoConverter.createCommentRequestDto(
+                issue,
+                tester.getName() + "가 이슈 삭제를 요청했습니다.");
+
+        commentService.createComment(1L, commentCreateRequestDto);
         return dtoConverter.createIssueResponseDto(issue);
     }
 
@@ -185,6 +200,12 @@ public class IssueService {
         issue.setCategory(issueUpdateRequestDto.getCategory());
         issue.setPriority(issueUpdateRequestDto.getPriority());
 
+        CommentCreateRequestDto commentCreateRequestDto = dtoConverter.createCommentRequestDto(
+                issue,
+                tester.getName() + "가 이슈를 업데이트하였습니다.");
+
+        commentService.createComment(1L, commentCreateRequestDto);
+
         issueRepository.save(issue);
         return dtoConverter.createIssueResponseDto(issue);
     }
@@ -209,8 +230,16 @@ public class IssueService {
 
         issue.setAssignee(assignee);
         issueRepository.save(issue);
+
+        CommentCreateRequestDto commentCreateRequestDto = dtoConverter.createCommentRequestDto(
+                issue,
+                assignee.getName() + "가 해당 이슈에 할당되었습니다.");
+
+        commentService.createComment(1L, commentCreateRequestDto);
+
         return dtoConverter.createIssueResponseDto(issue);
     }
+
 
 
 }

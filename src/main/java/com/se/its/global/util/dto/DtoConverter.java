@@ -2,6 +2,7 @@ package com.se.its.global.util.dto;
 
 import com.se.its.domain.comment.domain.Comment;
 import com.se.its.domain.comment.domain.repository.CommentRepository;
+import com.se.its.domain.comment.dto.request.CommentCreateRequestDto;
 import com.se.its.domain.comment.dto.response.CommentResponseDto;
 import com.se.its.domain.issue.domain.Issue;
 import com.se.its.domain.issue.dto.response.IssueResponseDto;
@@ -84,6 +85,14 @@ public class DtoConverter {
 //                .issueId(comment.getIssue().getId())
                 .writerId(comment.getWriter().getId())
 //                .isDeleted(comment.getIsDeleted())
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public CommentCreateRequestDto createCommentRequestDto(Issue issue, String content){
+        return CommentCreateRequestDto.builder()
+                .issueId(issue.getId())
+                .content(content)
                 .build();
     }
 }
