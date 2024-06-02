@@ -30,8 +30,8 @@ public class MemberService {
     private final EntityValidator entityValidator;
 
     @Transactional
-    public MemberResponseDto signUp(Long id, MemberSignUpRequestDto memberSignUpRequestDto) {
-        Member admin = entityValidator.validateMember(id);
+    public MemberResponseDto signUp(Long signId, MemberSignUpRequestDto memberSignUpRequestDto) {
+        Member admin = entityValidator.validateMember(signId);
 
         if(!admin.getRole().equals(Role.ADMIN)){
             throw  new BadRequestException(INVALID_REQUEST_ROLE, "관리자가 아닙니다.");
@@ -88,18 +88,18 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public MemberResponseDto findMemberById(Long id) {
-        Member member = entityValidator.validateMember(id);
+    public MemberResponseDto findMemberById(Long signId) {
+        Member member = entityValidator.validateMember(signId);
 
         return dtoConverter.createMemberResponseDto(member);
     }
 
     @Transactional(readOnly = true)
-    public List<MemberResponseDto> findMembersByAdmin(Long id){
-        Member admin = entityValidator.validateMember(id);
+    public List<MemberResponseDto> findAllMembers(Long signId){
+        Member admin = entityValidator.validateMember(signId);
 
-        if(!admin.getRole().equals(Role.ADMIN)){
-            throw  new BadRequestException(INVALID_REQUEST_ROLE, "관리자가 아닙니다.");
+        if(!entityValidator.isAdminOrPl(admin)){
+            throw  new BadRequestException(INVALID_REQUEST_ROLE, "관리자나 프로젝트 리더가 아닙니다.");
         }
 
         List<Member> allMembers = memberRepository.findByIsDeletedIsFalse();
@@ -111,12 +111,12 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public List<MemberResponseDto> findMembersByAdminAndPL(Long id, Long projectId){
-        Member admin = entityValidator.validateMember(id);
+    public List<MemberResponseDto> findMembersByAdminAndPL(Long signId, Long projectId){
+        Member admin = entityValidator.validateMember(signId);
         Project project = entityValidator.validateProject(projectId);
         entityValidator.isMemberOfProject(admin, project);
 
-        if(!(admin.getRole().equals(Role.ADMIN) || admin.getRole().equals(Role.PL))){
+        if(!entityValidator.isAdminOrPl(admin)){
             throw  new BadRequestException(INVALID_REQUEST_ROLE, "관리자나 프로젝트 리더가 아닙니다.");
         }
 
@@ -128,12 +128,12 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public List<MemberResponseDto> findMembersByRole(Long id, Long projectId, Role role){
-        Member admin = entityValidator.validateMember(id);
+    public List<MemberResponseDto> findMembersByRole(Long signId, Long projectId, Role role){
+        Member admin = entityValidator.validateMember(signId);
         Project project = entityValidator.validateProject(projectId);
         entityValidator.isMemberOfProject(admin, project);
 
-        if(!(admin.getRole().equals(Role.ADMIN) || admin.getRole().equals(Role.PL))){
+        if(!entityValidator.isAdminOrPl(admin)){
             throw new BadRequestException(INVALID_REQUEST_ROLE, "관리자나 프로젝트 리더가 아닙니다.");
         }
 
@@ -147,8 +147,8 @@ public class MemberService {
     }
 
     @Transactional
-    public MemberResponseDto deleteMember(Long id, MemberDeleteRequestDto memberDeleteRequestDto){
-        Member admin = entityValidator.validateMember(id);
+    public MemberResponseDto deleteMember(Long signId, MemberDeleteRequestDto memberDeleteRequestDto){
+        Member admin = entityValidator.validateMember(signId);
         Member target = entityValidator.validateMember(memberDeleteRequestDto.getId());
 
         if(!admin.getRole().equals(Role.ADMIN)){
@@ -163,8 +163,8 @@ public class MemberService {
 
 
     @Transactional
-    public MemberResponseDto updateMemberRole(Long id, MemberRoleUpdateRequestDto memberRoleUpdateRequestDto){
-        Member admin = entityValidator.validateMember(id);
+    public MemberResponseDto updateMemberRole(Long signId, MemberRoleUpdateRequestDto memberRoleUpdateRequestDto){
+        Member admin = entityValidator.validateMember(signId);
         Member target = entityValidator.validateMember(memberRoleUpdateRequestDto.getId());
 
         if(!admin.getRole().equals(Role.ADMIN)){
