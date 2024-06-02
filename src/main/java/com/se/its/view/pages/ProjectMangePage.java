@@ -267,8 +267,6 @@ public class ProjectMangePage extends JFrame {
     }
 
     private void deleteMemberToProject(MemberResponseDto selectedMember, ProjectResponseDto selectedProject) {
-        selectedProject.getMembers().removeIf(member -> member.getId() == selectedMember.getId());
-
         ProjectMemberRemoveRequestDto projectMemberRemoveRequestDto =
                 ProjectMemberRemoveRequestDto
                         .builder()
