@@ -115,8 +115,8 @@ public class MemberService {
             throw  new BadRequestException(INVALID_REQUEST_ROLE, "관리자가 아닙니다.");
         }
 
-        // 5. isDeleted를 true로 변경
         target.setIsDeleted(true);
+        memberRepository.save(target);
 
         return dtoConverter.createMemberResponseDto(target);
     }
@@ -136,6 +136,7 @@ public class MemberService {
         }
 
         target.updateRole(memberRoleUpdateRequestDto.getRole());
+        memberRepository.save(target);
 
         return dtoConverter.createMemberResponseDto(target);
     }

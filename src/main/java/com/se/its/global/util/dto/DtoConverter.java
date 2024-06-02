@@ -13,6 +13,7 @@ import com.se.its.domain.project.domain.repository.ProjectMemberRepository;
 import com.se.its.domain.issue.domain.repository.IssueRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -23,6 +24,7 @@ public class DtoConverter {
     private final IssueRepository issueRepository;
     private final CommentRepository commentRepository;
 
+    @Transactional(readOnly = true)
     public MemberResponseDto createMemberResponseDto(Member member) {
         return MemberResponseDto.builder()
                 .id(member.getId())
@@ -32,6 +34,7 @@ public class DtoConverter {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public ProjectResponseDto createProjectResponseDto(Project project) {
         List<MemberResponseDto> memberResponseDtos = projectMemberRepository.findByProjectIdAndIsDeletedFalse(project.getId()).stream()
                 .map(pm -> createMemberResponseDto(pm.getMember()))
@@ -51,6 +54,7 @@ public class DtoConverter {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public IssueResponseDto createIssueResponseDto(Issue issue) {
 
         List<CommentResponseDto> comments = commentRepository.findByIssueIdAndIsDeletedFalse(issue.getId()).stream()
@@ -72,6 +76,7 @@ public class DtoConverter {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public CommentResponseDto createCommentResponseDto(Comment comment){
         return CommentResponseDto.builder()
                 .id(comment.getId())
