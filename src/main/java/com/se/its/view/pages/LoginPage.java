@@ -1,5 +1,6 @@
 package com.se.its.view.pages;
 
+import com.se.its.domain.issue.presentation.SwingIssueController;
 import com.se.its.domain.member.dto.request.MemberSignInRequestDto;
 import com.se.its.domain.member.dto.response.MemberResponseDto;
 import com.se.its.domain.member.presentation.SwingMemberController;
@@ -19,14 +20,16 @@ public class LoginPage extends JFrame {
     //TODO 로그인 시 계정의 직책에 따라 페이지가 달라져야됨
     private SwingMemberController swingMemberController;
     private SwingProjectController swingProjectController;
+    private SwingIssueController swingIssueController;
     private JTextField idTextField;
     private JPasswordField pwTextField;
     private JButton signInBtn;
     private JPanel mainPanel;
 
-    public LoginPage(SwingMemberController swingMemberController, SwingProjectController swingProjectController) {
+    public LoginPage(SwingMemberController swingMemberController, SwingProjectController swingProjectController, SwingIssueController swingIssueController) {
         this.swingMemberController =swingMemberController;
         this.swingProjectController = swingProjectController;
+        this.swingIssueController = swingIssueController;
         //TODO 페이지 권한마다 달라진
         initComponents();
         ActionListener signInAction = new ActionListener() {
@@ -50,7 +53,14 @@ public class LoginPage extends JFrame {
                 MemberResponseDto responseDto = swingMemberController.signIn(requestDto);
                 if (responseDto != null) {
                     JOptionPane.showMessageDialog(signInBtn, "로그인 성공");
-                    new AdminPage(swingMemberController, swingProjectController,responseDto.getId());
+                    if(responseDto.getRole().toString() == "ADMIN") {
+                        new AdminPage(swingMemberController, swingProjectController,swingIssueController,responseDto.getId());
+                    }
+                    else if(responseDto.getRole().toString() =="PL") {
+                        new PlPage(swingMemberController, swingProjectController, swingIssueController, responseDto.getId());
+                    } else {
+                        new DevTesterPage(swingMemberController, swingProjectController, swingIssueController, responseDto.getId());
+                    }
                     dispose();
                 } else {
                     showError(ErrorMessage.FAILED_TO_SIGNIN.getMessage());

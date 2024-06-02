@@ -1,5 +1,6 @@
 package com.se.its.view.pages;
 
+import com.se.its.domain.issue.presentation.SwingIssueController;
 import com.se.its.domain.member.presentation.SwingMemberController;
 import com.se.its.domain.project.presentation.SwingProjectController;
 import java.awt.Font;
@@ -29,12 +30,14 @@ public class AdminPage extends JFrame {
     private JButton projectBrowseBtn;
     private SwingMemberController swingMemberController;
     private SwingProjectController swingProjectController;
+    private SwingIssueController swingIssueController;
     private final Long userId;
 
-    public AdminPage(SwingMemberController swingMemberController, SwingProjectController swingProjectController,
+    public AdminPage(SwingMemberController swingMemberController, SwingProjectController swingProjectController, SwingIssueController swingIssueController,
                      Long userId) {
         this.swingMemberController = swingMemberController;
         this.swingProjectController = swingProjectController;
+        this.swingIssueController = swingIssueController;
         this.userId = userId;
 
         initComponents();
@@ -62,7 +65,7 @@ public class AdminPage extends JFrame {
         accountGbc.gridwidth = 2;
         accountGbc.anchor = GridBagConstraints.PAGE_START;
 
-        JLabel titleLabel = new JLabel("관리자 페이지");
+        JLabel titleLabel = new JLabel("CITS : 이슈 관리 솔루션");
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 32));
         accountPanel.add(titleLabel, accountGbc);
 
@@ -156,6 +159,8 @@ public class AdminPage extends JFrame {
                                                }
                                            }
         );
+
+        projectBrowseBtn.addActionListener(e -> new ProjectBrowsePage(swingProjectController, swingIssueController, userId).setVisible(true));
 
         add(accountPanel);
         add(projectPanel);
