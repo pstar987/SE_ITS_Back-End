@@ -50,4 +50,12 @@ public class EntityValidator {
                     .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "해당 프로젝트의 멤버가 아닙니다."));
         }
     }
+
+    public void isWriterOfComment(Member member, Comment comment) {
+        if(!member.getRole().equals(Role.ADMIN)){
+            commentRepository.findByWriterIdAndIdAndIsDeletedFalse(member.getId(), comment.getId())
+                    .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "해당 댓글의 작성자가 아닙니다."));
+        }
+    }
+
 }
