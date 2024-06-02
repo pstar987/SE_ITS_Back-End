@@ -62,7 +62,7 @@ public class PlPage extends JFrame {
         projectManageBtn.addActionListener(
                 e -> new ProjectMangePage(swingMemberController, swingProjectController, userId).setVisible(true));
         projectBrowseBtn.addActionListener(
-                e -> new ProjectBrowsePage(swingProjectController, swingIssueController,
+                e -> new ProjectBrowsePage(swingMemberController,swingProjectController, swingIssueController,
                         userId).setVisible(true)
         );
 

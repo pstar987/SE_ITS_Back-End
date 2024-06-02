@@ -160,7 +160,7 @@ public class AdminPage extends JFrame {
                                            }
         );
 
-        projectBrowseBtn.addActionListener(e -> new ProjectBrowsePage(swingProjectController, swingIssueController, userId).setVisible(true));
+        projectBrowseBtn.addActionListener(e -> new ProjectBrowsePage(swingMemberController,swingProjectController, swingIssueController, userId).setVisible(true));
 
         add(accountPanel);
         add(projectPanel);
