@@ -1,0 +1,13 @@
+@startuml
+actor TEST
+participant System
+participant DBMS as "Database"
+
+TEST -> System: createIssue(signId, issueCreateRequestDto)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateProject(issueCreateRequestDto.getProjectId)
+System -> DBMS: isMemberOfProject(signId, projectId)
+System -> DBMS: saveIssue(title, description, projectId, signId, category)
+System -> MLServer: saveIssueToModel(issue)
+System -> TEST: IssueResponseDto
+@enduml

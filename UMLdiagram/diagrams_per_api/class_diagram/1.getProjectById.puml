@@ -1,0 +1,60 @@
+@startuml
+class Project {
+    Long id
+    String name
+    Boolean isDeleted
+    Long leaderId
+    List<ProjectMember> projectMembers
+    List<Issue> issues
+}
+
+class ProjectService {
+    +ProjectResponseDto getProjectById(Long signId, Long projectId)
+}
+
+class ProjectRepository {
+    +Optional<Project> findByIdAndIsDeletedIsFalse(Long id)
+}
+
+class ProjectMember {
+    Long id
+    Member member
+    Project project
+    Boolean isDeleted
+}
+
+class ProjectMemberRepository {
+    +List<ProjectMember> findByProjectIdAndIsDeletedFalse(Long projectId)
+}
+
+class Issue {
+    Long id
+    String title
+    String description
+    Priority priority
+    Status status
+    Member reporter
+    Member assignee
+    Member fixer
+    Project project
+    Boolean isDeleted
+    List<Comment> comments
+}
+
+class IssueRepository {
+    +List<Issue> findByProjectIdAndIsDeletedFalse(Long projectId)
+}
+
+class DtoConverter {
+    +ProjectResponseDto createProjectResponseDto(Project project)
+}
+
+ProjectService --> ProjectRepository
+ProjectService --> ProjectMemberRepository
+ProjectService --> IssueRepository
+ProjectService --> DtoConverter
+Project --> ProjectMember
+Project --> Issue
+ProjectMember --> Member
+Issue --> Comment
+@enduml

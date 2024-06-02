@@ -31,7 +31,9 @@ public class Comment extends BaseEntity {
     @Column(nullable = false)
     private Boolean isDeleted;
 
-    public void setContent(String content) { if (content != null && !content.trim().isEmpty()) this.content = content; }
+    public void setContent(String content) {
+        if (content != null && !content.trim().isEmpty()) this.content = content;
+    }
 
     public void setIsDeleted(Boolean isDeleted) {
         if(isDeleted != null) this.isDeleted = isDeleted;

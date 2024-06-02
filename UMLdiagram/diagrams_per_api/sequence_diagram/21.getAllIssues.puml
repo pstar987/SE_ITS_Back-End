@@ -1,0 +1,11 @@
+@startuml
+actor Admin
+participant System
+participant DBMS as "Database"
+
+Admin -> System: getAllIssues(signId)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateAdmin(signId)
+System -> DBMS: getAllIssues()
+System -> Admin: List<IssueResponseDto
+@enduml

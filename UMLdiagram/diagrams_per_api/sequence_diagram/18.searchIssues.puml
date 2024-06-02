@@ -1,0 +1,12 @@
+@startuml
+actor PL
+participant System
+participant DBMS as "Database"
+
+PL -> System: searchIssues(signId, category, projectId, keyword)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateProject(projectId)
+System -> DBMS: isMemberOfProject(signId, projectId)
+System -> DBMS: searchIssues(category, keyword)
+System -> PL: List<IssueResponseDto
+@enduml

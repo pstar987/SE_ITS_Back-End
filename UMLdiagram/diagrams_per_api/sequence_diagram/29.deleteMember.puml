@@ -1,0 +1,13 @@
+@startuml
+actor Admin
+participant System
+participant DBMS as "Database"
+
+Admin -> System: deleteMember(signId, memberDeleteRequestDto)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateAdmin(signId)
+System -> DBMS: validateMember(memberDeleteRequestDto.id)
+System -> DBMS: checkUnresolvedIssues(memberDeleteRequestDto.id)
+System -> DBMS: deleteMember(memberDeleteRequestDto.id)
+System -> Admin: MemberResponseDto
+@enduml

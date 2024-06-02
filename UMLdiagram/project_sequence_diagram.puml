@@ -1,0 +1,229 @@
+@startuml
+actor Admin
+actor PL
+actor DEV
+actor TEST
+participant System
+participant DBMS as "Database"
+participant MLServer as "ML Server"
+
+== Comment Service ==
+TEST -> System: createComment(signId, issueId, content)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateIssue(issueId)
+System -> DBMS: validateProject(issue.projectId)
+System -> DBMS: isMemberOfProject(signId, issue.projectId)
+System -> DBMS: saveComment(issueId, signId, content)
+System -> TEST: CommentResponseDto
+
+TEST -> System: getComments(signId, issueId)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateIssue(issueId)
+System -> DBMS: validateProject(issue.projectId)
+System -> DBMS: isMemberOfProject(signId, issue.projectId)
+System -> DBMS: getComments(issueId)
+System -> TEST: List<CommentResponseDto>
+
+TEST -> System: updateComment(signId, commentId, content)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateComment(commentId)
+System -> DBMS: isWriterOfComment(signId, commentId)
+System -> DBMS: updateComment(commentId, content)
+System -> TEST: CommentResponseDto
+
+TEST -> System: removeComment(signId, commentId)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateComment(commentId)
+System -> DBMS: isWriterOfComment(signId, commentId)
+System -> DBMS: removeComment(commentId)
+System -> TEST: "삭제되었습니다."
+
+== Issue Service ==
+TEST -> System: createIssue(signId, title, description, projectId, category)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateProject(projectId)
+System -> DBMS: isMemberOfProject(signId, projectId)
+System -> DBMS: saveIssue(title, description, projectId, signId, category)
+System -> MLServer: saveIssueToModel(issue)
+System -> TEST: IssueResponseDto
+
+PL -> System: getIssue(signId, issueId)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateIssue(issueId)
+System -> DBMS: validateProject(issue.projectId)
+System -> PL: IssueResponseDto
+
+PL -> System: getIssues(signId, projectId)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateProject(projectId)
+System -> DBMS: isMemberOfProject(signId, projectId)
+System -> DBMS: getIssues(projectId)
+System -> PL: List<IssueResponseDto>
+
+Admin -> System: getAllIssues(signId)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateAdmin(signId)
+System -> DBMS: getAllIssues()
+System -> Admin: List<IssueResponseDto>
+
+DEV -> System: getDevIssues(signId, projectId)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateProject(projectId)
+System -> DBMS: isMemberOfProject(signId, projectId)
+System -> DBMS: getDevIssues(signId, projectId)
+System -> DEV: List<IssueResponseDto>
+
+TEST -> System: getTesterIssues(signId, projectId)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateProject(projectId)
+System -> DBMS: isMemberOfProject(signId, projectId)
+System -> DBMS: getTesterIssues(signId, projectId)
+System -> TEST: List<IssueResponseDto>
+
+PL -> System: assignIssue(signId, issueId, assigneeId)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateIssue(issueId)
+System -> DBMS: validateProject(issue.projectId)
+System -> DBMS: isMemberOfProject(signId, projectId)
+System -> DBMS: isMemberOfProject(assigneeId, projectId)
+System -> DBMS: assignIssue(issueId, assigneeId)
+System -> MLServer: saveIssueToModel(issue)
+System -> PL: IssueResponseDto
+
+TEST -> System: removeRequest(signId, issueId)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateIssue(issueId)
+System -> DBMS: validateProject(issue.projectId)
+System -> DBMS: isMemberOfProject(signId, projectId)
+System -> DBMS: removeRequest(issueId)
+System -> MLServer: saveIssueToModel(issue)
+System -> TEST: IssueResponseDto
+
+Admin -> System: getRemoveRequestIssues(signId)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateAdmin(signId)
+System -> DBMS: getRemoveRequestIssues()
+System -> Admin: List<IssueResponseDto>
+
+Admin -> System: removeIssue(signId, issueId)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateIssue(issueId)
+System -> DBMS: validateProject(issue.projectId)
+System -> DBMS: validateAdmin(signId)
+System -> DBMS: removeIssue(issueId)
+System -> MLServer: saveIssueToModel(issue)
+System -> Admin: IssueResponseDto
+
+PL -> System: updateIssue(signId, issueId, description, status, priority, category)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateIssue(issueId)
+System -> DBMS: validateProject(issue.projectId)
+System -> DBMS: isMemberOfProject(signId, projectId)
+System -> DBMS: updateIssue(issueId, description, status, priority, category)
+System -> MLServer: saveIssueToModel(issue)
+System -> PL: IssueResponseDto
+
+== Member Service ==
+Admin -> System: signUp(signId, signUpRequestDto)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateAdmin(signId)
+System -> DBMS: checkDuplicateSignId(signUpRequestDto.signId)
+System -> DBMS: signUp(signUpRequestDto)
+System -> Admin: MemberResponseDto
+
+Admin -> System: createAdmin(signUpRequestDto)
+System -> DBMS: checkDuplicateSignId(signUpRequestDto.signId)
+System -> DBMS: createAdmin(signUpRequestDto)
+System -> Admin: MemberResponseDto
+
+Member -> System: signIn(signInRequestDto)
+System -> DBMS: findMemberBySignId(signInRequestDto.signId)
+System -> DBMS: validatePassword(signInRequestDto.password)
+System -> Member: MemberResponseDto
+
+Member -> System: findMemberById(signId)
+System -> DBMS: validateMember(signId)
+System -> Member: MemberResponseDto
+
+Admin -> System: findAllMembers(signId)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateAdminOrPL(signId)
+System -> DBMS: getAllMembers()
+System -> Admin: List<MemberResponseDto>
+
+Admin -> System: findMembersByAdminAndPL(signId, projectId)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateProject(projectId)
+System -> DBMS: isMemberOfProject(signId, projectId)
+System -> DBMS: validateAdminOrPL(signId)
+System -> DBMS: getProjectMembers(projectId)
+System -> Admin: List<MemberResponseDto
+
+Admin -> System: findMembersByRole(signId, projectId, role)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateProject(projectId)
+System -> DBMS: isMemberOfProject(signId, projectId)
+System -> DBMS: validateAdminOrPL(signId)
+System -> DBMS: getProjectMembersByRole(projectId, role)
+System -> Admin: List<MemberResponseDto
+
+Admin -> System: deleteMember(signId, deleteRequestDto)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateAdmin(signId)
+System -> DBMS: validateMember(deleteRequestDto.id)
+System -> DBMS: checkUnresolvedIssues(deleteRequestDto.id)
+System -> DBMS: deleteMember(deleteRequestDto.id)
+System -> Admin: MemberResponseDto
+
+Admin -> System: updateMemberRole(signId, roleUpdateRequestDto)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateAdmin(signId)
+System -> DBMS: validateMember(roleUpdateRequestDto.id)
+System -> DBMS: updateMemberRole(roleUpdateRequestDto.id, roleUpdateRequestDto.role)
+System -> Admin: MemberResponseDto
+
+== Project Service ==
+Admin -> System: createProject(signId, projectCreateRequestDto)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateAdmin(signId)
+System -> DBMS: validateProjectMembers(projectCreateRequestDto.memberIds)
+System -> DBMS: validatePLMember(projectCreateRequestDto.memberIds)
+System -> DBMS: createProject(projectCreateRequestDto)
+System -> DBMS: addProjectMembers(projectId, projectCreateRequestDto.memberIds)
+System -> Admin: ProjectResponseDto
+
+PL -> System: getAllProject(signId)
+System -> DBMS: validateMember(signId)
+System -> DBMS: getAllProjects(signId)
+System -> PL: List<ProjectResponseDto
+
+PL -> System: getProjectById(signId, projectId)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateProject(projectId)
+System -> DBMS: isMemberOfProject(signId, projectId)
+System -> PL: ProjectResponseDto
+
+Admin -> System: addMember(signId, projectId, projectMemberAddRequestDto)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateProject(projectId)
+System -> DBMS: validateMember(projectMemberAddRequestDto.addMemberId)
+System -> DBMS: isMemberOfProject(signId, projectId)
+System -> DBMS: addMemberToProject(projectId, projectMemberAddRequestDto.addMemberId)
+System -> Admin: ProjectResponseDto
+
+PL -> System: removeMember(signId, projectId, projectMemberRemoveRequestDto)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateProject(projectId)
+System -> DBMS: validateMember(projectMemberRemoveRequestDto.removeMemberId)
+System -> DBMS: isMemberOfProject(signId, projectId)
+System -> DBMS: removeMemberFromProject(projectId, projectMemberRemoveRequestDto.removeMemberId)
+System -> PL: ProjectResponseDto
+
+Admin -> System: removeProject(signId, projectId)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateAdmin(signId)
+System -> DBMS: validateProject(projectId)
+System -> DBMS: removeProject(projectId)
+System -> Admin: "removed"
+
+@enduml

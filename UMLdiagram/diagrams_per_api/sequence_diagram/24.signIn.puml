@@ -1,0 +1,10 @@
+@startuml
+actor Member
+participant System
+participant DBMS as "Database"
+
+Member -> System: signIn(signInRequestDto)
+System -> DBMS: findMemberBySignId(signInRequestDto.signId)
+System -> DBMS: validatePassword(signInRequestDto.password)
+System -> Member: MemberResponseDto
+@enduml

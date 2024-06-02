@@ -1,0 +1,14 @@
+@startuml
+actor PL
+participant System
+participant DBMS as "Database"
+
+PL -> System: updateIssue(signId, issueUpdateRequestDto)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateIssue(issueUpdateRequestDto.getIssueId)
+System -> DBMS: validateProject(issue.projectId)
+System -> DBMS: isMemberOfProject(signId, projectId)
+System -> DBMS: updateIssue(issueId, description, status, priority, category)
+System -> MLServer: saveIssueToModel(issue)
+System -> PL: IssueResponseDto
+@enduml

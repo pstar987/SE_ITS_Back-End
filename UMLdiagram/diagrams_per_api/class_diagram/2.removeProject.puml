@@ -1,0 +1,37 @@
+@startuml
+class Project {
+    Long id
+    String name
+    Boolean isDeleted
+    Long leaderId
+    List<ProjectMember> projectMembers
+    List<Issue> issues
+}
+
+class ProjectService {
+    +void removeProject(Long signId, Long projectId)
+}
+
+class ProjectRepository {
+    +Optional<Project> findByIdAndIsDeletedIsFalse(Long id)
+    +Project save(Project project)
+}
+
+class ProjectMemberRepository {
+    +List<ProjectMember> findByProjectIdAndIsDeletedFalse(Long projectId)
+    +List<ProjectMember> saveAll(List<ProjectMember> projectMembers)
+}
+
+class IssueRepository {
+    +List<Issue> findByProjectIdAndIsDeletedFalse(Long projectId)
+    +List<Issue> saveAll(List<Issue> issues)
+}
+
+ProjectService --> ProjectRepository
+ProjectService --> ProjectMemberRepository
+ProjectService --> IssueRepository
+Project --> ProjectMember
+Project --> Issue
+ProjectMember --> Member
+Issue --> Comment
+@enduml

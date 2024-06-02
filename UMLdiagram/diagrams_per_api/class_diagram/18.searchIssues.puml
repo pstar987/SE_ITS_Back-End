@@ -1,0 +1,36 @@
+@startuml
+class Issue {
+    Long id
+    String title
+    String description
+    Priority priority
+    Status status
+    Member reporter
+    Member assignee
+    Member fixer
+    Project project
+    Boolean isDeleted
+    List<Comment> comments
+}
+
+class IssueService {
+    +List<IssueResponseDto> searchIssues(Long signId, IssueCategory category, Long projectId, String keyword)
+}
+
+class IssueRepository {
+    +List<Issue> findByTitleContainingAndIsDeletedFalse(String title)
+    +List<Issue> findByStatusAndIsDeletedFalse(Status status)
+    +List<Issue> findByPriorityAndIsDeletedFalse(Priority priority)
+    +List<Issue> findByAssigneeNameOrSignIdAndIsDeletedFalse(String keyword)
+}
+
+class DtoConverter {
+    +IssueResponseDto createIssueResponseDto(Issue issue)
+}
+
+IssueService --> IssueRepository
+IssueService --> DtoConverter
+Issue --> Project
+Issue --> Member
+Issue --> Comment
+@enduml

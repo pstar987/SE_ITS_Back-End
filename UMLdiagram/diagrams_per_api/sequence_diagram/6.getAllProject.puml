@@ -1,0 +1,10 @@
+@startuml
+actor PL
+participant System
+participant DBMS as "Database"
+
+PL -> System: getAllProject(signId)
+System -> DBMS: validateMember(signId)
+System -> DBMS: getAllProjects(signId)
+System -> PL: List<ProjectResponseDto
+@enduml

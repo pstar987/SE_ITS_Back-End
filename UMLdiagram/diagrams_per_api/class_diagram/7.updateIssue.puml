@@ -1,0 +1,40 @@
+@startuml
+class Issue {
+    Long id
+    String title
+    String description
+    Priority priority
+    Status status
+    Member reporter
+    Member assignee
+    Member fixer
+    Project project
+    Boolean isDeleted
+    List<Comment> comments
+}
+
+class IssueService {
+    +IssueResponseDto updateIssue(Long signId, IssueUpdateRequestDto issueUpdateRequestDto)
+}
+
+class IssueRepository {
+    +Optional<Issue> findByIdAndIsDeletedFalse(Long id)
+    +Issue save(Issue issue)
+}
+
+class CommentService {
+    +CommentResponseDto createComment(Long signId, CommentCreateRequestDto commentCreateRequestDto)
+}
+
+class DtoConverter {
+    +IssueResponseDto createIssueResponseDto(Issue issue)
+    +CommentCreateRequestDto createCommentRequestDto(Issue issue, String content)
+}
+
+IssueService --> IssueRepository
+IssueService --> CommentService
+IssueService --> DtoConverter
+Issue --> Project
+Issue --> Member
+Issue --> Comment
+@enduml

@@ -1,0 +1,14 @@
+@startuml
+actor Admin
+participant System
+participant DBMS as "Database"
+
+Admin -> System: removeIssue(signId, issueDeleteRequestDto)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateIssue(issueDeleteRequestDto.getIssueId)
+System -> DBMS: validateProject(issue.projectId)
+System -> DBMS: validateAdmin(signId)
+System -> DBMS: removeIssue(issueId)
+System -> MLServer: saveIssueToModel(issue)
+System -> Admin: IssueResponseDto
+@enduml

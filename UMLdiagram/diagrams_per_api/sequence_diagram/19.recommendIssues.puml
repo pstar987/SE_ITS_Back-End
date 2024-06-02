@@ -1,0 +1,15 @@
+@startuml
+actor PL
+participant System
+participant DBMS as "Database"
+participant MLServer as "ML Server"
+
+PL -> System: recommendIssues(signId, issueId)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateIssue(issueId)
+System -> DBMS: validateProject(issue.projectId)
+System -> DBMS: isMemberOfProject(signId, projectId)
+System -> MLServer: recommendIssues(issue)
+MLServer -> System: List<IssueRecommendResponseDto
+System -> PL: List<IssueRecommendResponseDto
+@enduml

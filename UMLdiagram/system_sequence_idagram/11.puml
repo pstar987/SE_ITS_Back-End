@@ -1,0 +1,28 @@
+@startuml
+actor Admin_PL
+participant System
+
+Admin_PL -> System: addMember(signId, projectId, addMemberId)
+alt member not found
+    System --> Admin_PL: Error msg("존재하지 않는 사용자입니다.")
+else
+    alt project not found
+        System --> Admin_PL: Error msg("존재하지 않는 프로젝트입니다.")
+    else
+        alt member not found
+            System --> Admin_PL: Error msg("존재하지 않는 사용자입니다.")
+        else
+            alt PL exists
+                System --> Admin_PL: Error msg("프로젝트에 이미 PL이 존재합니다.")
+            else
+                alt adding PL
+                    System --> Admin_PL: Error msg("프로젝트 리더는 다른 프로젝트 리더를 추가할 수 없습니다.")
+                else
+                    System -> System: add newMember
+                    System --> Admin_PL: return ProjectResponseDto(id, name, members, issues, leaderId)
+                end
+            end
+        end
+    end
+end
+@enduml
