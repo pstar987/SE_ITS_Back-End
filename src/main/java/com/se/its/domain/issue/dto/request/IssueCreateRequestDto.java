@@ -1,9 +1,11 @@
 package com.se.its.domain.issue.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
+@Builder
 public class IssueCreateRequestDto {
 
     @NotBlank(message = "제목을 입력해주세요.")
@@ -15,5 +17,7 @@ public class IssueCreateRequestDto {
 
     private Long projectId;
 
+
+    private String category;
 
 }

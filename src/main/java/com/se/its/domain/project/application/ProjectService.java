@@ -1,10 +1,11 @@
 package com.se.its.domain.project.application;
 
 
+import com.se.its.domain.issue.domain.Issue;
+import com.se.its.domain.issue.domain.repository.IssueRepository;
 import com.se.its.domain.member.domain.Member;
 import com.se.its.domain.member.domain.Role;
 import com.se.its.domain.member.domain.respository.MemberRepository;
-import com.se.its.domain.member.dto.response.MemberResponseDto;
 import com.se.its.domain.project.domain.Project;
 import com.se.its.domain.project.domain.ProjectMember;
 import com.se.its.domain.project.domain.repository.ProjectMemberRepository;
@@ -14,11 +15,11 @@ import com.se.its.domain.project.dto.request.ProjectMemberAddRequestDto;
 import com.se.its.domain.project.dto.request.ProjectMemberRemoveRequestDto;
 import com.se.its.domain.project.dto.response.ProjectResponseDto;
 import com.se.its.global.error.exceptions.BadRequestException;
+import com.se.its.global.util.dto.DtoConverter;
+import com.se.its.global.util.validator.EntityValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,30 +29,37 @@ import static com.se.its.global.error.ErrorCode.*;
 @RequiredArgsConstructor
 public class ProjectService {
     private final ProjectRepository projectRepository;
-    private final MemberRepository memberRepository;
     private final ProjectMemberRepository projectMemberRepository;
+    private final IssueRepository issueRepository;
+    private final DtoConverter dtoConverter;
+    private final EntityValidator entityValidator;
 
     @Transactional
     public ProjectResponseDto createProject(Long signId, ProjectCreateRequestDto projectCreateRequestDto){
-        Member admin = getUser(signId);
+        Member admin = entityValidator.validateMember(signId);
         if(!admin.getRole().equals(Role.ADMIN)){
             throw  new BadRequestException(INVALID_REQUEST_ROLE, "관리자가 아니기 때문에 프로젝트를 생성할 수 없습니다.");
         }
 
         //멤버 유효성 검사
         List<Member> validMembers = projectCreateRequestDto.getMemberIds().stream()
-                .map(this::getUser)
+                .map(entityValidator::validateMember)
                 .toList();
 
-        boolean hasPL = validMembers.stream().anyMatch(member -> member.getRole().equals(Role.PL));
-        if (!hasPL) {
-            throw new BadRequestException(INVALID_REQUEST_ROLE, "프로젝트 리더가 설정되지 않았습니다.");
+        List<Member> plMembers = validMembers.stream()
+                .filter(member -> member.getRole().equals(Role.PL))
+                .toList();
+
+        if (plMembers.size() != 1) {
+            throw new BadRequestException(INVALID_REQUEST_ROLE, "프로젝트 리더 한명 필요합니다.");
         }
 
+        Member plMember = plMembers.get(0);
 
         Project project = Project.builder()
                 .name(projectCreateRequestDto.getName())
                 .isDeleted(false)
+                .leaderId(plMember.getId())
                 .build();
         projectRepository.save(project);
 
@@ -67,31 +75,23 @@ public class ProjectService {
         projectMemberRepository.saveAll(projectMembers);
 
 
-        return createProjectResponseDto(project);
+        return dtoConverter.createProjectResponseDto(project);
 
     }
 
     @Transactional(readOnly = true)
     public ProjectResponseDto getProjectById(Long signId, Long projectId) {
-        Member member = getUser(signId);
-        Project project = getProject(projectId);
-
-        boolean isMemberOfProject = projectMemberRepository.existsByMemberIdAndProjectIdAndIsDeletedFalse(member.getId(), project.getId());
-
-        //admin일 경우 모든 프로젝트 조회 가능
-        if(!member.getRole().equals(Role.ADMIN)){
-            if (!isMemberOfProject) {
-                throw new BadRequestException(ROW_DOES_NOT_EXIST, "해당 프로젝트의 멤버가 아닙니다.");
-            }
-        }
+        Member member = entityValidator.validateMember(signId);
+        Project project = entityValidator.validateProject(projectId);
+        entityValidator.isMemberOfProject(member, project);
 
         //프로젝트 멤버 조회
-        return createProjectResponseDto(project);
+        return dtoConverter.createProjectResponseDto(project);
     }
 
     @Transactional(readOnly = true)
     public List<ProjectResponseDto> getAllProject(Long id){
-        Member member = getUser(id);
+        Member member = entityValidator.validateMember(id);
 
         List<Project> projects;
         if (member.getRole().equals(Role.ADMIN)) {
@@ -106,92 +106,73 @@ public class ProjectService {
         }
 
         return projects.stream()
-                .map(project -> {
-                    return createProjectResponseDto(project);
-                })
-                .collect(Collectors.toList());
+                .map(dtoConverter::createProjectResponseDto)
+                .toList();
 
     }
 
 
     @Transactional
     public ProjectResponseDto addMember(Long signId, Long projectId, ProjectMemberAddRequestDto projectMemberAddRequestDto){
-        Member admin = getUser(signId);
-        Project project = getProject(projectId);
-        Member newMember = getUser(projectMemberAddRequestDto.getAddMemberId());
-        isAdminOrPL(admin);
+        Member admin = entityValidator.validateMember(signId);
+        Project project = entityValidator.validateProject(projectId);
+        Member newMember = entityValidator.validateMember(projectMemberAddRequestDto.getAddMemberId());
+        entityValidator.isMemberOfProject(admin, project);
+
+        if (project.getLeaderId() != null && newMember.getRole().equals(Role.PL)) {
+            throw new BadRequestException(ROW_ALREADY_EXIST, "프로젝트에 이미 PL이 존재합니다.");
+        }
 
         if(admin.getRole().equals(Role.ADMIN)){
             addProjectMember(project, newMember);
-        }else{
+            if(newMember.getRole().equals(Role.PL)){
+                project.setLeaderId(newMember.getId());
+            }
+        }else if(admin.getRole().equals(Role.PL)) {
             if (newMember.getRole().equals(Role.PL)) {
                 throw new BadRequestException(INVALID_REQUEST_ROLE, "프로젝트 리더는 다른 프로젝트 리더를 추가할 수 없습니다.");
             }
-            boolean isMemberOfProject = projectMemberRepository.existsByMemberIdAndProjectIdAndIsDeletedFalse(admin.getId(), project.getId());
-            if (!isMemberOfProject) {
-                throw new BadRequestException(ROW_DOES_NOT_EXIST, "해당 프로젝트의 멤버가 아니기 때문에 권한이 없습니다.");
-            }
             addProjectMember(project, newMember);
         }
-        return createProjectResponseDto(project);
-
+        return dtoConverter.createProjectResponseDto(project);
     }
 
     @Transactional
     public ProjectResponseDto removeMember(Long signId, Long projectId, ProjectMemberRemoveRequestDto projectMemberRemoveRequestDto){
-        Member admin = getUser(signId);
-        Project project = getProject(projectId);
-        Member removeMember = getUser(projectMemberRemoveRequestDto.getRemoveMemberId());
-        isAdminOrPL(admin);
+        Member admin = entityValidator.validateMember(signId);
+        Project project = entityValidator.validateProject(projectId);
+        Member removeMember = entityValidator.validateMember(projectMemberRemoveRequestDto.getRemoveMemberId());
+        entityValidator.isMemberOfProject(admin, project);
 
         if(admin.getRole().equals(Role.ADMIN)){
             removeProjectMember(project, removeMember);
-        }else{
+            if(removeMember.getRole().equals(Role.PL)){
+                project.setLeaderId(null);
+            }
+        }else if(admin.getRole().equals(Role.PL)){
             if (removeMember.getRole().equals(Role.PL)) {
                 throw new BadRequestException(INVALID_REQUEST_ROLE, "프로젝트 리더는 프로젝트 리더를 삭제할 수 없습니다.");
             }
-            boolean isMemberOfProject = projectMemberRepository.existsByMemberIdAndProjectIdAndIsDeletedFalse(admin.getId(), project.getId());
-            if (!isMemberOfProject) {
-                throw new BadRequestException(ROW_DOES_NOT_EXIST, "해당 프로젝트의 멤버가 아니기 때문에 권한이 없습니다.");
-            }
             removeProjectMember(project, removeMember);
         }
-        return createProjectResponseDto(project);
+        return dtoConverter.createProjectResponseDto(project);
     }
 
     @Transactional
     public void removeProject(Long signId, Long projectId){
-        Member admin = getUser(signId);
-        Project project = getProject(projectId);
+        Member admin = entityValidator.validateMember(signId);
+        Project project = entityValidator.validateProject(projectId);
         if(!admin.getRole().equals(Role.ADMIN)){
             throw new BadRequestException(INVALID_REQUEST_ROLE, "관리자가 아닙니다.");
         }
         project.setIsDeleted(true);
-        projectRepository.save(project);
         List<ProjectMember> projectMembers = projectMemberRepository.findByProjectIdAndIsDeletedFalse(projectId);
+        List<Issue> issues = issueRepository.findByProjectIdAndIsDeletedFalse(projectId);
         projectMembers.forEach(pm -> pm.setIsDeleted(true));
-
+        issues.forEach(issue -> issue.setIsDeleted(true));
     }
 
 
-
-
-
-    private Member getUser(Long targetId){
-        return memberRepository.findByIdAndIsDeletedFalse(targetId)
-                .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 사용자입니다."));
-    }
-
-    private Project getProject(Long projectId){
-        return projectRepository.findByIdAndIsDeletedIsFalse(projectId)
-                .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "프로젝트가 존재하지 않습니다."));
-    }
-
-    private void isAdminOrPL(Member member) {
-        if (!(member.getRole().equals(Role.ADMIN) || member.getRole().equals(Role.PL))) {
-            throw new BadRequestException(INVALID_REQUEST_ROLE, "관리자 또는 프로젝트 리더가 아닙니다.");
-        }
-    }
 
     private void addProjectMember(Project project, Member newMember) {
         // 프로젝트에 이미 존재하는 멤버인지 확인
@@ -221,28 +202,8 @@ public class ProjectService {
                 .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "해당 프로젝트의 멤버가 아닙니다."));
 
         projectMember.setIsDeleted(true);
-        projectMemberRepository.save(projectMember);
     }
 
-    private ProjectResponseDto createProjectResponseDto(Project project) {
-        List<MemberResponseDto> memberResponseDtos = projectMemberRepository.findByProjectIdAndIsDeletedFalse(project.getId()).stream()
-                .map(pm -> MemberResponseDto.builder()
-                        .id(pm.getMember().getId())
-                        .name(pm.getMember().getName())
-                        .role(pm.getMember().getRole())
-                        .isDeleted(pm.getMember().getIsDeleted())
-                        .build())
-                .collect(Collectors.toList());
-
-        List<Long> tempIssues = Collections.emptyList();
-
-        return ProjectResponseDto.builder()
-                .id(project.getId())
-                .name(project.getName())
-                .members(memberResponseDtos)
-                .issues(tempIssues)
-                .build();
-    }
 
 
 

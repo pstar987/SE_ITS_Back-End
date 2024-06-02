@@ -6,5 +6,6 @@ public enum Status {
     RESOLVED,
     CLOSED,
     REOPENED,
-    INACTIVE
+    INACTIVE,
+    DELETE_REQUEST
 }

@@ -12,8 +12,6 @@ public class MemberResponseDto {
 
     private Role role;
 
-    private Boolean isDeleted;
-
     private String name;
 
 }

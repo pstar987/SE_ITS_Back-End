@@ -24,6 +24,9 @@ public class Project {
     @Column(name = "isDeleted")
     private Boolean isDeleted;
 
+    @Column(name = "leaderId")
+    private Long leaderId;
+
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectMember> projectMembers;
 
@@ -31,6 +34,10 @@ public class Project {
     private List<Issue> Issues;
 
     public void setIsDeleted(Boolean isDeleted){
-        this.isDeleted = isDeleted;
+        if(isDeleted != null) this.isDeleted = isDeleted;
+    }
+
+    public void setLeaderId(Long leaderId){
+        if(leaderId != null) this.leaderId = leaderId;
     }
 }
