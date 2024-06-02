@@ -1,0 +1,12 @@
+@startuml
+actor TEST
+participant System
+participant DBMS as "Database"
+
+TEST -> System: removeComment(signId, commentId)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateComment(commentId)
+System -> DBMS: isWriterOfComment(signId, commentId)
+System -> DBMS: removeComment(commentId)
+System -> TEST: "삭제되었습니다."
+@enduml

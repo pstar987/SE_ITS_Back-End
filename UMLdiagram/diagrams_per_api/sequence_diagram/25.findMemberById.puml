@@ -1,0 +1,9 @@
+@startuml
+actor Member
+participant System
+participant DBMS as "Database"
+
+Member -> System: findMemberById(signId)
+System -> DBMS: validateMember(signId)
+System -> Member: MemberResponseDto
+@enduml

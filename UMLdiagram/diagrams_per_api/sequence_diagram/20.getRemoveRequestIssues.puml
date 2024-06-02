@@ -1,0 +1,11 @@
+@startuml
+actor Admin
+participant System
+participant DBMS as "Database"
+
+Admin -> System: getRemoveRequestIssues(signId)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateAdmin(signId)
+System -> DBMS: getRemoveRequestIssues()
+System -> Admin: List<IssueResponseDto
+@enduml

@@ -1,0 +1,26 @@
+@startuml
+class Comment {
+    Long id
+    String content
+    Member writer
+    Issue issue
+    Boolean isDeleted
+}
+
+class CommentService {
+    +List<CommentResponseDto> getComments(Long signId, Long issueId)
+}
+
+class CommentRepository {
+    +List<Comment> findByIssueIdAndIsDeletedFalse(Long issueId)
+}
+
+class DtoConverter {
+    +CommentResponseDto createCommentResponseDto(Comment comment)
+}
+
+CommentService --> CommentRepository
+CommentService --> DtoConverter
+Comment --> Member
+Comment --> Issue
+@enduml

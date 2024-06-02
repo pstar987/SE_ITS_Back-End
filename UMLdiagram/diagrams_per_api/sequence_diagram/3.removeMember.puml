@@ -1,0 +1,13 @@
+@startuml
+actor PL
+participant System
+participant DBMS as "Database"
+
+PL -> System: removeMember(signId, projectId, projectMemberRemoveRequestDto)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateProject(projectId)
+System -> DBMS: validateMember(projectMemberRemoveRequestDto.removeMemberId)
+System -> DBMS: isMemberOfProject(signId, projectId)
+System -> DBMS: removeMemberFromProject(projectId, projectMemberRemoveRequestDto.removeMemberId)
+System -> PL: ProjectResponseDto
+@enduml

@@ -1,0 +1,12 @@
+@startuml
+actor Admin
+participant System
+participant DBMS as "Database"
+
+Admin -> System: updateMemberRole(signId, roleUpdateRequestDto)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateAdmin(signId)
+System -> DBMS: validateMember(roleUpdateRequestDto.id)
+System -> DBMS: updateMemberRole(roleUpdateRequestDto.id, roleUpdateRequestDto.role)
+System -> Admin: MemberResponseDto
+@enduml

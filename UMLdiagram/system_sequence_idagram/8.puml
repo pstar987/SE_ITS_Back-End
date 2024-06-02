@@ -1,0 +1,32 @@
+@startuml
+actor Tester_Dev
+participant System
+
+Tester_Dev -> System: updateIssue(signId, issueId, description, status, priority, category)
+alt member not found
+    System --> Tester_Dev: Error msg("존재하지 않는 사용자입니다.")
+else
+    alt issue not found
+        System --> Tester_Dev: Error msg("존재하지 않는 이슈입니다.")
+    else
+        alt project not found
+            System --> Tester_Dev: Error msg("존재하지 않는 프로젝트입니다.")
+        else
+            alt not member of project
+                System --> Tester_Dev: Error msg("해당 프로젝트의 멤버가 아닙니다.")
+                alt DEV
+                    System --> Tester_Dev: Error msg("개발자는 이슈 업데이트가 불가합니다.")
+                else
+                    alt not owner
+                        System --> Tester_Dev: Error msg("테스터는 본인의 이슈만 업데이트 가능합니다.")
+                    else
+                        System -> System: update issue
+                        System -> System: create comment for update
+                        System --> Tester_Dev: return IssueResponseDto(id, title, description, reporter, project, status, priority, category)
+                    end
+                end
+            end
+        end
+    end
+end
+@enduml
