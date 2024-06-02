@@ -34,7 +34,7 @@ public class AccountRuleChangePage extends JFrame {
     }
 
     private void initData() {
-        memberResponseDtos = swingMemberController.findMembersByAdmin(userId);
+        memberResponseDtos = swingMemberController.findAllMembers(userId);
     }
 
     private void initComponents() {

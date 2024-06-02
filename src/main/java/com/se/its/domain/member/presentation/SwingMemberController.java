@@ -39,10 +39,10 @@ public class SwingMemberController {
         return memberService.findMemberById(id);
     }
 
-    public List<MemberResponseDto> findMembersByAdmin(
+    public List<MemberResponseDto> findAllMembers(
             Long id
     ) {
-        return memberService.findMembersByAdmin(id);
+        return memberService.findAllMembers(id);
     }
 
     public MemberResponseDto deleteMember(

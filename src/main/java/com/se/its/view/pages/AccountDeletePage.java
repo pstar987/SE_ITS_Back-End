@@ -11,7 +11,6 @@ import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
-import java.util.Map;
 import javax.swing.*;
 
 public class AccountDeletePage extends JFrame {
@@ -35,7 +34,7 @@ public class AccountDeletePage extends JFrame {
     }
 
     private void initData() {
-        memberResponseDtos = swingMemberController.findMembersByAdmin(userId);
+        memberResponseDtos = swingMemberController.findAllMembers(userId);
     }
 
     private void updateMemberResponseDtoJList() {
