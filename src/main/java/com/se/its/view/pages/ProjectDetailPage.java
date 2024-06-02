@@ -114,11 +114,10 @@ public class ProjectDetailPage extends JFrame {
 
         gbc.gridy = 5;
         JButton createIssueBtn = new JButton("이슈 생성하기");
-        //TODO 이슈 생성 페이지
         add(createIssueBtn, gbc);
 
         createIssueBtn.addActionListener(
-                e -> new IssueCreationPage(currentProject, swingIssueController, userId).setVisible(true)
+                e -> new IssueCreationPage(currentProject, swingIssueController, userId, this).setVisible(true)
         );
     }
 
@@ -127,6 +126,11 @@ public class ProjectDetailPage extends JFrame {
         if (member.getRole().toString().equals("DEV")) {
             initDEVComponent();
         }
+    }
+
+    public void refreshIssues() {
+        currentProject = swingProjectController.getProject(userId, currentProject.getId());
+        initIssueData(currentProject);
     }
 
     private void initDEVComponent() {
