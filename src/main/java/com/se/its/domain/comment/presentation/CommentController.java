@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/comment")
@@ -20,8 +22,17 @@ public class CommentController {
     @PostMapping("/create")
     public ResponseEntity<CommentResponseDto> createComment(
             @Valid @RequestHeader Long id,
-            @Valid @RequestBody CommentCreateRequestDto commentCreateRequestDto) {
-        CommentResponseDto responseDto = commentService.createComment(id, commentCreateRequestDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
+            @Valid @RequestBody CommentCreateRequestDto commentCreateRequestDto
+    ) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(commentService.createComment(id, commentCreateRequestDto));
     }
+
+    @GetMapping("")
+    public ResponseEntity<List<CommentResponseDto>> getComments(
+            @Valid @RequestHeader Long id,
+            @RequestParam Long issueId
+    ) {
+        return ResponseEntity.ok(commentService.getComments(id, issueId));
+    }
+
 }
