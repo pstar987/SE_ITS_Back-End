@@ -4,13 +4,11 @@ package com.se.its.domain.issue.application;
 import com.se.its.domain.comment.application.CommentService;
 import com.se.its.domain.comment.dto.request.CommentCreateRequestDto;
 import com.se.its.domain.issue.domain.Issue;
+import com.se.its.domain.issue.domain.IssueCategory;
 import com.se.its.domain.issue.domain.Priority;
 import com.se.its.domain.issue.domain.Status;
 import com.se.its.domain.issue.domain.repository.IssueRepository;
-import com.se.its.domain.issue.dto.request.IssueAssignRequestDto;
-import com.se.its.domain.issue.dto.request.IssueCreateRequestDto;
-import com.se.its.domain.issue.dto.request.IssueDeleteRequestDto;
-import com.se.its.domain.issue.dto.request.IssueUpdateRequestDto;
+import com.se.its.domain.issue.dto.request.*;
 import com.se.its.domain.issue.dto.response.IssueResponseDto;
 import com.se.its.domain.member.domain.Member;
 import com.se.its.domain.member.domain.Role;
@@ -61,6 +59,7 @@ public class IssueService {
 
     }
 
+    @Transactional(readOnly = true)
     public IssueResponseDto getIssue(Long signId, Long issueId){
         Member member = entityValidator.validateMember(signId);
         Issue issue = entityValidator.validateIssue(issueId);
@@ -240,6 +239,25 @@ public class IssueService {
         return dtoConverter.createIssueResponseDto(issue);
     }
 
+    @Transactional(readOnly = true)
+    public List<IssueResponseDto> searchIssues(Long signId, IssueCategory category, Long projectId, String keyword) {
+        Member member = entityValidator.validateMember(signId);
+        Project project = entityValidator.validateProject(projectId);
+        entityValidator.isMemberOfProject(member, project);
 
+
+        List<Issue> issues = switch (category) {
+            case TITLE -> issueRepository.findByTitleContainingAndIsDeletedFalse(keyword);
+            case STATUS -> issueRepository.findByStatusAndIsDeletedFalse(Status.valueOf(keyword.toUpperCase()));
+            case PRIORITY -> issueRepository.findByPriorityAndIsDeletedFalse(Priority.valueOf(keyword.toUpperCase()));
+            case ASSIGNEE -> issueRepository.findByAssigneeNameOrSignIdAndIsDeletedFalse(keyword);
+            default -> throw new BadRequestException(INVALID_REQUEST_ROLE, "유효하지 않은 검색 카테고리입니다.");
+        };
+
+
+        return issues.stream()
+                .map(dtoConverter::createIssueResponseDto)
+                .toList();
+    }
 
 }
