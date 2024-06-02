@@ -31,10 +31,10 @@ public class IssueController {
         return ResponseEntity.status(HttpStatus.CREATED).body(issueService.createIssue(id, issueCreateRequestDto));
     }
 
-    @GetMapping("/{issueId}")
+    @GetMapping("")
     public ResponseEntity<IssueResponseDto> getIssue(
             @Valid @RequestHeader Long id,
-            @PathVariable Long issueId
+            @RequestParam Long issueId
     ) {
         return ResponseEntity.ok(issueService.getIssue(id ,issueId));
     }
@@ -47,7 +47,7 @@ public class IssueController {
         return ResponseEntity.ok(issueService.getIssues(id ,projectId));
     }
 
-    @GetMapping("")
+    @GetMapping("/all")
     public ResponseEntity<List<IssueResponseDto>> getAllIssues(
             @Valid @RequestHeader Long id
     ){

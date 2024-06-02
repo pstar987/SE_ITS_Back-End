@@ -75,14 +75,4 @@ public class ProjectController {
     }
 
 
-
-
-    /*
-    * 프로젝트 생성  post : /api/v1/project/create
-    * 프로젝트 조회  get  : /api/v1/project/{projectId}
-    * 프로젝트 멤버 추가 put : /api/v1/project/{projectId}/member/add
-    * 프로젝트 멤버 삭제 put : /api/v1/project/{projectId}/member/delete
-    * 프로젝트 전체 조회 get : /api/v1/project
-    * 프로젝트 삭제  put  : /api/v1/project/{projectId}
-    *  */
 }

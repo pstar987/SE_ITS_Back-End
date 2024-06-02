@@ -1,5 +1,6 @@
 package com.se.its.domain.issue.dto.response;
 
+import com.se.its.domain.comment.dto.response.CommentResponseDto;
 import com.se.its.domain.issue.domain.Priority;
 import com.se.its.domain.issue.domain.Status;
 import com.se.its.domain.member.dto.response.MemberResponseDto;
@@ -7,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Getter
@@ -22,7 +24,6 @@ public class IssueResponseDto {
     private MemberResponseDto fixer;
     private MemberResponseDto assignee;
     private Long projectId;
-    private Boolean isDeleted;
     private String category;
-//    private List<> comments;
+    private List<CommentResponseDto> comments;
 }
