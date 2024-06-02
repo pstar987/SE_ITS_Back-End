@@ -225,8 +225,8 @@ public class ProjectDetailPage extends JFrame {
                                                       int index, boolean isSelected, boolean cellHasFocus) {
             issueName.setText("[" + value.getTitle() + "]");
             issueStatus.setText("상태: " + value.getStatus());
-            issuePriority.setText("우선순위: " + value.getPriority());
-            issuePriority.setText("담당자: " + (value.getAssignee() == null ? "지정 안됨" : value.getAssignee().getName()));
+            issuePriority.setText("우선순위: " + value.getPriority().toString());
+            issueAssignee.setText("담당자: " + (value.getAssignee() == null ? "지정 안됨" : value.getAssignee().getName()));
             issueReportedDate.setText("일시: " + value.getReportedDate().format(formatter));
             if (isSelected) {
                 setBackground(list.getSelectionBackground());
