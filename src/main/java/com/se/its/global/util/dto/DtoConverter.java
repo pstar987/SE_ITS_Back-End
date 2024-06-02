@@ -2,6 +2,7 @@ package com.se.its.global.util.dto;
 
 import com.se.its.domain.comment.domain.Comment;
 import com.se.its.domain.comment.domain.repository.CommentRepository;
+import com.se.its.domain.comment.dto.request.CommentCreateRequestDto;
 import com.se.its.domain.comment.dto.response.CommentResponseDto;
 import com.se.its.domain.issue.domain.Issue;
 import com.se.its.domain.issue.dto.response.IssueResponseDto;
@@ -30,7 +31,6 @@ public class DtoConverter {
                 .id(member.getId())
                 .name(member.getName())
                 .role(member.getRole())
-//                .isDeleted(member.getIsDeleted())
                 .build();
     }
 
@@ -50,7 +50,6 @@ public class DtoConverter {
                 .members(memberResponseDtos)
                 .leaderId(project.getLeaderId())
                 .issues(issueIds)
-//                .isDeleted(project.getIsDeleted())
                 .build();
     }
 
@@ -60,15 +59,16 @@ public class DtoConverter {
         List<CommentResponseDto> comments = commentRepository.findByIssueIdAndIsDeletedFalse(issue.getId()).stream()
                 .map(this::createCommentResponseDto)
                 .toList();
+
+
         return IssueResponseDto.builder()
                 .id(issue.getId())
                 .title(issue.getTitle())
                 .description(issue.getDescription())
                 .priority(issue.getPriority())
                 .status(issue.getStatus())
-                .reporter(createMemberResponseDto(issue.getReporter()))
+                .reporter(issue.getReporter() != null ? createMemberResponseDto(issue.getReporter()) : null)
                 .reportedDate(issue.getCreatedAt())
-//                .isDeleted(issue.getIsDeleted())
                 .fixer(issue.getFixer() != null ? createMemberResponseDto(issue.getFixer()) : null)
                 .assignee(issue.getAssignee() != null ? createMemberResponseDto(issue.getAssignee()) : null)
                 .projectId(issue.getProject().getId())
@@ -81,9 +81,15 @@ public class DtoConverter {
         return CommentResponseDto.builder()
                 .id(comment.getId())
                 .content(comment.getContent())
-//                .issueId(comment.getIssue().getId())
                 .writerId(comment.getWriter().getId())
-//                .isDeleted(comment.getIsDeleted())
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public CommentCreateRequestDto createCommentRequestDto(Issue issue, String content){
+        return CommentCreateRequestDto.builder()
+                .issueId(issue.getId())
+                .content(content)
                 .build();
     }
 }

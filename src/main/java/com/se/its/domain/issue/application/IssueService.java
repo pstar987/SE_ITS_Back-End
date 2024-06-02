@@ -1,14 +1,14 @@
 package com.se.its.domain.issue.application;
 
 
+import com.se.its.domain.comment.application.CommentService;
+import com.se.its.domain.comment.dto.request.CommentCreateRequestDto;
 import com.se.its.domain.issue.domain.Issue;
+import com.se.its.domain.issue.domain.IssueCategory;
 import com.se.its.domain.issue.domain.Priority;
 import com.se.its.domain.issue.domain.Status;
 import com.se.its.domain.issue.domain.repository.IssueRepository;
-import com.se.its.domain.issue.dto.request.IssueAssignRequestDto;
-import com.se.its.domain.issue.dto.request.IssueCreateRequestDto;
-import com.se.its.domain.issue.dto.request.IssueDeleteRequestDto;
-import com.se.its.domain.issue.dto.request.IssueUpdateRequestDto;
+import com.se.its.domain.issue.dto.request.*;
 import com.se.its.domain.issue.dto.response.IssueResponseDto;
 import com.se.its.domain.member.domain.Member;
 import com.se.its.domain.member.domain.Role;
@@ -17,6 +17,7 @@ import com.se.its.global.error.exceptions.BadRequestException;
 import com.se.its.global.util.dto.DtoConverter;
 import com.se.its.global.util.validator.EntityValidator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +31,10 @@ public class IssueService {
     private final IssueRepository issueRepository;
     private final DtoConverter dtoConverter;
     private final EntityValidator entityValidator;
+    private final CommentService commentService;
+
+    @Value("${spring.flask.api.url}")
+    private String flaskApiUrl;
 
     @Transactional
     public IssueResponseDto createIssue(Long signId, IssueCreateRequestDto issueCreateRequestDto){
@@ -58,6 +63,7 @@ public class IssueService {
 
     }
 
+    @Transactional(readOnly = true)
     public IssueResponseDto getIssue(Long signId, Long issueId){
         Member member = entityValidator.validateMember(signId);
         Issue issue = entityValidator.validateIssue(issueId);
@@ -80,7 +86,6 @@ public class IssueService {
                 .map(dtoConverter::createIssueResponseDto).toList();
 
     }
-
 
 
     @Transactional(readOnly = true)
@@ -118,6 +123,13 @@ public class IssueService {
         issue.setAssignee(assignee);
         issue.setStatus(Status.ASSIGNED); // 상태를 ASSIGNED로 변경
         issueRepository.save(issue);
+
+        CommentCreateRequestDto commentCreateRequestDto = dtoConverter.createCommentRequestDto(
+                issue,
+                assignee.getName() + "가 해당 이슈에 할당되었습니다.");
+
+        commentService.createComment(1L, commentCreateRequestDto);
+
         return dtoConverter.createIssueResponseDto(issue);
     }
 
@@ -135,6 +147,12 @@ public class IssueService {
 
         issue.setStatus(Status.DELETE_REQUEST);
         issueRepository.save(issue);
+
+        CommentCreateRequestDto commentCreateRequestDto = dtoConverter.createCommentRequestDto(
+                issue,
+                tester.getName() + "가 이슈 삭제를 요청했습니다.");
+
+        commentService.createComment(1L, commentCreateRequestDto);
         return dtoConverter.createIssueResponseDto(issue);
     }
 
@@ -185,6 +203,12 @@ public class IssueService {
         issue.setCategory(issueUpdateRequestDto.getCategory());
         issue.setPriority(issueUpdateRequestDto.getPriority());
 
+        CommentCreateRequestDto commentCreateRequestDto = dtoConverter.createCommentRequestDto(
+                issue,
+                tester.getName() + "가 이슈를 업데이트하였습니다.");
+
+        commentService.createComment(1L, commentCreateRequestDto);
+
         issueRepository.save(issue);
         return dtoConverter.createIssueResponseDto(issue);
     }
@@ -209,8 +233,35 @@ public class IssueService {
 
         issue.setAssignee(assignee);
         issueRepository.save(issue);
+
+        CommentCreateRequestDto commentCreateRequestDto = dtoConverter.createCommentRequestDto(
+                issue,
+                assignee.getName() + "가 해당 이슈에 할당되었습니다.");
+
+        commentService.createComment(1L, commentCreateRequestDto);
+
         return dtoConverter.createIssueResponseDto(issue);
     }
 
+    @Transactional(readOnly = true)
+    public List<IssueResponseDto> searchIssues(Long signId, IssueCategory category, Long projectId, String keyword) {
+        Member member = entityValidator.validateMember(signId);
+        Project project = entityValidator.validateProject(projectId);
+        entityValidator.isMemberOfProject(member, project);
+
+
+        List<Issue> issues = switch (category) {
+            case TITLE -> issueRepository.findByTitleContainingAndIsDeletedFalse(keyword);
+            case STATUS -> issueRepository.findByStatusAndIsDeletedFalse(Status.valueOf(keyword.toUpperCase()));
+            case PRIORITY -> issueRepository.findByPriorityAndIsDeletedFalse(Priority.valueOf(keyword.toUpperCase()));
+            case ASSIGNEE -> issueRepository.findByAssigneeNameOrSignIdAndIsDeletedFalse(keyword);
+            default -> throw new BadRequestException(INVALID_REQUEST_ROLE, "유효하지 않은 검색 카테고리입니다.");
+        };
+
+
+        return issues.stream()
+                .map(dtoConverter::createIssueResponseDto)
+                .toList();
+    }
 
 }

@@ -5,6 +5,9 @@ import com.se.its.domain.member.domain.Role;
 import com.se.its.domain.member.domain.respository.MemberRepository;
 import com.se.its.domain.member.dto.request.*;
 import com.se.its.domain.member.dto.response.MemberResponseDto;
+import com.se.its.domain.project.domain.Project;
+import com.se.its.domain.project.domain.ProjectMember;
+import com.se.its.domain.project.domain.repository.ProjectMemberRepository;
 import com.se.its.global.error.exceptions.BadRequestException;
 import com.se.its.global.error.exceptions.UnauthorizedException;
 import com.se.its.global.util.dto.DtoConverter;
@@ -22,6 +25,7 @@ import static com.se.its.global.error.ErrorCode.*;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final ProjectMemberRepository projectMemberRepository;
     private final DtoConverter dtoConverter;
     private final EntityValidator entityValidator;
 
@@ -102,6 +106,42 @@ public class MemberService {
 
         return allMembers.stream()
                 .filter(member -> !member.getRole().equals(Role.ADMIN))
+                .map(dtoConverter::createMemberResponseDto)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<MemberResponseDto> findMembersByAdminAndPL(Long id, Long projectId){
+        Member admin = entityValidator.validateMember(id);
+        Project project = entityValidator.validateProject(projectId);
+        entityValidator.isMemberOfProject(admin, project);
+
+        if(!(admin.getRole().equals(Role.ADMIN) || admin.getRole().equals(Role.PL))){
+            throw  new BadRequestException(INVALID_REQUEST_ROLE, "관리자나 프로젝트 리더가 아닙니다.");
+        }
+
+        List<ProjectMember> allMembers = projectMemberRepository.findByProjectIdAndIsDeletedFalse(project.getId());
+
+        return allMembers.stream()
+                .map(pm -> dtoConverter.createMemberResponseDto(pm.getMember()))
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<MemberResponseDto> findMembersByRole(Long id, Long projectId, Role role){
+        Member admin = entityValidator.validateMember(id);
+        Project project = entityValidator.validateProject(projectId);
+        entityValidator.isMemberOfProject(admin, project);
+
+        if(!(admin.getRole().equals(Role.ADMIN) || admin.getRole().equals(Role.PL))){
+            throw new BadRequestException(INVALID_REQUEST_ROLE, "관리자나 프로젝트 리더가 아닙니다.");
+        }
+
+        List<ProjectMember> allMembers = projectMemberRepository.findByProjectIdAndIsDeletedFalse(project.getId());
+
+        return allMembers.stream()
+                .map(ProjectMember::getMember)
+                .filter(member -> member.getRole().equals(role)) // 역할로 필터링
                 .map(dtoConverter::createMemberResponseDto)
                 .toList();
     }

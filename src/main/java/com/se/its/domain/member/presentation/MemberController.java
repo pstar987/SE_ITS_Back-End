@@ -1,6 +1,7 @@
 package com.se.its.domain.member.presentation;
 
 import com.se.its.domain.member.application.MemberService;
+import com.se.its.domain.member.domain.Role;
 import com.se.its.domain.member.dto.request.MemberDeleteRequestDto;
 import com.se.its.domain.member.dto.request.MemberRoleUpdateRequestDto;
 import com.se.its.domain.member.dto.request.MemberSignInRequestDto;
@@ -53,13 +54,30 @@ public class MemberController {
         return ResponseEntity.ok(memberService.findMemberById(id));
     }
 
-
     @GetMapping("/account")
     public ResponseEntity<List<MemberResponseDto>> findMembersByAdmin(
             @Valid @RequestHeader Long id
     ){
         return ResponseEntity.ok(memberService.findMembersByAdmin(id));
     }
+
+    @GetMapping("/account/project")
+    public ResponseEntity<List<MemberResponseDto>> findMembersByAdminAndPL(
+            @Valid @RequestHeader Long id,
+            @RequestParam Long projectId
+    ){
+        return ResponseEntity.ok(memberService.findMembersByAdminAndPL(id, projectId));
+    }
+
+    @GetMapping("/account/project/role")
+    public ResponseEntity<List<MemberResponseDto>> findMembersByRole(
+            @Valid @RequestHeader Long id,
+            @RequestParam Long projectId,
+            @RequestParam Role role
+    ){
+        return ResponseEntity.ok(memberService.findMembersByRole(id, projectId, role));
+    }
+
 
 
     @PutMapping("/account/delete")
