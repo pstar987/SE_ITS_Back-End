@@ -13,6 +13,7 @@ import com.se.its.domain.project.domain.repository.ProjectRepository;
 import com.se.its.global.error.exceptions.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import static com.se.its.global.error.ErrorCode.ROW_DOES_NOT_EXIST;
 
@@ -56,6 +57,10 @@ public class EntityValidator {
             commentRepository.findByWriterIdAndIdAndIsDeletedFalse(member.getId(), comment.getId())
                     .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "해당 댓글의 작성자가 아닙니다."));
         }
+    }
+
+    public Boolean isAdminOrPl(Member member){
+        return (member.getRole().equals(Role.ADMIN) || member.getRole().equals(Role.PL));
     }
 
 }

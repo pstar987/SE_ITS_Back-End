@@ -58,7 +58,7 @@ public class MemberController {
     public ResponseEntity<List<MemberResponseDto>> findMembersByAdmin(
             @Valid @RequestHeader Long id
     ){
-        return ResponseEntity.ok(memberService.findMembersByAdmin(id));
+        return ResponseEntity.ok(memberService.findAllMembers(id));
     }
 
     @GetMapping("/account/project")

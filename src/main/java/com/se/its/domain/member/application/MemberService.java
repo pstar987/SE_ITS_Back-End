@@ -95,11 +95,11 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public List<MemberResponseDto> findMembersByAdmin(Long signId){
+    public List<MemberResponseDto> findAllMembers(Long signId){
         Member admin = entityValidator.validateMember(signId);
 
-        if(!admin.getRole().equals(Role.ADMIN)){
-            throw  new BadRequestException(INVALID_REQUEST_ROLE, "관리자가 아닙니다.");
+        if(!entityValidator.isAdminOrPl(admin)){
+            throw  new BadRequestException(INVALID_REQUEST_ROLE, "관리자나 프로젝트 리더가 아닙니다.");
         }
 
         List<Member> allMembers = memberRepository.findByIsDeletedIsFalse();
@@ -116,7 +116,7 @@ public class MemberService {
         Project project = entityValidator.validateProject(projectId);
         entityValidator.isMemberOfProject(admin, project);
 
-        if(!(admin.getRole().equals(Role.ADMIN) || admin.getRole().equals(Role.PL))){
+        if(!entityValidator.isAdminOrPl(admin)){
             throw  new BadRequestException(INVALID_REQUEST_ROLE, "관리자나 프로젝트 리더가 아닙니다.");
         }
 
@@ -133,7 +133,7 @@ public class MemberService {
         Project project = entityValidator.validateProject(projectId);
         entityValidator.isMemberOfProject(admin, project);
 
-        if(!(admin.getRole().equals(Role.ADMIN) || admin.getRole().equals(Role.PL))){
+        if(!entityValidator.isAdminOrPl(admin)){
             throw new BadRequestException(INVALID_REQUEST_ROLE, "관리자나 프로젝트 리더가 아닙니다.");
         }
 
