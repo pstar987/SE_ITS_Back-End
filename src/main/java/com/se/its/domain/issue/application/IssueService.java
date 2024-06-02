@@ -303,13 +303,23 @@ public class IssueService {
 
         issue.setStatus(issueStatusUpdateRequestDto.getStatus());
 
-        CommentCreateRequestDto commentCreateRequestDto = dtoConverter.createCommentRequestDto(
-                issue,
-                member.getName() + "가 이슈의 상태를 변경하였습니다.");
-
-        commentService.createComment(1L, commentCreateRequestDto);
+        String message;
+        if(issueStatusUpdateRequestDto.getStatus().equals(Status.RESOLVED)){
+            issue.setFixer(member);
+            message = member.getName() + "님이 이슈를 해결하였습니다.";
+        } else{
+            message = member.getName() + "님이 이슈를 " + issueStatusUpdateRequestDto.getStatus().name() + " 상태로 변경하였습니다.";
+        }
 
         issueRepository.save(issue);
+
+        CommentCreateRequestDto commentCreateRequestDto = dtoConverter.createCommentRequestDto(
+                issue,
+                message);
+        commentService.createComment(1L, commentCreateRequestDto);
+
+
+
         return dtoConverter.createIssueResponseDto(issue);
     }
 
