@@ -405,7 +405,7 @@ public class ProjectMangePage extends JFrame {
         }
     }
 
-    class MemberListRender extends JPanel implements ListCellRenderer<MemberResponseDto> {
+    private class MemberListRender extends JPanel implements ListCellRenderer<MemberResponseDto> {
 
         private JLabel nameLabel;
         private JLabel roleLabel;
@@ -445,7 +445,7 @@ public class ProjectMangePage extends JFrame {
         }
     }
 
-    class ProjectListRender extends JPanel implements ListCellRenderer<ProjectResponseDto> {
+    private class ProjectListRender extends JPanel implements ListCellRenderer<ProjectResponseDto> {
         private JLabel nameLabel;
 
         public ProjectListRender() {

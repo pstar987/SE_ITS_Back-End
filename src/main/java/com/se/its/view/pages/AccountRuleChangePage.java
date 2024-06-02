@@ -79,7 +79,7 @@ public class AccountRuleChangePage extends JFrame {
         });
     }
 
-    class MemberListRender extends JPanel implements ListCellRenderer<MemberResponseDto> {
+    private class MemberListRender extends JPanel implements ListCellRenderer<MemberResponseDto> {
         private JLabel idLabel;
         private JLabel roleLabel;
         private JLabel nameLabel;

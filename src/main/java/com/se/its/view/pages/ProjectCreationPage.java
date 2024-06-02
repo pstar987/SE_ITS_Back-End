@@ -364,7 +364,7 @@ public class ProjectCreationPage extends JFrame {
         updateProjectMember();
     }
 
-    class MemberListRender extends JPanel implements ListCellRenderer<MemberResponseDto> {
+    private class MemberListRender extends JPanel implements ListCellRenderer<MemberResponseDto> {
         private JLabel idLabel;
         private JLabel roleLabel;
         private JLabel nameLabel;
@@ -405,7 +405,7 @@ public class ProjectCreationPage extends JFrame {
     }
 
 
-    class AccountListRender extends JPanel implements ListCellRenderer<Map<String, String>> {
+    private class AccountListRender extends JPanel implements ListCellRenderer<Map<String, String>> {
         private JLabel idLabel;
         private JLabel nameLabel;
         private JLabel roleLabel;

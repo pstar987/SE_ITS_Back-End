@@ -83,7 +83,8 @@ public class ProjectBrowsePage extends JFrame {
                 if (e.getClickCount() == 2) {
                     int index = projectDtoJList.locationToIndex(e.getPoint());
                     ProjectResponseDto selectedProject = projectDtoJList.getModel().getElementAt(index);
-                    new ProjectDetailPage(selectedProject, swingMemberController, swingProjectController, swingIssueController,userId).setVisible(true);
+                    new ProjectDetailPage(selectedProject, swingMemberController, swingProjectController,
+                            swingIssueController, userId).setVisible(true);
                 }
             }
         });
@@ -99,7 +100,7 @@ public class ProjectBrowsePage extends JFrame {
         add(scrollPane, gbc);
     }
 
-    class ProjectListRender extends JPanel implements ListCellRenderer<ProjectResponseDto> {
+    private class ProjectListRender extends JPanel implements ListCellRenderer<ProjectResponseDto> {
         private JLabel projectNameLabel;
 
         public ProjectListRender() {

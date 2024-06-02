@@ -128,7 +128,7 @@ public class ProjectDeletePage extends JFrame {
         updateProjectList();
     }
 
-    class ProjectListRender extends JPanel implements ListCellRenderer<ProjectResponseDto> {
+    private class ProjectListRender extends JPanel implements ListCellRenderer<ProjectResponseDto> {
 
         private JLabel nameLabel;
 

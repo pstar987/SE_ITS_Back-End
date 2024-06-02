@@ -3,7 +3,6 @@ package com.se.its.view.pages;
 import com.se.its.domain.issue.dto.response.IssueResponseDto;
 import com.se.its.domain.issue.presentation.SwingIssueController;
 import com.se.its.domain.project.dto.response.ProjectResponseDto;
-import com.se.its.view.pages.ProjectDetailPage.IssueListRender;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -66,7 +65,7 @@ public class TesterIssueBrowsePage extends JFrame {
 
     }
 
-    class IssueListRender extends JPanel implements ListCellRenderer<IssueResponseDto> {
+    private class IssueListRender extends JPanel implements ListCellRenderer<IssueResponseDto> {
         private JLabel issueName;
         private JLabel issuePriority;
         private JLabel issueStatus;

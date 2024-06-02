@@ -89,7 +89,7 @@ public class AccountDeletePage extends JFrame {
         add(scrollPane, gbc);
     }
 
-    class MemberListRender extends JPanel implements ListCellRenderer<MemberResponseDto> {
+    private class MemberListRender extends JPanel implements ListCellRenderer<MemberResponseDto> {
         private JLabel roleLabel;
         private JLabel nameLabel;
 
