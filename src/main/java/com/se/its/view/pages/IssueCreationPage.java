@@ -3,6 +3,8 @@ package com.se.its.view.pages;
 import com.se.its.domain.issue.dto.request.IssueCreateRequestDto;
 import com.se.its.domain.issue.presentation.SwingIssueController;
 import com.se.its.domain.project.dto.response.ProjectResponseDto;
+import com.se.its.view.exception.EmptyIssueDescriptionException;
+import com.se.its.view.exception.EmptyIssueTitleException;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -13,17 +15,18 @@ public class IssueCreationPage extends JFrame {
     private ProjectResponseDto currentProject;
     private SwingIssueController swingIssueController;
     private final Long userId;
-
+    private final ProjectDetailPage projectDetailPage;
     private JTextField issueTitle;
     private JTextArea issueDescription;
     private JTextField issueCategory;
 
     public IssueCreationPage(ProjectResponseDto currentProject, SwingIssueController swingIssueController,
-                             Long userId) {
+                             Long userId,
+                             ProjectDetailPage projectDetailPage) {
         this.currentProject = currentProject;
         this.swingIssueController = swingIssueController;
         this.userId = userId;
-
+        this.projectDetailPage = projectDetailPage;
         setTitle("이슈 생성");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(400, 500);
@@ -104,18 +107,49 @@ public class IssueCreationPage extends JFrame {
 
     }
 
+    private void checkIssueDescription() {
+        if(issueDescription.getText().isEmpty()) {
+            throw new EmptyIssueDescriptionException();
+        }
+    }
 
+    private void checkIssueTitle() {
+        if(issueTitle.getText().isEmpty()) {
+            throw new EmptyIssueTitleException();
+        }
+    }
+
+    private boolean checkInputValidation() {
+        try{
+            checkIssueTitle();
+            checkIssueDescription();
+            return true;
+        } catch (Exception e) {
+            showError(e.getMessage());
+            return false;
+        }
+    }
+
+    private void showError(String message) {
+        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+    }
 
     private void createIssue(String issueTitle, String issueDescription, String issueCategory,
                              ProjectResponseDto currentProject) {
-        IssueCreateRequestDto issueCreateRequestDto =
-                IssueCreateRequestDto
-                        .builder()
-                        .title(issueTitle)
-                        .description(issueDescription)
-                        .projectId(currentProject.getId())
-                        .category(issueCategory)
-                        .build();
+        if(checkInputValidation()) {
+            IssueCreateRequestDto issueCreateRequestDto =
+                    IssueCreateRequestDto
+                            .builder()
+                            .title(issueTitle)
+                            .description(issueDescription)
+                            .projectId(currentProject.getId())
+                            .category(issueCategory)
+                            .build();
+            swingIssueController.create(userId, issueCreateRequestDto);
+            JOptionPane.showMessageDialog(this, "이슈 생성 완료", "성공",JOptionPane.INFORMATION_MESSAGE);
+            projectDetailPage.refreshIssues();
+            dispose();
+        }
 
     }
 }
