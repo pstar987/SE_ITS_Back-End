@@ -25,6 +25,8 @@ public class AdminPage extends JFrame {
     private JButton projectCreateBtn;
     private JButton projectManageBtn;
     private JButton projectDeleteBtn;
+
+    private JButton projectBrowseBtn;
     private SwingMemberController swingMemberController;
     private SwingProjectController swingProjectController;
     private final Long userId;
@@ -128,6 +130,10 @@ public class AdminPage extends JFrame {
         projectGbc.gridy = 3;
         projectDeleteBtn = new JButton("프로젝트 삭제");
         projectPanel.add(projectDeleteBtn, projectGbc);
+
+        projectGbc.gridy = 4;
+        projectBrowseBtn = new JButton("프로젝트 조회");
+        projectPanel.add(projectBrowseBtn,projectGbc);
 
         projectCreateBtn.addActionListener(new ActionListener() {
             @Override
