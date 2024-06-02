@@ -1,6 +1,7 @@
 package com.se.its.domain.member.presentation;
 
 import com.se.its.domain.member.application.MemberService;
+import com.se.its.domain.member.domain.Role;
 import com.se.its.domain.member.dto.request.MemberDeleteRequestDto;
 import com.se.its.domain.member.dto.request.MemberRoleUpdateRequestDto;
 import com.se.its.domain.member.dto.request.MemberSignInRequestDto;
@@ -43,6 +44,18 @@ public class SwingMemberController {
             Long id
     ) {
         return memberService.findAllMembers(id);
+    }
+
+    public List<MemberResponseDto> findMembersByAdmin(Long id) {
+        return memberService.findAllMembers(id);
+    }
+
+    public List<MemberResponseDto> findMembersByAdminAndPL(Long id, Long projectId) {
+        return memberService.findMembersByAdminAndPL(id, projectId);
+    }
+
+    public List<MemberResponseDto> findMembersByRole(Long id, Long projectId, Role role) {
+        return memberService.findMembersByRole(id, projectId, role);
     }
 
     public MemberResponseDto deleteMember(

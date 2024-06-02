@@ -5,6 +5,7 @@ import com.se.its.domain.issue.domain.IssueCategory;
 import com.se.its.domain.issue.dto.request.IssueAssignRequestDto;
 import com.se.its.domain.issue.dto.request.IssueCreateRequestDto;
 import com.se.its.domain.issue.dto.request.IssueDeleteRequestDto;
+import com.se.its.domain.issue.dto.request.IssueStatusUpdateRequestDto;
 import com.se.its.domain.issue.dto.request.IssueUpdateRequestDto;
 import com.se.its.domain.issue.dto.response.IssueRecommendResponseDto;
 import com.se.its.domain.issue.dto.response.IssueResponseDto;
@@ -59,6 +60,11 @@ public class SwingIssueController {
 
     public IssueResponseDto update(Long id, IssueUpdateRequestDto issueUpdateRequestDto) {
         return issueService.updateIssue(id, issueUpdateRequestDto);
+    }
+
+
+    public IssueResponseDto updateDev(Long id, IssueStatusUpdateRequestDto issueStatusUpdateRequestDto) {
+        return issueService.updateIssueDev(id, issueStatusUpdateRequestDto);
     }
 
     public IssueResponseDto reassign(Long id, IssueAssignRequestDto issueAssignRequestDto) {
