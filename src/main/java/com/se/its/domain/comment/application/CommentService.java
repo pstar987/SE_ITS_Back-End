@@ -3,6 +3,7 @@ package com.se.its.domain.comment.application;
 import com.se.its.domain.comment.domain.Comment;
 import com.se.its.domain.comment.domain.repository.CommentRepository;
 import com.se.its.domain.comment.dto.request.CommentCreateRequestDto;
+import com.se.its.domain.comment.dto.request.CommentUpdateRequestDto;
 import com.se.its.domain.comment.dto.response.CommentResponseDto;
 import com.se.its.domain.issue.domain.Issue;
 import com.se.its.domain.member.domain.Member;
@@ -40,6 +41,7 @@ public class CommentService {
         return dtoConverter.createCommentResponseDto(savedComment);
     }
 
+    @Transactional(readOnly = true)
     public List<CommentResponseDto> getComments(Long signId, Long issueId){
         Member member = entityValidator.validateMember(signId);
         Issue issue = entityValidator.validateIssue(issueId);
@@ -50,6 +52,18 @@ public class CommentService {
         return commentRepository.findByIssueIdAndIsDeletedFalse(issueId).stream()
                 .map(dtoConverter::createCommentResponseDto)
                 .toList();
+    }
+
+    @Transactional
+    public CommentResponseDto updateComment(Long signId, CommentUpdateRequestDto commentUpdateRequestDto){
+        Member writer = entityValidator.validateMember(signId);
+        Comment comment = entityValidator.validateComment(commentUpdateRequestDto.getCommentId());
+        entityValidator.isWriterOfComment(writer, comment);
+
+        comment.setContent(commentUpdateRequestDto.getContent());
+        commentRepository.save(comment);
+
+        return dtoConverter.createCommentResponseDto(comment);
     }
 
 

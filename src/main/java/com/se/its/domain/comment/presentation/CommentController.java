@@ -3,6 +3,7 @@ package com.se.its.domain.comment.presentation;
 
 import com.se.its.domain.comment.application.CommentService;
 import com.se.its.domain.comment.dto.request.CommentCreateRequestDto;
+import com.se.its.domain.comment.dto.request.CommentUpdateRequestDto;
 import com.se.its.domain.comment.dto.response.CommentResponseDto;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -33,6 +34,15 @@ public class CommentController {
             @RequestParam Long issueId
     ) {
         return ResponseEntity.ok(commentService.getComments(id, issueId));
+    }
+
+
+    @PutMapping("/update")
+    public ResponseEntity<CommentResponseDto> updateComment(
+            @Valid @RequestHeader Long id,
+            @Valid @RequestBody CommentUpdateRequestDto commentUpdateRequestDto
+    ){
+        return ResponseEntity.ok(commentService.updateComment(id, commentUpdateRequestDto));
     }
 
 }
