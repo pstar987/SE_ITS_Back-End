@@ -82,4 +82,8 @@ public class Issue extends BaseEntity {
     public void setCategory(String category) {
         if (category != null && !category.trim().isEmpty()) this.category = category;
     }
+
+    public void setFixer(Member fixer) {
+        if (fixer != null) this.fixer = fixer;
+    }
 }

@@ -2,6 +2,7 @@ package com.se.its.domain.project.application;
 
 
 import com.se.its.domain.issue.domain.Issue;
+import com.se.its.domain.issue.domain.Status;
 import com.se.its.domain.issue.domain.repository.IssueRepository;
 import com.se.its.domain.member.domain.Member;
 import com.se.its.domain.member.domain.Role;
@@ -155,6 +156,7 @@ public class ProjectService {
             }
             removeProjectMember(project, removeMember);
         }
+
         return dtoConverter.createProjectResponseDto(project);
     }
 
@@ -200,7 +202,12 @@ public class ProjectService {
         if(removeMember.getRole().equals(Role.ADMIN)){
             throw new BadRequestException(INVALID_REQUEST_ROLE, "관리자는 프로젝트에 할당되지 않습니다.");
         }
-        // 프로젝트에 이미 존재하는 멤버인지 확인
+
+        List<Issue> unresolvedIssues = issueRepository.findByAssigneeIdAndStatusNot(removeMember.getId(), Status.RESOLVED);
+        if (!unresolvedIssues.isEmpty()) {
+            throw new BadRequestException(INVALID_REQUEST_ROLE, "해당 사용자는 해결되지 않은 이슈에 할당되어 있어 삭제할 수 없습니다.");
+        }
+
         ProjectMember projectMember = projectMemberRepository.findByProjectIdAndMemberIdAndIsDeletedFalse(project.getId(), removeMember.getId())
                 .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "해당 프로젝트의 멤버가 아닙니다."));
 

@@ -11,12 +11,10 @@ public class IssueCreateRequestDto {
     @NotBlank(message = "제목을 입력해주세요.")
     private String title;
 
-    @NotBlank(message = "제목을 입력해주세요.")
+    @NotBlank(message = "설명을 입력해주세요.")
     private String description;
 
-
     private Long projectId;
-
 
     private String category;
 

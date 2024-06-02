@@ -40,7 +40,7 @@ public class ITSApplication {
         CommentRepository commentRepository = context.getBean(CommentRepository.class);
 
 
-        MemberService memberService = new MemberService(memberRepository,projectMemberRepository, dtoConverter,entityValidator);
+        MemberService memberService = new MemberService(memberRepository,projectMemberRepository, issueRepository,dtoConverter,entityValidator);
         ProjectService projectService = new ProjectService(projectRepository, projectMemberRepository,issueRepository, dtoConverter, entityValidator);
         CommentService commentService = new CommentService(commentRepository,dtoConverter, entityValidator);
         IssueService issueService = new IssueService(issueRepository, dtoConverter, entityValidator, commentService);
