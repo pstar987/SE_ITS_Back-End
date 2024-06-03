@@ -118,6 +118,9 @@ public class ProjectService {
         Project project = entityValidator.validateProject(projectId);
         Member newMember = entityValidator.validateMember(projectMemberAddRequestDto.getAddMemberId());
         entityValidator.isMemberOfProject(admin, project);
+        if(!entityValidator.isAdminOrPl(admin)){
+            throw new BadRequestException(INVALID_REQUEST_ROLE, "관리자나 프로젝트 리더가 아닙니다.");
+        }
 
         if (project.getLeaderId() != null && newMember.getRole().equals(Role.PL)) {
             throw new BadRequestException(ROW_ALREADY_EXIST, "프로젝트에 이미 PL이 존재합니다.");
@@ -145,6 +148,9 @@ public class ProjectService {
         Member removeMember = entityValidator.validateMember(projectMemberRemoveRequestDto.getRemoveMemberId());
         entityValidator.isMemberOfProject(admin, project);
 
+        if(!entityValidator.isAdminOrPl(admin)){
+            throw new BadRequestException(INVALID_REQUEST_ROLE, "관리자나 프로젝트 리더가 아닙니다.");
+        }
         if(admin.getRole().equals(Role.ADMIN)){
             removeProjectMember(project, removeMember);
             if(removeMember.getRole().equals(Role.PL)){
