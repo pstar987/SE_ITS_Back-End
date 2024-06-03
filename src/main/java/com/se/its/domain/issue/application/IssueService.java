@@ -335,8 +335,8 @@ public class IssueService {
         Project project = entityValidator.validateProject(issue.getProject().getId());
         entityValidator.isMemberOfProject(assignee, project);
 
-        if(!assigner.getRole().equals(Role.DEV)){
-            throw new BadRequestException(INVALID_REQUEST_ROLE, "개발자만 양도가 가능합니다.");
+        if(assigner.getRole().equals(Role.TESTER)){
+            throw new BadRequestException(INVALID_REQUEST_ROLE, "개발자 양도가 불가능합니다.");
         }
         if(!issue.getAssignee().getId().equals(assigner.getId())){
             throw new BadRequestException(ROW_DOES_NOT_EXIST, "본인이 담당한 이슈가 아닙니다.");
