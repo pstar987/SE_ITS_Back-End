@@ -1,0 +1,22 @@
+@startuml
+class Comment {
+    Long id
+    String content
+    Member writer
+    Issue issue
+    Boolean isDeleted
+}
+
+class CommentService {
+    +String removeComment(Long signId, Long commentId)
+}
+
+class CommentRepository {
+    +Optional<Comment> findByIdAndIsDeletedFalse(Long id)
+    +Comment save(Comment comment)
+}
+
+CommentService --> CommentRepository
+Comment --> Member
+Comment --> Issue
+@enduml

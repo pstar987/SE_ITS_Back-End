@@ -1,0 +1,24 @@
+@startuml
+actor Admin
+participant System
+
+Admin -> System: updateMemberRole(signId, id, role)
+alt member not found
+    System --> Admin: Error msg("존재하지 않는 사용자입니다.")
+else
+    alt member not found
+        System --> Admin: Error msg("존재하지 않는 사용자입니다.")
+    else
+        alt not ADMIN
+            System --> Admin: Error msg("관리자가 아닙니다.")
+        else
+            alt role is ADMIN
+                System --> Admin: Error msg("관리자를 부여할 수 없습니다.")
+            else
+                System -> System: update role
+                System --> Admin: return MemberResponseDto(id, role, name)
+            end
+        end
+    end
+end
+@enduml

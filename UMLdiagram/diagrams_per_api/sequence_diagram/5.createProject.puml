@@ -1,0 +1,14 @@
+@startuml
+actor Admin
+participant System
+participant DBMS as "Database"
+
+Admin -> System: createProject(signId, projectCreateRequestDto)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateAdmin(signId)
+System -> DBMS: validateProjectMembers(projectCreateRequestDto.memberIds)
+System -> DBMS: validatePLMember(projectCreateRequestDto.memberIds)
+System -> DBMS: createProject(projectCreateRequestDto)
+System -> DBMS: addProjectMembers(projectId, projectCreateRequestDto.memberIds)
+System -> Admin: ProjectResponseDto
+@enduml

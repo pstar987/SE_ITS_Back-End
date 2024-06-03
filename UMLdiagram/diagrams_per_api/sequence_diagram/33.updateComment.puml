@@ -1,0 +1,12 @@
+@startuml
+actor TEST
+participant System
+participant DBMS as "Database"
+
+TEST -> System: updateComment(signId, commentUpdateRequestDto)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateComment(commentUpdateRequestDto.getId)
+System -> DBMS: isWriterOfComment(signId, commentUpdateRequestDto.getId)
+System -> DBMS: updateComment(commentId, content)
+System -> TEST: CommentResponseDto
+@enduml

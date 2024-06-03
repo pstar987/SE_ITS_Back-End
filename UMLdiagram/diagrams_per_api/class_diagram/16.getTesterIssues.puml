@@ -1,0 +1,33 @@
+@startuml
+class Issue {
+    Long id
+    String title
+    String description
+    Priority priority
+    Status status
+    Member reporter
+    Member assignee
+    Member fixer
+    Project project
+    Boolean isDeleted
+    List<Comment> comments
+}
+
+class IssueService {
+    +List<IssueResponseDto> getTesterIssues(Long signId, Long projectId)
+}
+
+class IssueRepository {
+    +List<Issue> findByReporterIdAndProjectIdAndIsDeletedFalse(Long reporterId, Long projectId)
+}
+
+class DtoConverter {
+    +IssueResponseDto createIssueResponseDto(Issue issue)
+}
+
+IssueService --> IssueRepository
+IssueService --> DtoConverter
+Issue --> Project
+Issue --> Member
+Issue --> Comment
+@enduml
