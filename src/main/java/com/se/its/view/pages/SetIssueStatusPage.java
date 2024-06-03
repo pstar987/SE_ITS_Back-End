@@ -85,7 +85,7 @@ public class SetIssueStatusPage extends JFrame {
 
     private void showIssuesDetailDialog(IssueResponseDto currentIssue, SwingIssueController swingIssueController,
                                         Long userId) {
-        JDialog dialog = new JDialog(this, "이슈 우선 순위 설정");
+        JDialog dialog = new JDialog(this, "이슈 상태 설정");
         dialog.setLayout(new GridBagLayout());
 
         GridBagConstraints gbc = new GridBagConstraints();
