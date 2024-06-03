@@ -6,6 +6,7 @@ import com.se.its.domain.comment.dto.request.CommentCreateRequestDto;
 import com.se.its.domain.comment.dto.response.CommentResponseDto;
 import com.se.its.domain.issue.domain.Issue;
 import com.se.its.domain.issue.dto.request.IssueRecommendRequestDto;
+import com.se.its.domain.issue.dto.response.IssueRecommendResponseDto;
 import com.se.its.domain.issue.dto.response.IssueResponseDto;
 import com.se.its.domain.member.domain.Member;
 import com.se.its.domain.member.dto.response.MemberResponseDto;
@@ -32,6 +33,8 @@ public class DtoConverter {
                 .id(member.getId())
                 .name(member.getName())
                 .role(member.getRole())
+                .signId(member.getSignId())
+                .isDeleted(member.getIsDeleted())
                 .build();
     }
 
@@ -51,6 +54,7 @@ public class DtoConverter {
                 .members(memberResponseDtos)
                 .leaderId(project.getLeaderId())
                 .issues(issueIds)
+                .isDeleted(project.getIsDeleted())
                 .build();
     }
 
@@ -74,6 +78,7 @@ public class DtoConverter {
                 .assignee(issue.getAssignee() != null ? createMemberResponseDto(issue.getAssignee()) : null)
                 .projectId(issue.getProject().getId())
                 .comments(comments)
+                .isDeleted(issue.getIsDeleted())
                 .build();
     }
 
@@ -82,7 +87,8 @@ public class DtoConverter {
         return CommentResponseDto.builder()
                 .id(comment.getId())
                 .content(comment.getContent())
-                .writerId(comment.getWriter().getId())
+                .writer(comment.getWriter() != null ? createMemberResponseDto(comment.getWriter()) : null)
+                .isDeleted(comment.getIsDeleted())
                 .build();
     }
 
@@ -102,6 +108,15 @@ public class DtoConverter {
                 .description(issue.getDescription())
                 .category(issue.getCategory())
                 .priority(issue.getPriority().name())
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public IssueRecommendResponseDto createIssueRecommendResponseDto(Issue issue, Long score) {
+        IssueResponseDto issueResponseDto = createIssueResponseDto(issue);
+        return IssueRecommendResponseDto.builder()
+                .issueResponseDto(issueResponseDto)
+                .score(score)
                 .build();
     }
 

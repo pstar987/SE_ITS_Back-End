@@ -159,9 +159,11 @@ public class MemberService {
             throw  new BadRequestException(INVALID_REQUEST_ROLE, "관리자가 아닙니다.");
         }
 
-        List<Issue> unresolvedIssues = issueRepository.findByAssigneeIdAndStatusNot(target.getId(), Status.RESOLVED);
-        if (!unresolvedIssues.isEmpty()) {
-            throw new BadRequestException(INVALID_REQUEST_ROLE, "해당 사용자는 해결되지 않은 이슈에 할당되어 있어 삭제할 수 없습니다.");
+        if(target.getRole().equals(Role.DEV)){
+            List<Issue> unresolvedIssues = issueRepository.findByAssigneeIdAndStatusNot(target.getId(), Status.RESOLVED);
+            if (!unresolvedIssues.isEmpty()) {
+                throw new BadRequestException(INVALID_REQUEST_ROLE, "해당 사용자는 해결되지 않은 이슈에 할당되어 있어 역할을 변경할 수 없습니다.");
+            }
         }
         target.setIsDeleted(true);
         memberRepository.save(target);
@@ -181,6 +183,13 @@ public class MemberService {
 
         if(memberRoleUpdateRequestDto.getRole().equals(Role.ADMIN)){
             throw new BadRequestException(INVALID_REQUEST_ROLE, "관리자를 부여할 수 없습니다.");
+        }
+
+        if(target.getRole().equals(Role.DEV)){
+            List<Issue> unresolvedIssues = issueRepository.findByAssigneeIdAndStatusNot(target.getId(), Status.RESOLVED);
+            if (!unresolvedIssues.isEmpty()) {
+                throw new BadRequestException(INVALID_REQUEST_ROLE, "해당 사용자는 해결되지 않은 이슈에 할당되어 있어 역할을 변경할 수 없습니다.");
+            }
         }
 
         target.updateRole(memberRoleUpdateRequestDto.getRole());

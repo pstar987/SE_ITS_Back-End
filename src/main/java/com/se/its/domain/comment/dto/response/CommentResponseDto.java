@@ -1,6 +1,7 @@
 package com.se.its.domain.comment.dto.response;
 
 
+import com.se.its.domain.member.dto.response.MemberResponseDto;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -8,6 +9,7 @@ import lombok.Getter;
 @Builder
 public class CommentResponseDto {
     private Long id;
-    private Long writerId;
+    private MemberResponseDto writer;
     private String content;
+    private Boolean isDeleted;
 }

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class IssueRecommendResponseDto {
-    private IssueResponseDto issueResponseDto;
+public class IssueRecommendModelResponseDto {
+    private Long issue_id;
     private Long score;
 }

@@ -26,4 +26,5 @@ public class IssueResponseDto {
     private Long projectId;
     private String category;
     private List<CommentResponseDto> comments;
+    private Boolean isDeleted;
 }
