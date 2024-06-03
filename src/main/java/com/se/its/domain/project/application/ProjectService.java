@@ -118,6 +118,9 @@ public class ProjectService {
         Project project = entityValidator.validateProject(projectId);
         Member newMember = entityValidator.validateMember(projectMemberAddRequestDto.getAddMemberId());
         entityValidator.isMemberOfProject(admin, project);
+        if(!entityValidator.isAdminOrPl(admin)){
+            throw new BadRequestException(INVALID_REQUEST_ROLE, "관리자나 프로젝트 리더가 아닙니다.");
+        }
 
         if (project.getLeaderId() != null && newMember.getRole().equals(Role.PL)) {
             throw new BadRequestException(ROW_ALREADY_EXIST, "프로젝트에 이미 PL이 존재합니다.");
@@ -145,10 +148,14 @@ public class ProjectService {
         Member removeMember = entityValidator.validateMember(projectMemberRemoveRequestDto.getRemoveMemberId());
         entityValidator.isMemberOfProject(admin, project);
 
+        if(!entityValidator.isAdminOrPl(admin)){
+            throw new BadRequestException(INVALID_REQUEST_ROLE, "관리자나 프로젝트 리더가 아닙니다.");
+        }
         if(admin.getRole().equals(Role.ADMIN)){
             removeProjectMember(project, removeMember);
             if(removeMember.getRole().equals(Role.PL)){
                 project.setLeaderId(null);
+                projectRepository.save(project);
             }
         }else if(admin.getRole().equals(Role.PL)){
             if (removeMember.getRole().equals(Role.PL)) {
@@ -171,10 +178,16 @@ public class ProjectService {
         projectRepository.save(project);
         List<ProjectMember> projectMembers = projectMemberRepository.findByProjectIdAndIsDeletedFalse(projectId);
         List<Issue> issues = issueRepository.findByProjectIdAndIsDeletedFalse(projectId);
-        projectMembers.forEach(pm -> pm.setIsDeleted(true));
-        issues.forEach(issue -> issue.setIsDeleted(true));
-        projectMemberRepository.saveAll(projectMembers);
-        issueRepository.saveAll(issues);
+
+        if (projectMembers != null) {
+            projectMembers.forEach(pm -> pm.setIsDeleted(true));
+            projectMemberRepository.saveAll(projectMembers);
+        }
+
+        if (issues != null) {
+            issues.forEach(issue -> issue.setIsDeleted(true));
+            issueRepository.saveAll(issues);
+        }
     }
 
 

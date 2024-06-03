@@ -37,7 +37,5 @@ public class Project {
         if(isDeleted != null) this.isDeleted = isDeleted;
     }
 
-    public void setLeaderId(Long leaderId){
-        if(leaderId != null) this.leaderId = leaderId;
-    }
+    public void setLeaderId(Long leaderId){ this.leaderId = leaderId; }
 }
