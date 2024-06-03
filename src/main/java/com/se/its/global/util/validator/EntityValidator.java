@@ -30,35 +30,30 @@ public class EntityValidator {
         return memberRepository.findByIdAndIsDeletedFalse(memberId)
                 .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 사용자입니다."));
     }
-
     public Project validateProject(Long projectId) {
         return projectRepository.findByIdAndIsDeletedIsFalse(projectId)
                 .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 프로젝트입니다."));
     }
-
     public Issue validateIssue(Long issueId) {
         return issueRepository.findByIdAndIsDeletedFalse(issueId)
                 .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 이슈입니다."));
     }
     public Comment validateComment(Long issueId) {
         return commentRepository.findByIdAndIsDeletedFalse(issueId)
-                .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 이슈입니다."));
+                .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 댓글입니다."));
     }
-
     public void isMemberOfProject(Member member, Project project) {
         if(!member.getRole().equals(Role.ADMIN)){
             projectMemberRepository.findByMemberIdAndProjectIdAndIsDeletedFalse(member.getId(), project.getId())
                     .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "해당 프로젝트의 멤버가 아닙니다."));
         }
     }
-
     public void isWriterOfComment(Member member, Comment comment) {
         if(!member.getRole().equals(Role.ADMIN)){
             commentRepository.findByWriterIdAndIdAndIsDeletedFalse(member.getId(), comment.getId())
                     .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "해당 댓글의 작성자가 아닙니다."));
         }
     }
-
     public Boolean isAdminOrPl(Member member){
         return (member.getRole().equals(Role.ADMIN) || member.getRole().equals(Role.PL));
     }

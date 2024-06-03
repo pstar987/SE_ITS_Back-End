@@ -9,6 +9,7 @@ import com.se.its.domain.issue.domain.Priority;
 import com.se.its.domain.issue.domain.Status;
 import com.se.its.domain.issue.domain.repository.IssueRepository;
 import com.se.its.domain.issue.dto.request.*;
+import com.se.its.domain.issue.dto.response.IssueRecommendModelResponseDto;
 import com.se.its.domain.issue.dto.response.IssueRecommendResponseDto;
 import com.se.its.domain.issue.dto.response.IssueResponseDto;
 import com.se.its.domain.member.domain.Member;
@@ -49,17 +50,22 @@ public class IssueService {
 
         IssueRecommendRequestDto issueRecommendRequestDto = dtoConverter.createIssueRecommendRequestDto(issue);
 
-        IssueRecommendResponseDto[] response = restTemplate.postForObject(
+        IssueRecommendModelResponseDto[] response = restTemplate.postForObject(
                 flaskApiUrl,
                 issueRecommendRequestDto,
-                IssueRecommendResponseDto[].class
+                IssueRecommendModelResponseDto[].class
         );
 
         if (response == null) {
             throw new BadRequestException(MODEL_API_CALL_FAILED, "이슈 추천에 실패하였습니다.");
         }
 
-        return Arrays.asList(response);
+        return Arrays.stream(response)
+                .map(modelResponse -> {
+                    Issue recommendedIssue = entityValidator.validateIssue(modelResponse.getIssue_id());
+                    return dtoConverter.createIssueRecommendResponseDto(recommendedIssue, modelResponse.getScore());
+                })
+                .toList();
     }
 
     private void saveIssueToModel(Issue issue){
@@ -179,8 +185,8 @@ public class IssueService {
         entityValidator.isMemberOfProject(plMember, project);
         entityValidator.isMemberOfProject(assignee, project);
 
-        if (!plMember.getRole().equals(Role.PL)) {
-            throw new BadRequestException(INVALID_REQUEST_ROLE, "프로젝트 리더만 이슈를 할당할 수 있습니다.");
+        if (!entityValidator.isAdminOrPl(plMember)) {
+            throw new BadRequestException(INVALID_REQUEST_ROLE, "관리자와 프로젝트 리더만 이슈를 할당할 수 있습니다.");
         }
         if (!assignee.getRole().equals(Role.DEV)) {
             throw new BadRequestException(INVALID_REQUEST_ROLE, "할당할 멤버는 DEV 역할이어야 합니다.");

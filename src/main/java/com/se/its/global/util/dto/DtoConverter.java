@@ -105,4 +105,13 @@ public class DtoConverter {
                 .build();
     }
 
+    @Transactional(readOnly = true)
+    public IssueRecommendResponseDto createIssueRecommendResponseDto(Issue issue, Long score) {
+        IssueResponseDto issueResponseDto = createIssueResponseDto(issue);
+        return IssueRecommendResponseDto.builder()
+                .issueResponseDto(issueResponseDto)
+                .score(score)
+                .build();
+    }
+
 }
