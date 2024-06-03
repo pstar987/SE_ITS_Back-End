@@ -61,8 +61,10 @@ public class DevTesterPage extends JFrame {
         add(projectBrowseBtn, gbc);
 
         projectBrowseBtn.addActionListener(
-                e -> new ProjectBrowsePage(swingMemberController, swingProjectController, swingIssueController,
-                        swingCommentController, userId).setVisible(true)
+                e -> {
+                    new ProjectBrowsePage(swingMemberController, swingProjectController, swingIssueController,
+                            swingCommentController, userId).setVisible(true);
+                }
         );
 
 

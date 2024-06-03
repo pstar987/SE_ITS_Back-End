@@ -75,10 +75,12 @@ public class ProjectDetailPage extends JFrame {
         issueDtoJList.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(e.getClickCount() == 2) {
+                if (e.getClickCount() == 2) {
                     int index = issueDtoJList.locationToIndex(e.getPoint());
                     IssueResponseDto selectedIssue = issueDtoJList.getModel().getElementAt(index);
-                    new IssuePage(swingMemberController, swingProjectController, swingIssueController,swingCommentController,currentProject,selectedIssue, userId).setVisible(true);
+                    new IssuePage(ProjectDetailPage.this, swingMemberController, swingProjectController,
+                            swingIssueController, swingCommentController, currentProject, selectedIssue,
+                            userId).setVisible(true);
                 }
             }
         });
@@ -98,8 +100,15 @@ public class ProjectDetailPage extends JFrame {
         gbc.anchor = GridBagConstraints.CENTER;
         JButton issueSearchBtn = new JButton("이슈 검색하기");
         //TODO 이슈 검색 페이지
-
         add(issueSearchBtn, gbc);
+
+        issueSearchBtn.addActionListener(
+                e -> {
+                    new IssueSearchPage(ProjectDetailPage.this, currentProject, swingMemberController,
+                            swingProjectController, swingIssueController, swingCommentController, userId).setVisible(
+                            true);
+                }
+        );
 
         checkUserIsADMINAndPLAndInitComponent();
         checkUserIsDEVandInitComponent();
@@ -166,7 +175,8 @@ public class ProjectDetailPage extends JFrame {
         add(browseAssignedIssueBtn, gbc);
         browseAssignedIssueBtn.addActionListener(
                 e -> {
-                    new DevIssueBrowsePage(swingIssueController, currentProject, userId).setVisible(true);
+                    new DevIssueBrowsePage(ProjectDetailPage.this, swingMemberController, swingProjectController,
+                            swingIssueController, swingCommentController, currentProject, userId).setVisible(true);
                 }
         );
     }
@@ -203,7 +213,8 @@ public class ProjectDetailPage extends JFrame {
 
         changeIssueStatusBtn.addActionListener(
                 e -> {
-                    new SetIssueStatusPage(ProjectDetailPage.this, swingIssueController, currentProject, userId).setVisible(true);
+                    new SetIssueStatusPage(ProjectDetailPage.this, swingIssueController, currentProject,
+                            userId).setVisible(true);
                 }
         );
 

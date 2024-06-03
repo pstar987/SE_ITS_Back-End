@@ -1,28 +1,43 @@
 package com.se.its.view.pages;
 
+import com.se.its.domain.comment.presentation.SwingCommentController;
 import com.se.its.domain.issue.dto.response.IssueResponseDto;
 import com.se.its.domain.issue.presentation.SwingIssueController;
+import com.se.its.domain.member.presentation.SwingMemberController;
 import com.se.its.domain.project.dto.response.ProjectResponseDto;
+import com.se.its.domain.project.presentation.SwingProjectController;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import javax.swing.*;
 
 public class DevIssueBrowsePage extends JFrame {
+    private ProjectDetailPage parentPage;
+    private SwingMemberController swingMemberController;
+    private SwingProjectController swingProjectController;
     private SwingIssueController swingIssueController;
+    private SwingCommentController swingCommentController;
     private ProjectResponseDto currentProject;
     private final Long userId;
 
     private List<IssueResponseDto> issueResponseDtos;
     private JList<IssueResponseDto> issueResponseDtoJList;
 
-    public DevIssueBrowsePage(SwingIssueController swingIssueController, ProjectResponseDto currentProject,
+    public DevIssueBrowsePage(ProjectDetailPage parentPage, SwingMemberController swingMemberController,
+                              SwingProjectController swingProjectController, SwingIssueController swingIssueController,
+                              SwingCommentController swingCommentController, ProjectResponseDto currentProject,
                               Long userId) {
+        this.parentPage = parentPage;
+        this.swingMemberController = swingMemberController;
+        this.swingProjectController = swingProjectController;
         this.swingIssueController = swingIssueController;
+        this.swingCommentController = swingCommentController;
         this.currentProject = currentProject;
         this.userId = userId;
 
@@ -55,6 +70,23 @@ public class DevIssueBrowsePage extends JFrame {
         issueResponseDtoJList = new JList<>(new DefaultListModel<>());
         initAssignIssueList(currentProject, swingIssueController, userId);
         issueResponseDtoJList.setCellRenderer(new IssueListRender());
+
+        issueResponseDtoJList.addMouseListener(
+                new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        if (e.getClickCount() == 2) {
+                            int index = issueResponseDtoJList.locationToIndex(e.getPoint());
+                            IssueResponseDto selectedIssue = issueResponseDtoJList.getModel().getElementAt(index);
+                            new IssuePage(parentPage, swingMemberController, swingProjectController,
+                                    swingIssueController, swingCommentController, currentProject, selectedIssue,
+                                    userId).setVisible(
+                                    true);
+                            dispose();
+                        }
+                    }
+                }
+        );
 
         JScrollPane scrollPane = new JScrollPane(issueResponseDtoJList);
         gbc.gridy = 2;
