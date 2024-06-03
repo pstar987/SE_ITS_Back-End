@@ -53,7 +53,7 @@ public class IssueCreationPage extends JFrame {
         gbc.gridy = 1;
         gbc.gridwidth = 1;
         gbc.anchor = GridBagConstraints.EAST;
-        add(new JLabel("이슈 설명:"), gbc);
+        add(new JLabel("이슈 제목:"), gbc);
 
         gbc.gridx = 1;
         gbc.anchor = GridBagConstraints.NORTH;
