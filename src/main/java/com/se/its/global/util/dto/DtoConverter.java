@@ -61,7 +61,7 @@ public class DtoConverter {
     @Transactional(readOnly = true)
     public IssueResponseDto createIssueResponseDto(Issue issue) {
 
-        List<CommentResponseDto> comments = commentRepository.findByIssueIdAndIsDeletedFalse(issue.getId()).stream()
+        List<CommentResponseDto> comments = commentRepository.findByIssueIdAndIsDeletedFalseOrderByCreatedAtDesc(issue.getId()).stream()
                 .map(this::createCommentResponseDto)
                 .toList();
 

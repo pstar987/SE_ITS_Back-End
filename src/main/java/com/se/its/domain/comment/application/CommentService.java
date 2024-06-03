@@ -50,7 +50,7 @@ public class CommentService {
         entityValidator.isMemberOfProject(member, project);
 
 
-        return commentRepository.findByIssueIdAndIsDeletedFalse(issueId).stream()
+        return commentRepository.findByIssueIdAndIsDeletedFalseOrderByCreatedAtDesc(issueId).stream()
                 .map(dtoConverter::createCommentResponseDto)
                 .toList();
     }

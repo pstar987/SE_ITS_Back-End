@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface CommentRepository extends JpaRepository<Comment, Long> {
     Optional<Comment> findByIdAndIsDeletedFalse(Long id);
 
-    List<Comment> findByIssueIdAndIsDeletedFalse(Long issueId);
+    List<Comment> findByIssueIdAndIsDeletedFalseOrderByCreatedAtDesc(Long issueId);
 
     Optional<Comment> findByWriterIdAndIdAndIsDeletedFalse(Long writerId, Long Id);
 }
