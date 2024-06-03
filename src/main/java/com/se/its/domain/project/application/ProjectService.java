@@ -155,6 +155,7 @@ public class ProjectService {
             removeProjectMember(project, removeMember);
             if(removeMember.getRole().equals(Role.PL)){
                 project.setLeaderId(null);
+                projectRepository.save(project);
             }
         }else if(admin.getRole().equals(Role.PL)){
             if (removeMember.getRole().equals(Role.PL)) {
@@ -177,10 +178,16 @@ public class ProjectService {
         projectRepository.save(project);
         List<ProjectMember> projectMembers = projectMemberRepository.findByProjectIdAndIsDeletedFalse(projectId);
         List<Issue> issues = issueRepository.findByProjectIdAndIsDeletedFalse(projectId);
-        projectMembers.forEach(pm -> pm.setIsDeleted(true));
-        issues.forEach(issue -> issue.setIsDeleted(true));
-        projectMemberRepository.saveAll(projectMembers);
-        issueRepository.saveAll(issues);
+
+        if (projectMembers != null) {
+            projectMembers.forEach(pm -> pm.setIsDeleted(true));
+            projectMemberRepository.saveAll(projectMembers);
+        }
+
+        if (issues != null) {
+            issues.forEach(issue -> issue.setIsDeleted(true));
+            issueRepository.saveAll(issues);
+        }
     }
 
 
