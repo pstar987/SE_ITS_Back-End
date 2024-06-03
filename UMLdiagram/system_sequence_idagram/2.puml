@@ -1,0 +1,21 @@
+@startuml
+actor Tester
+participant System
+
+Tester -> System: createIssue(signId, title, description, projectId, category)
+alt member not found
+    System --> Tester: Error msg("존재하지 않는 사용자입니다.")
+else 
+    alt project not found
+        System --> Tester: Error msg("존재하지 않는 프로젝트입니다.")
+    else
+        alt not TESTER
+            System --> Tester: Error msg("TESTER가 아닙니다.")
+        else
+            System -> System: create Issue
+            System -> System: save issue to model
+            System --> Tester: return IssueResponseDto(id, title, description, reporter, project, status, priority, category)
+        end
+    end
+end
+@enduml

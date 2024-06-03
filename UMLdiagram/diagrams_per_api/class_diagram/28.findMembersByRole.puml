@@ -1,0 +1,46 @@
+@startuml
+class Member {
+    Long id
+    Role role
+    String signId
+    String name
+    String password
+    Boolean isDeleted
+    List<ProjectMember> projects
+    List<Issue> reportedIssues
+    List<Issue> fixedIssues
+    List<Issue> assignedIssues
+    List<Comment> comments
+}
+
+class ProjectMember {
+    Long id
+    Member member
+    Project project
+    Boolean isDeleted
+}
+
+class MemberService {
+    +List<MemberResponseDto> findMembersByRole(Long signId, Long projectId, Role role)
+}
+
+class MemberRepository {
+    +Optional<Member> findByIdAndIsDeletedFalse(Long id)
+}
+
+class ProjectMemberRepository {
+    +List<ProjectMember> findByProjectIdAndIsDeletedFalse(Long projectId)
+}
+
+class DtoConverter {
+    +MemberResponseDto createMemberResponseDto(Member member)
+}
+
+MemberService --> MemberRepository
+MemberService --> ProjectMemberRepository
+MemberService --> DtoConverter
+Member --> ProjectMember
+Member --> Issue
+Member --> Comment
+ProjectMember --> Project
+@enduml

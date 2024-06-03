@@ -1,0 +1,407 @@
+@startuml
+
+!define ENTITY(x) class x << (E,#FFAAAA) >>
+!define ENUM(x) enum x << (E,#FFAAAA) >>
+!define CONTROLLER(x) class x << (C,#AAFFAA) >>
+!define SERVICE(x) class x << (S,#AAFFFF) >>
+!define REPOSITORY(x) interface x << (R,#FFAAFF) >>
+!define DTO(x) class x << (D,#FFFFAA) >>
+
+ENTITY(Member) {
+  - Long id
+  - Role role
+  - String signId
+  - String name
+  - String password
+  - Boolean isDeleted
+  + List<ProjectMember> projects
+  + List<Issue> reportedIssues
+  + List<Issue> fixedIssues
+  + List<Issue> assignedIssues
+  + List<Comment> comments
+}
+
+ENTITY(Project) {
+  - Long id
+  - String name
+  - Boolean isDeleted
+  - Long leaderId
+  + List<ProjectMember> projectMembers
+  + List<Issue> Issues
+}
+
+ENTITY(ProjectMember) {
+  - Long id
+  - Member member
+  - Project project
+  - Boolean isDeleted
+}
+
+ENTITY(Issue) {
+  - Long id
+  - Member reporter
+  - Member fixer
+  - Member assignee
+  - Project project
+  - List<Comment> comments
+  - String title
+  - String description
+  - Priority priority
+  - Status status
+  - Boolean isDeleted
+  - String category
+}
+
+ENTITY(Comment) {
+  - Long id
+  - Issue issue
+  - Member writer
+  - String content
+  - Boolean isDeleted
+}
+
+ENUM(Role) {
+  ADMIN
+  PL
+  DEV
+  TESTER
+  NONE
+}
+
+ENUM(Priority) {
+  BLOCKER
+  CRITICAL
+  MAJOR
+  MINOR
+  TRIVIAL
+}
+
+ENUM(Status) {
+  NEW
+  ASSIGNED
+  RESOLVED
+  CLOSED
+  REOPENED
+  INACTIVE
+  DELETE_REQUEST
+}
+
+CONTROLLER(CommentController) {
+  + createComment(Long id, CommentCreateRequestDto commentCreateRequestDto)
+  + getComments(Long id, Long issueId)
+  + updateComment(Long id, CommentUpdateRequestDto commentUpdateRequestDto)
+  + removeComment(Long id, CommentDeleteRequestDto commentDeleteRequestDto)
+}
+
+SERVICE(CommentService) {
+  + createComment(Long signId, CommentCreateRequestDto commentCreateRequestDto)
+  + getComments(Long signId, Long issueId)
+  + updateComment(Long signId, CommentUpdateRequestDto commentUpdateRequestDto)
+  + removeComment(Long signId, CommentDeleteRequestDto commentDeleteRequestDto)
+}
+
+REPOSITORY(CommentRepository) {
+  + Optional<Comment> findByIdAndIsDeletedFalse(Long id)
+  + List<Comment> findByIssueIdAndIsDeletedFalse(Long issueId)
+  + Optional<Comment> findByWriterIdAndIdAndIsDeletedFalse(Long writerId, Long Id)
+}
+
+DTO(CommentCreateRequestDto) {
+  - Long issueId
+  - String content
+}
+
+DTO(CommentDeleteRequestDto) {
+  - Long commentId
+}
+
+DTO(CommentUpdateRequestDto) {
+  - Long commentId
+  - String content
+}
+
+DTO(CommentResponseDto) {
+  - Long id
+  - Long writerId
+  - String content
+}
+
+CONTROLLER(IssueController) {
+  + create(Long id, IssueCreateRequestDto issueCreateRequestDto)
+  + getIssue(Long id, Long issueId)
+  + getIssues(Long id, Long projectId)
+  + getDevIssues(Long id, Long projectId)
+  + getTesterIssues(Long id, Long projectId)
+  + getAllIssues(Long id)
+  + assign(Long id, IssueAssignRequestDto issueAssignRequestDto)
+  + removeRequest(Long id, IssueDeleteRequestDto issueDeleteRequestDto)
+  + getRemoveRequest(Long id)
+  + remove(Long id, IssueDeleteRequestDto issueDeleteRequestDto)
+  + update(Long id, IssueUpdateRequestDto issueUpdateRequestDto)
+  + updateDev(Long id, IssueStatusUpdateRequestDto issueStatusUpdateRequestDto)
+  + reassign(Long id, IssueAssignRequestDto issueAssignRequestDto)
+  + searchIssues(Long id, IssueCategory category, Long projectId, String keyword)
+  + recommendIssues(Long id, Long issueId)
+}
+
+SERVICE(IssueService) {
+  + recommendIssues(Long signId, Long issueId)
+  + createIssue(Long signId, IssueCreateRequestDto issueCreateRequestDto)
+  + getIssue(Long signId, Long issueId)
+  + getIssues(Long signId, Long projectId)
+  + getAllIssues(Long signId)
+  + getDevIssues(Long signId, Long projectId)
+  + getTesterIssues(Long signId, Long projectId)
+  + assignIssue(Long signId, IssueAssignRequestDto issueAssignRequestDto)
+  + removeRequest(Long signId, IssueDeleteRequestDto issueDeleteRequestDto)
+  + getRemoveRequestIssues(Long signId)
+  + removeIssue(Long signId, IssueDeleteRequestDto issueDeleteRequestDto)
+  + updateIssue(Long signId, IssueUpdateRequestDto issueUpdateRequestDto)
+  + updateIssueDev(Long signId, IssueStatusUpdateRequestDto issueStatusUpdateRequestDto)
+  + reassignIssue(Long signId, IssueAssignRequestDto issueAssignRequestDto)
+  + searchIssues(Long signId, IssueCategory category, Long projectId, String keyword)
+}
+
+REPOSITORY(IssueRepository) {
+  + List<Issue> findAll()
+  + List<Issue> findAllByIsDeletedFalse()
+  + List<Issue> findByProjectIdAndIsDeletedFalse(Long projectId)
+  + Optional<Issue> findByIdAndIsDeletedFalse(Long id)
+  + List<Issue> findByStatusAndIsDeletedFalse(Status status)
+  + List<Issue> findByTitleContainingAndIsDeletedFalse(String title)
+  + List<Issue> findByPriorityAndIsDeletedFalse(Priority priority)
+  + List<Issue> findByAssigneeNameOrSignIdAndIsDeletedFalse(String keyword)
+  + List<Issue> findByAssigneeIdAndProjectIdAndIsDeletedFalse(Long assigneeId, Long projectId)
+  + List<Issue> findByReporterIdAndProjectIdAndIsDeletedFalse(Long reporterId, Long projectId)
+  + List<Issue> findByAssigneeIdAndStatusNot(Long assigneeId, Status status)
+}
+
+DTO(IssueCreateRequestDto) {
+  - String title
+  - String description
+  - Long projectId
+  - String category
+}
+
+DTO(IssueDeleteRequestDto) {
+  - Long issueId
+}
+
+DTO(IssueRecommendRequestDto) {
+  - Long issue_id
+  - String title
+  - String description
+  - String category
+  - String priority
+}
+
+DTO(IssueResponseDto) {
+  - Long id
+  - String title
+  - String description
+  - Priority priority
+  - Status status
+  - MemberResponseDto reporter
+  - LocalDateTime reportedDate
+  - MemberResponseDto fixer
+  - MemberResponseDto assignee
+  - Long projectId
+  - String category
+  - List<CommentResponseDto> comments
+}
+
+DTO(IssueStatusUpdateRequestDto) {
+  - Long issueId
+  - Status status
+}
+
+DTO(IssueUpdateRequestDto) {
+  - Long issueId
+  - String description
+  - Status status
+  - Priority priority
+  - String category
+}
+
+CONTROLLER(MemberController) {
+  + signUp(Long id, MemberSignUpRequestDto memberSignUpRequestDto)
+  + createAdmin(MemberSignUpRequestDto memberSignUpRequestDto)
+  + signIn(MemberSignInRequestDto memberSignInRequestDto)
+  + findMemberById(Long id)
+  + findMembersByAdmin(Long id)
+  + findMembersByAdminAndPL(Long id, Long projectId)
+  + findMembersByRole(Long id, Long projectId, Role role)
+  + deleteMember(Long id, MemberDeleteRequestDto memberDeleteRequestDto)
+  + updateMember(Long id, MemberRoleUpdateRequestDto memberRoleUpdateRequestDto)
+}
+
+SERVICE(MemberService) {
+  + signUp(Long signId, MemberSignUpRequestDto memberSignUpRequestDto)
+  + adminCreate(MemberSignUpRequestDto memberSignUpRequestDto)
+  + signIn(MemberSignInRequestDto memberSignInRequestDto)
+  + findMemberById(Long signId)
+  + findAllMembers(Long signId)
+  + findMembersByAdminAndPL(Long signId, Long projectId)
+  + findMembersByRole(Long signId, Long projectId, Role role)
+  + deleteMember(Long signId, MemberDeleteRequestDto memberDeleteRequestDto)
+  + updateMemberRole(Long signId, MemberRoleUpdateRequestDto memberRoleUpdateRequestDto)
+}
+
+REPOSITORY(MemberRepository) {
+  + Optional<Member> findByIdAndIsDeletedFalse(Long id)
+  + Optional<Member> findBySignIdAndIsDeletedFalse(String signId)
+  + List<Member> findByIsDeletedIsFalse()
+}
+
+DTO(MemberDeleteRequestDto) {
+  - Long id
+}
+
+DTO(MemberResponseDto) {
+  - Long id
+  - Role role
+  - String name
+}
+
+DTO(MemberRoleUpdateRequestDto) {
+  - Long id
+  - Role role
+}
+
+DTO(MemberSignInRequestDto) {
+  - String signId
+  - String password
+}
+
+DTO(MemberSignUpRequestDto) {
+  - String signId
+  - String password
+  - String name
+  - Role role
+}
+
+DTO(MemberUpdateRequestDto) {
+  - Long id
+  - String password
+  - String passwordCheck
+}
+
+CONTROLLER(ProjectController) {
+  + createProject(Long id, ProjectCreateRequestDto projectCreateRequestDto)
+  + getAllProject(Long id)
+  + getProject(Long id, Long projectId)
+  + addMember(Long id, Long projectId, ProjectMemberAddRequestDto projectMemberAddRequestDto)
+  + removeMember(Long id, Long projectId, ProjectMemberRemoveRequestDto projectMemberRemoveRequestDto)
+  + removeProject(Long id, Long projectId)
+}
+
+SERVICE(ProjectService) {
+  + createProject(Long signId, ProjectCreateRequestDto projectCreateRequestDto)
+  + getProjectById(Long signId, Long projectId)
+  + getAllProject(Long id)
+  + addMember(Long signId, Long projectId, ProjectMemberAddRequestDto projectMemberAddRequestDto)
+  + removeMember(Long signId, Long projectId, ProjectMemberRemoveRequestDto projectMemberRemoveRequestDto)
+  + removeProject(Long signId, Long projectId)
+}
+
+REPOSITORY(ProjectRepository) {
+  + Optional<Project> findByIdAndIsDeletedIsFalse(Long id)
+  + List<Project> findByIsDeletedIsFalse()
+}
+
+REPOSITORY(ProjectMemberRepository) {
+  + List<ProjectMember> findByProjectIdAndIsDeletedFalse(Long projectId)
+  + boolean existsByMemberIdAndProjectIdAndIsDeletedFalse(Long memberId, Long projectId)
+  + Optional<ProjectMember> findByMemberIdAndProjectIdAndIsDeletedFalse(Long memberId, Long projectId)
+  + List<ProjectMember> findByMemberIdAndIsDeletedFalse(Long memberId)
+  + Optional<ProjectMember> findByProjectIdAndMemberIdAndIsDeletedFalse(Long projectId, Long memberId)
+}
+
+DTO(ProjectCreateRequestDto) {
+  - String name
+  - List<Long> memberIds
+}
+
+DTO(ProjectMemberAddRequestDto) {
+  - Long addMemberId
+}
+
+DTO(ProjectMemberRemoveRequestDto) {
+  - Long removeMemberId
+}
+
+DTO(ProjectResponseDto) {
+  - Long id
+  - String name
+  - List<MemberResponseDto> members
+  - List<IssueResponseDto> issues
+  - Long leaderId
+}
+
+class EntityValidator {
+  + validateMember(Long memberId)
+  + validateProject(Long projectId)
+  + validateIssue(Long issueId)
+  + validateComment(Long issueId)
+  + isMemberOfProject(Member member, Project project)
+  + isWriterOfComment(Member member, Comment comment)
+  + isAdminOrPl(Member member)
+}
+
+class DtoConverter {
+  + createMemberResponseDto(Member member)
+  + createProjectResponseDto(Project project)
+  + createIssueResponseDto(Issue issue)
+  + createCommentResponseDto(Comment comment)
+  + createCommentRequestDto(Issue issue, String content)
+  + createIssueRecommendRequestDto(Issue issue)
+}
+
+Member "1" -- "0..*" ProjectMember
+Project "1" -- "0..*" ProjectMember
+Project "1" -- "0..*" Issue
+Issue "1" -- "0..*" Comment
+Issue "1" -- "1" Member : reporter
+Issue "1" -- "1" Member : fixer
+Issue "1" -- "1" Member : assignee
+Comment "1" -- "1" Issue
+Comment "1" -- "1" Member : writer
+
+DtoConverter --> CommentResponseDto
+DtoConverter --> CommentCreateRequestDto
+DtoConverter --> IssueResponseDto
+DtoConverter --> IssueRecommendRequestDto
+DtoConverter --> MemberResponseDto
+DtoConverter --> ProjectResponseDto
+
+EntityValidator --> MemberRepository
+EntityValidator --> ProjectRepository
+EntityValidator --> IssueRepository
+EntityValidator --> CommentRepository
+EntityValidator --> ProjectMemberRepository
+
+CommentController --> CommentService
+CommentService --> CommentRepository
+CommentService --> EntityValidator
+CommentService --> DtoConverter
+
+IssueController --> IssueService
+IssueService --> IssueRepository
+IssueService --> EntityValidator
+IssueService --> DtoConverter
+IssueService --> CommentService
+
+MemberController --> MemberService
+MemberService --> MemberRepository
+MemberService --> IssueRepository
+MemberService --> EntityValidator
+MemberService --> DtoConverter
+
+ProjectController --> ProjectService
+ProjectService --> ProjectRepository
+ProjectService --> ProjectMemberRepository
+ProjectService --> IssueRepository
+ProjectService --> EntityValidator
+ProjectService --> DtoConverter
+
+@enduml

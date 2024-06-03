@@ -1,0 +1,13 @@
+@startuml
+actor Admin
+participant System
+participant DBMS as "Database"
+
+Admin -> System: findMembersByAdminAndPL(signId, projectId)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateProject(projectId)
+System -> DBMS: isMemberOfProject(signId, projectId)
+System -> DBMS: validateAdminOrPL(signId)
+System -> DBMS: getProjectMembers(projectId)
+System -> Admin: List<MemberResponseDto
+@enduml

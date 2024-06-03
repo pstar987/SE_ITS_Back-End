@@ -1,0 +1,15 @@
+@startuml
+actor DEV
+participant System
+participant DBMS as "Database"
+
+DEV -> System: reassignIssue(signId, issueAssignRequestDto)
+System -> DBMS: validateMember(signId)
+System -> DBMS: validateMember(issueAssignRequestDto.getAssigneeId)
+System -> DBMS: validateIssue(issueAssignRequestDto.getIssueId)
+System -> DBMS: validateProject(issue.projectId)
+System -> DBMS: isMemberOfProject(assigneeId, projectId)
+System -> DBMS: reassignIssue(issueId, assigneeId)
+System -> MLServer: saveIssueToModel(issue)
+System -> DEV: IssueResponseDto
+@enduml

@@ -1,0 +1,10 @@
+@startuml
+actor Admin
+participant System
+participant DBMS as "Database"
+
+Admin -> System: createAdmin(signUpRequestDto)
+System -> DBMS: checkDuplicateSignId(signUpRequestDto.signId)
+System -> DBMS: createAdmin(signUpRequestDto)
+System -> Admin: MemberResponseDto
+@enduml

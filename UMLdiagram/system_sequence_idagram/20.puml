@@ -1,0 +1,20 @@
+@startuml
+actor Member
+participant System
+
+Member -> System: removeComment(signId, commentId)
+alt member not found
+    System --> Member: Error msg("존재하지 않는 사용자입니다.")
+else
+    alt comment not found
+        System --> Member: Error msg("존재하지 않는 댓글입니다.")
+    else
+        alt not writer
+            System --> Member: Error msg("해당 댓글의 작성자가 아닙니다.")
+        else
+            System -> System: set comment as deleted
+            System --> Member: return void
+        end
+    end
+end
+@enduml
