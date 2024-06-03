@@ -117,6 +117,7 @@ public class DtoConverter {
         return IssueRecommendResponseDto.builder()
                 .issueResponseDto(issueResponseDto)
                 .score(score)
+                .isDeleted(issue.getIsDeleted())
                 .build();
     }
 

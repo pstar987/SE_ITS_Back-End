@@ -38,6 +38,12 @@ public class EntityValidator {
         return issueRepository.findByIdAndIsDeletedFalse(issueId)
                 .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 이슈입니다."));
     }
+
+    public Issue validateRecommendIssue(Long id) {
+        return issueRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 이슈입니다."));
+    }
+
     public Comment validateComment(Long issueId) {
         return commentRepository.findByIdAndIsDeletedFalse(issueId)
                 .orElseThrow(() -> new BadRequestException(ROW_DOES_NOT_EXIST, "존재하지 않는 댓글입니다."));

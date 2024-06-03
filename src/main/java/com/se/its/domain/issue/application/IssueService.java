@@ -62,7 +62,7 @@ public class IssueService {
 
         return Arrays.stream(response)
                 .map(modelResponse -> {
-                    Issue recommendedIssue = entityValidator.validateIssue(modelResponse.getIssue_id());
+                    Issue recommendedIssue = entityValidator.validateRecommendIssue(modelResponse.getIssue_id());
                     return dtoConverter.createIssueRecommendResponseDto(recommendedIssue, modelResponse.getScore());
                 })
                 .toList();
