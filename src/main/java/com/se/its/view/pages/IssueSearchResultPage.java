@@ -82,6 +82,7 @@ public class IssueSearchResultPage extends JFrame {
                         IssueResponseDto selectedIssue = issueDtoJList.getModel().getElementAt(index);
                         new IssuePage(parentPage,swingMemberController, swingProjectController, swingIssueController,
                                 swingCommentController, currentProject, selectedIssue, userId).setVisible(true);
+                        dispose();
                     }
                 }
             });
@@ -155,6 +156,7 @@ public class IssueSearchResultPage extends JFrame {
     }
 
     private void updateIssueList() {
+
         DefaultListModel<IssueResponseDto> listModel = (DefaultListModel<IssueResponseDto>) issueDtoJList.getModel();
         listModel.clear();
         for (IssueResponseDto issueResponseDto : issueDtos) {
