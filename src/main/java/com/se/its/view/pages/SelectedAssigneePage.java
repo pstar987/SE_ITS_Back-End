@@ -91,6 +91,9 @@ public class SelectedAssigneePage extends JFrame {
 
         gbc.gridy = 5;
         gbc.gridwidth =2;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
         gbc.anchor = GridBagConstraints.CENTER;
         add(scrollPane, gbc);
 
@@ -205,7 +208,7 @@ public class SelectedAssigneePage extends JFrame {
 
     }
 
-    class MemberListRender extends JPanel implements ListCellRenderer<MemberResponseDto> {
+    private class MemberListRender extends JPanel implements ListCellRenderer<MemberResponseDto> {
         private JLabel roleLabel;
         private JLabel nameLabel;
 
