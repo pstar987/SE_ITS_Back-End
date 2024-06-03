@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class IssueRecommendResponseDto {
     private IssueResponseDto issueResponseDto;
     private Long score;
+    private Boolean isDeleted;
 }
