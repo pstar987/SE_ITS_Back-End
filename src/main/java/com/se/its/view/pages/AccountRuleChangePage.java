@@ -1,6 +1,7 @@
 package com.se.its.view.pages;
 
-import com.se.its.domain.member.application.MemberService;
+import com.se.its.domain.member.domain.Role;
+import com.se.its.domain.member.dto.request.MemberRoleUpdateRequestDto;
 import com.se.its.domain.member.dto.response.MemberResponseDto;
 import com.se.its.domain.member.presentation.SwingMemberController;
 import java.awt.Component;
@@ -11,19 +12,14 @@ import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.swing.*;
 
 public class AccountRuleChangePage extends JFrame {
-    private List<Map<String, String>> accounts;
-    private JList<Map<String, String>> accountList;
-
     private SwingMemberController swingMemberController;
     private final Long userId;
-
     private List<MemberResponseDto> memberResponseDtos;
+    private JList<MemberResponseDto> memberResponseDtoJList;
 
     public AccountRuleChangePage(SwingMemberController swingMemberController, Long userId) {
         this.swingMemberController = swingMemberController;
@@ -39,7 +35,7 @@ public class AccountRuleChangePage extends JFrame {
     }
 
     private void initData() {
-        memberResponseDtos = new ArrayList<>();
+        memberResponseDtos = new ArrayList<>(swingMemberController.findAllMembers(userId));
     }
 
     private void initComponents() {
@@ -61,61 +57,123 @@ public class AccountRuleChangePage extends JFrame {
         gbc.gridy = 1;
         gbc.fill = GridBagConstraints.BOTH;
 
-        accountList = new JList<>(accounts.toArray(new HashMap[0]));
-        accountList.setCellRenderer(new AccountListRender());
+        memberResponseDtoJList = new JList<>(new DefaultListModel<>());
+        updateMemberResponseDtoJList();
+        memberResponseDtoJList.setCellRenderer(new MemberListRender());
 
-        accountList.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) {
-                    int index = accountList.locationToIndex(e.getPoint());
-                    Map<String, String> selectedAccount = accountList.getModel().getElementAt(index);
-                    showEditDialog(selectedAccount);
-
-                }
-            }
-        });
-
-        JScrollPane scrollPane = new JScrollPane(accountList);
+        JScrollPane scrollPane = new JScrollPane(memberResponseDtoJList);
         gbc.gridy = 1;
         gbc.gridwidth = 2;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
         add(scrollPane, gbc);
+
+        memberResponseDtoJList.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    int index = memberResponseDtoJList.locationToIndex(e.getPoint());
+                    MemberResponseDto selectedMember = memberResponseDtoJList.getModel().getElementAt(index);
+                    showEditDialog(selectedMember);
+                }
+            }
+        });
     }
 
-    private void showEditDialog(Map<String, String> account) {
+    private class MemberListRender extends JPanel implements ListCellRenderer<MemberResponseDto> {
+        private JLabel idLabel;
+        private JLabel roleLabel;
+        private JLabel nameLabel;
+
+        public MemberListRender() {
+            setLayout(new GridBagLayout());
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.insets = new Insets(5, 5, 5, 5);
+
+            nameLabel = new JLabel();
+            roleLabel = new JLabel();
+            roleLabel.setFont(roleLabel.getFont().deriveFont(Font.PLAIN, 12f));
+
+            gbc.gridx = 0;
+            gbc.gridy = 0;
+            gbc.anchor = GridBagConstraints.WEST;
+            add(nameLabel, gbc);
+
+            gbc.gridx = 1;
+            add(roleLabel, gbc);
+        }
+
+        @Override
+        public Component getListCellRendererComponent(JList<? extends MemberResponseDto> list, MemberResponseDto value,
+                                                      int index, boolean isSelected, boolean cellHasFocus) {
+            nameLabel.setText(value.getName());
+            roleLabel.setText(value.getRole().toString());
+            if (isSelected) {
+                setBackground(list.getSelectionBackground());
+                setForeground(list.getSelectionForeground());
+            } else {
+                setBackground(list.getBackground());
+                setForeground(list.getForeground());
+            }
+
+            return this;
+        }
+    }
+
+    Role getRole(String role) {
+        switch (role) {
+            case "PL":
+                return Role.PL;
+            case "DEV":
+                return Role.DEV;
+            default:
+                return Role.TESTER;
+
+        }
+    }
+
+    private void showEditDialog(MemberResponseDto memberResponseDto) {
         JDialog dialog = new JDialog(this, "직책 변경", true);
         dialog.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
 
-        JLabel idLabel = new JLabel("ID: " + account.get("id"));
+        JLabel idLabel = new JLabel("이름: " + memberResponseDto.getName());
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 2;
         dialog.add(idLabel, gbc);
 
-        JLabel nameLabel = new JLabel("이름: " + account.get("name"));
-        gbc.gridy = 1;
-        dialog.add(nameLabel, gbc);
-
         JLabel roleLabel = new JLabel("Role:");
         gbc.gridwidth = 1;
-        gbc.gridy = 2;
+        gbc.gridy = 1;
         gbc.anchor = GridBagConstraints.WEST;
         dialog.add(roleLabel, gbc);
 
         String[] roles = {"PL", "DEV", "TESTER"};
         JComboBox<String> roleComboBox = new JComboBox<>(roles);
-        roleComboBox.setSelectedItem(account.get("role"));
+        roleComboBox.setSelectedItem(memberResponseDto.getRole().toString());
         gbc.gridx = 2;
         dialog.add(roleComboBox, gbc);
 
         JButton confirmBtn = new JButton("변경");
         confirmBtn.addActionListener(e -> {
-            account.put("role", (String) roleComboBox.getSelectedItem());
-            accountList.repaint();
+            MemberRoleUpdateRequestDto memberRoleUpdateRequestDto =
+                    MemberRoleUpdateRequestDto.builder()
+                            .id(memberResponseDto.getId())
+                            .role(getRole((String) roleComboBox.getSelectedItem()))
+                            .build();
+
+
+            MemberResponseDto responseDto = swingMemberController.updateMemberRole(userId, memberRoleUpdateRequestDto);
+            for (int i = 0; i < memberResponseDtos.size(); i++) {
+                if (memberResponseDtos.get(i).getId().equals(responseDto.getId())) {
+                    memberResponseDtos.set(i, responseDto);
+                    break;
+                }
+            }
+            updateMemberResponseDtoJList();
+            memberResponseDtoJList.repaint();
             dialog.dispose();
         });
         gbc.gridx = 3;
@@ -130,57 +188,11 @@ public class AccountRuleChangePage extends JFrame {
 
     }
 
-    class AccountListRender extends JPanel implements ListCellRenderer<Map<String, String>> {
-        private JLabel idLabel;
-        private JLabel roleLabel;
-        private JLabel nameLabel;
-
-        public AccountListRender() {
-            setLayout(new GridBagLayout());
-            GridBagConstraints gbc = new GridBagConstraints();
-            gbc.insets = new Insets(5, 5, 5, 5);
-
-            idLabel = new JLabel();
-            nameLabel = new JLabel();
-            roleLabel = new JLabel();
-            roleLabel.setFont(roleLabel.getFont().deriveFont(Font.PLAIN, 12f));
-
-            gbc.gridx = 0;
-            gbc.gridy = 0;
-            gbc.anchor = GridBagConstraints.WEST;
-            add(idLabel, gbc);
-
-            gbc.gridx = 1;
-            add(nameLabel, gbc);
-
-            gbc.gridx = 2;
-            add(roleLabel, gbc);
-        }
-
-        @Override
-        public Component getListCellRendererComponent(JList<? extends Map<String, String>> list,
-                                                      Map<String, String> account, int index, boolean isSelected,
-                                                      boolean cellHasFocus) {
-            idLabel.setText(account.get("id"));
-            nameLabel.setText(account.get("name"));
-            roleLabel.setText(account.get("role"));
-
-            if (isSelected) {
-                setBackground(list.getSelectionBackground());
-                setForeground(list.getSelectionForeground());
-            } else {
-                setBackground(list.getBackground());
-                setForeground(list.getForeground());
-            }
-
-            return this;
+    private void updateMemberResponseDtoJList() {
+        DefaultListModel<MemberResponseDto> listModel = (DefaultListModel<MemberResponseDto>) memberResponseDtoJList.getModel();
+        listModel.clear();
+        for (MemberResponseDto memberResponseDto : memberResponseDtos) {
+            listModel.addElement(memberResponseDto);
         }
     }
-
-//    public static void main(String[] args) {
-//        SwingUtilities.invokeLater(() -> {
-//                    new AccountRuleChangePage().setVisible(true);
-//                }
-//        );
-//    }
 }

@@ -1,9 +1,11 @@
 package com.se.its.view.pages;
 
-import com.se.its.domain.member.application.MemberService;
+import com.se.its.domain.comment.presentation.SwingCommentController;
+import com.se.its.domain.issue.presentation.SwingIssueController;
 import com.se.its.domain.member.dto.request.MemberSignInRequestDto;
 import com.se.its.domain.member.dto.response.MemberResponseDto;
 import com.se.its.domain.member.presentation.SwingMemberController;
+import com.se.its.domain.project.presentation.SwingProjectController;
 import com.se.its.view.exception.EmptyIdException;
 import com.se.its.view.exception.EmptyPasswordException;
 import com.se.its.view.util.ErrorMessage;
@@ -18,17 +20,20 @@ public class LoginPage extends JFrame {
 
     //TODO 로그인 시 계정의 직책에 따라 페이지가 달라져야됨
     private SwingMemberController swingMemberController;
-    private String ID = "admin";
-    private String PASSWORD = "1234";
-
+    private SwingProjectController swingProjectController;
+    private SwingIssueController swingIssueController;
+    private SwingCommentController swingCommentController;
     private JTextField idTextField;
     private JPasswordField pwTextField;
     private JButton signInBtn;
     private JPanel mainPanel;
 
-    public LoginPage(SwingMemberController swingMemberController) {
-        this.swingMemberController =swingMemberController;
-
+    public LoginPage(SwingMemberController swingMemberController, SwingProjectController swingProjectController,
+                     SwingIssueController swingIssueController, SwingCommentController swingCommentController) {
+        this.swingMemberController = swingMemberController;
+        this.swingProjectController = swingProjectController;
+        this.swingIssueController = swingIssueController;
+        this.swingCommentController = swingCommentController;
         //TODO 페이지 권한마다 달라진
         initComponents();
         ActionListener signInAction = new ActionListener() {
@@ -52,7 +57,19 @@ public class LoginPage extends JFrame {
                 MemberResponseDto responseDto = swingMemberController.signIn(requestDto);
                 if (responseDto != null) {
                     JOptionPane.showMessageDialog(signInBtn, "로그인 성공");
-                    new AdminPage(swingMemberController, responseDto.getId());
+                    if (responseDto.getRole().toString() == "ADMIN") {
+                        new AdminPage(swingMemberController, swingProjectController, swingIssueController,
+                                swingCommentController,
+                                responseDto.getId());
+                    } else if (responseDto.getRole().toString() == "PL") {
+                        new PlPage(swingMemberController, swingProjectController, swingIssueController,
+                                swingCommentController,
+                                responseDto.getId());
+                    } else {
+                        new DevTesterPage(swingMemberController, swingProjectController, swingIssueController,
+                                swingCommentController,
+                                responseDto.getId());
+                    }
                     dispose();
                 } else {
                     showError(ErrorMessage.FAILED_TO_SIGNIN.getMessage());
@@ -64,7 +81,6 @@ public class LoginPage extends JFrame {
 
         }
     }
-
 
 
     private void initComponents() {
@@ -146,22 +162,13 @@ public class LoginPage extends JFrame {
         }
     }
 
-
-    public String getUserId() {
-        return idTextField.getText();
-    }
-
-    public String getPassword() {
-        return pwTextField.getText();
-    }
-
-    public void setSignInAction(ActionListener actionListener) {
+    private void setSignInAction(ActionListener actionListener) {
         signInBtn.addActionListener(actionListener);
         idTextField.addActionListener(actionListener);
         pwTextField.addActionListener(actionListener);
     }
 
-    public void showError(String message) {
+    private void showError(String message) {
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
 

@@ -50,11 +50,7 @@ public class SwingProjectController {
         return projectService.removeMember(id, projectId, projectMemberRemoveRequestDto);
     }
 
-    public String removeProject(
-            Long id,
-            Long projectId
-    ){
+    public void removeProject(Long id, Long projectId) {
         projectService.removeProject(id, projectId);
-        return "removed";
     }
 }

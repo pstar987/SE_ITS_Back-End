@@ -40,24 +40,21 @@ public class SwingMemberController {
         return memberService.findMemberById(id);
     }
 
-    public List<MemberResponseDto> findMembersByAdmin(
+    public List<MemberResponseDto> findAllMembers(
             Long id
     ) {
         return memberService.findAllMembers(id);
     }
 
-    public List<MemberResponseDto> findMembersByAdminAndPL(
-            Long id,
-            Long projectId
-    ) {
+    public List<MemberResponseDto> findMembersByAdmin(Long id) {
+        return memberService.findAllMembers(id);
+    }
+
+    public List<MemberResponseDto> findMembersByAdminAndPL(Long id, Long projectId) {
         return memberService.findMembersByAdminAndPL(id, projectId);
     }
 
-    public List<MemberResponseDto> findMembersByRole(
-            Long id,
-            Long projectId,
-            Role role
-    ) {
+    public List<MemberResponseDto> findMembersByRole(Long id, Long projectId, Role role) {
         return memberService.findMembersByRole(id, projectId, role);
     }
 
@@ -69,7 +66,7 @@ public class SwingMemberController {
     }
 
 
-    public MemberResponseDto updateMember(
+    public MemberResponseDto updateMemberRole(
             Long id,
             MemberRoleUpdateRequestDto memberRoleUpdateRequestDto
     ) {
