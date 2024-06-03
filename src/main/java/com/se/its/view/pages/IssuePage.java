@@ -10,6 +10,7 @@ import com.se.its.domain.issue.dto.request.IssueAssignRequestDto;
 import com.se.its.domain.issue.dto.request.IssueDeleteRequestDto;
 import com.se.its.domain.issue.dto.request.IssueStatusUpdateRequestDto;
 import com.se.its.domain.issue.dto.request.IssueUpdateRequestDto;
+import com.se.its.domain.issue.dto.response.IssueRecommendResponseDto;
 import com.se.its.domain.issue.dto.response.IssueResponseDto;
 import com.se.its.domain.issue.presentation.SwingIssueController;
 import com.se.its.domain.member.domain.Role;
@@ -48,6 +49,10 @@ public class IssuePage extends JFrame {
 
     private List<MemberResponseDto> devDto;
     private JList<MemberResponseDto> devDtoJList;
+
+    private List<IssueRecommendResponseDto> issueRecommendDtos;
+    private JList<IssueRecommendResponseDto> issueRecommendDtoJList;
+
 
     private JPanel issueInfoPanel;
     private JPanel commentPanel;
@@ -150,7 +155,7 @@ public class IssuePage extends JFrame {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
 
-        MemberResponseDto memberResponseDto = swingMemberController.findMemberById(selectedComment.getId());
+        MemberResponseDto memberResponseDto = swingMemberController.findMemberById(selectedComment.getWriter().getId());
         JLabel writer = new JLabel("작성자: " + memberResponseDto.getName());
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -287,6 +292,16 @@ public class IssuePage extends JFrame {
         mainPanel.add(issueAssignee, gbc);
 
         gbc.gridy = 10;
+        JButton issueRecommendBtn = new JButton("이슈 추천 받기");
+        mainPanel.add(issueRecommendBtn, gbc);
+
+        issueRecommendBtn.addActionListener(
+                e -> {
+                    showIssueRecommendDialog(swingIssueController, currentIssue, userId);
+                }
+        );
+
+        gbc.gridy = 11;
         JButton issueEditBtn = new JButton("이슈 수정하기");
         mainPanel.add(issueEditBtn, gbc);
 
@@ -332,7 +347,7 @@ public class IssuePage extends JFrame {
                                         .build();
                         try {
                             swingIssueController.removeRequest(userId, issueDeleteRequestDto);
-                            JOptionPane.showMessageDialog(this,"삭제 요청되었습니다.","알림", JOptionPane.INFORMATION_MESSAGE);
+                            JOptionPane.showMessageDialog(this, "삭제 요청되었습니다.", "알림", JOptionPane.INFORMATION_MESSAGE);
                             updateIssueInfo();
                             loadComments();
                             parentPage.refreshIssues();
@@ -347,6 +362,127 @@ public class IssuePage extends JFrame {
         }
 
         return mainPanel;
+    }
+
+    private void showIssueRecommendDialog(SwingIssueController swingIssueController, IssueResponseDto currentIssue,
+                                          Long userId) {
+        JDialog dialog = new JDialog(this, "이슈 추천 받기", true);
+        dialog.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+
+        dialog.add(new JLabel("이슈 유사도 목록"), gbc);
+
+        issueRecommendDtoJList = new JList<>(new DefaultListModel<>());
+        updateRecommendIssue();
+        issueRecommendDtoJList.setCellRenderer(new IssueRecommendListRender());
+
+        JScrollPane scrollPane = new JScrollPane(issueRecommendDtoJList);
+        gbc.gridy = 1;
+        gbc.weightx = 1.0;
+        gbc.weightx = 1.0;
+        gbc.fill = GridBagConstraints.BOTH;
+        dialog.add(scrollPane, gbc);
+
+        dialog.pack();
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+
+    private class IssueRecommendListRender extends JPanel implements ListCellRenderer<IssueRecommendResponseDto> {
+        private JLabel score;
+        private JLabel issueName;
+        private JLabel issueState;
+        private JLabel issuePriority;
+        private JLabel issueAssignee;
+        private JLabel issueReporter;
+        private JLabel issueReportedDate;
+        private JLabel issueFixer;
+        private DateTimeFormatter formatter;
+
+        public IssueRecommendListRender() {
+            setLayout(new GridBagLayout());
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.insets = new Insets(5, 5, 5, 5);
+
+            formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd:HH:mm");
+            score = new JLabel();
+            gbc.gridy = 0;
+            gbc.gridx = 0;
+            gbc.anchor = GridBagConstraints.WEST;
+            add(score, gbc);
+
+            issueName = new JLabel();
+            gbc.gridx = 1;
+            add(issueName, gbc);
+
+            issueState = new JLabel();
+            gbc.gridx = 2;
+            add(issueState, gbc);
+
+            issuePriority = new JLabel();
+            gbc.gridx = 3;
+            add(issuePriority, gbc);
+
+            issueAssignee = new JLabel();
+            gbc.gridx = 4;
+            add(issueAssignee, gbc);
+
+            issueReporter = new JLabel();
+            gbc.gridx = 5;
+            add(issueReporter, gbc);
+
+            issueReportedDate = new JLabel();
+            gbc.gridx = 6;
+            add(issueReportedDate, gbc);
+
+            issueFixer = new JLabel();
+            gbc.gridx = 7;
+            add(issueFixer, gbc);
+
+
+        }
+
+        @Override
+        public Component getListCellRendererComponent(JList<? extends IssueRecommendResponseDto> list,
+                                                      IssueRecommendResponseDto value, int index, boolean isSelected,
+                                                      boolean cellHasFocus) {
+            score.setText(value.getScore().toString() + "점");
+            issueName.setText("[" + value.getIssueResponseDto().getTitle() + "]");
+            issueState.setText("상태: " + value.getIssueResponseDto().getStatus().toString());
+            issuePriority.setText("우선순위: " + value.getIssueResponseDto().getPriority().toString());
+            issueAssignee.setText("담당자: " + ((value.getIssueResponseDto().getAssignee() == null) ? "없음"
+                    : value.getIssueResponseDto().getAssignee().getName()));
+            issueReporter.setText("보고자: " + value.getIssueResponseDto().getReporter().getName());
+            issueReportedDate.setText("보고일자: " + value.getIssueResponseDto().getReportedDate().format(formatter));
+            issueFixer.setText("해결한 사람: " + ((value.getIssueResponseDto().getFixer() == null) ? "없음"
+                    : value.getIssueResponseDto().getFixer().getName()));
+
+            if (isSelected) {
+                setBackground(list.getSelectionBackground());
+                setForeground(list.getSelectionForeground());
+            } else {
+                setBackground(list.getBackground());
+                setForeground(list.getForeground());
+            }
+            return this;
+        }
+    }
+
+    private void updateRecommendIssue() {
+        issueRecommendDtos = swingIssueController.recommendIssues(userId, currentIssue.getId());
+
+        DefaultListModel<IssueRecommendResponseDto> listModel = (DefaultListModel<IssueRecommendResponseDto>) issueRecommendDtoJList.getModel();
+        listModel.clear();
+
+        for (IssueRecommendResponseDto issueRecommendResponseDto : issueRecommendDtos) {
+            listModel.addElement(issueRecommendResponseDto);
+        }
     }
 
     private void showReassignPage(IssueResponseDto currentIssue, ProjectResponseDto currentProject,
