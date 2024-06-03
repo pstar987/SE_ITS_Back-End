@@ -583,62 +583,45 @@ class ProjectServiceTest {
         assertThat(exception.getMessage()).isEqualTo("관리자나 프로젝트 리더가 아닙니다.");
     }
 
-//    @Test
-//    @DisplayName("관리자가 프로젝트를 삭제할 수 있는가")
-//    @Transactional
-//    void testRemoveProject_AsAdmin_ShouldRemoveProject() {
-//        // Given
-//        Member admin = Member.builder().signId("admin").password("password").role(Role.ADMIN).name("Admin User").isDeleted(false).build();
-//        memberRepository.save(admin);
-//
-//        Member projectLeader = Member.builder().signId("projectLeader").password("password").role(Role.PL).name("Project Leader").isDeleted(false).build();
-//        memberRepository.save(projectLeader);
-//
-//        Project project = Project.builder().name("Test Project").isDeleted(false).leaderId(projectLeader.getId()).build();
-//        projectRepository.save(project);
-//
-//        ProjectMember projectMemberPl = ProjectMember.builder().project(project).member(projectLeader).isDeleted(false).build();
-//        projectMemberRepository.save(projectMemberPl);
-//
-//        Issue issue = Issue.builder().project(project).description("Issue Description").priority(Priority.MAJOR).title("Issue Title").status(Status.NEW).isDeleted(false).build();
-//        issueRepository.save(issue);
-//
-//        // When
-//        projectService.removeProject(admin.getId(), project.getId());
-//
-//        // Then
-//        Project deletedProject = projectRepository.findById(project.getId()).orElseThrow();
-//        assertThat(deletedProject.getIsDeleted()).isTrue();
-//
-//        List<ProjectMember> projectMembers = projectMemberRepository.findByProjectIdAndIsDeletedFalse(project.getId());
-//        assertThat(projectMembers).isEmpty();
-//
-//        List<Issue> issues = issueRepository.findByProjectIdAndIsDeletedFalse(project.getId());
-//        assertThat(issues).isEmpty();
-//    }
-//
-//    @Test
-//    @DisplayName("관리자가 아닌 사용자가 프로젝트를 삭제하려고 할 때 예외가 발생하는가")
-//    @Transactional
-//    void testRemoveProject_AsNonAdmin_ShouldThrowBadRequestException() {
-//        // Given
-//        Member nonAdmin = Member.builder().signId("nonAdmin").password("password").role(Role.DEV).name("Non-Admin User").isDeleted(false).build();
-//        memberRepository.save(nonAdmin);
-//
-//        Member projectLeader = Member.builder().signId("projectLeader").password("password").role(Role.PL).name("Project Leader").isDeleted(false).build();
-//        memberRepository.save(projectLeader);
-//
-//        Project project = Project.builder().name("Test Project").isDeleted(false).leaderId(projectLeader.getId()).build();
-//        projectRepository.save(project);
-//
-//        ProjectMember projectMemberPl = ProjectMember.builder().project(project).member(projectLeader).isDeleted(false).build();
-//        projectMemberRepository.save(projectMemberPl);
-//
-//        Issue issue = Issue.builder().project(project).description("Issue Description").priority(Priority.MAJOR).title("Issue Title").status(Status.NEW).isDeleted(false).build();
-//        issueRepository.save(issue);
-//
-//        // When & Then
-//        BadRequestException exception = assertThrows(BadRequestException.class, () -> projectService.removeProject(nonAdmin.getId(), project.getId()));
-//        assertThat(exception.getMessage()).isEqualTo("관리자가 아닙니다.");
-//    }
+    @Test
+    @DisplayName("관리자가 프로젝트를 삭제할 수 있는가")
+    @Transactional
+    void testRemoveProject_AsAdmin_ShouldRemoveProject() {
+        // Given
+        Member admin = Member.builder().signId("admin").password("password").role(Role.ADMIN).name("Admin User").isDeleted(false).build();
+        memberRepository.save(admin);
+
+        Member projectLeader = Member.builder().signId("projectLeader").password("password").role(Role.PL).name("Project Leader").isDeleted(false).build();
+        memberRepository.save(projectLeader);
+
+
+        Member tester = Member.builder().signId("tester").password("password").role(Role.TESTER).name("tester").isDeleted(false).build();
+        memberRepository.save(tester);
+
+        Project project = Project.builder().name("Test Project").isDeleted(false).leaderId(projectLeader.getId()).build();
+        projectRepository.save(project);
+
+        ProjectMember projectMemberPl = ProjectMember.builder().project(project).member(projectLeader).isDeleted(false).build();
+        projectMemberRepository.save(projectMemberPl);
+
+        ProjectMember projectMemberTester = ProjectMember.builder().project(project).member(tester).isDeleted(false).build();
+        projectMemberRepository.save(projectMemberTester);
+
+        Issue issue = Issue.builder().project(project).reporter(tester).description("Issue Description").priority(Priority.MAJOR).title("Issue Title").status(Status.NEW).isDeleted(false).build();
+        issueRepository.save(issue);
+
+        // When
+        projectService.removeProject(admin.getId(), project.getId());
+
+        // Then
+        Project deletedProject = projectRepository.findById(project.getId()).orElseThrow();
+        assertThat(deletedProject.getIsDeleted()).isTrue();
+
+        List<ProjectMember> projectMembers = projectMemberRepository.findByProjectIdAndIsDeletedFalse(project.getId());
+        assertThat(projectMembers).isEmpty();
+
+        List<Issue> issues = issueRepository.findByProjectIdAndIsDeletedFalse(project.getId());
+        assertThat(issues).isEmpty();
+    }
+
 }
