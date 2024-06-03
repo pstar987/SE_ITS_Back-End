@@ -11,6 +11,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
 
@@ -34,7 +35,7 @@ public class AccountRuleChangePage extends JFrame {
     }
 
     private void initData() {
-        memberResponseDtos = swingMemberController.findAllMembers(userId);
+        memberResponseDtos = new ArrayList<>(swingMemberController.findAllMembers(userId));
     }
 
     private void initComponents() {
