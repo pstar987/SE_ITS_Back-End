@@ -115,30 +115,22 @@ public class AdminPage extends JFrame {
 
         projectGbc.insets = new Insets(10, 10, 10, 10);
 
+        projectGbc.gridwidth = 1;
         projectGbc.gridx = 0;
         projectGbc.gridy = 0;
-        projectGbc.gridwidth = 2;
-        projectGbc.anchor = GridBagConstraints.PAGE_START;
-
-        JLabel projectTitleLabel = new JLabel("프로젝트");
-        projectTitleLabel.setFont(new Font("SansSerif", Font.BOLD, 32));
-        projectPanel.add(projectTitleLabel, projectGbc);
-
-        projectGbc.gridwidth = 1;
-        projectGbc.gridy = 1;
         projectGbc.anchor = GridBagConstraints.CENTER;
         projectCreateBtn = new JButton("프로젝트 생성");
         projectPanel.add(projectCreateBtn, projectGbc);
 
-        projectGbc.gridy = 2;
+        projectGbc.gridy = 1;
         projectManageBtn = new JButton("프로젝트 관리");
         projectPanel.add(projectManageBtn, projectGbc);
 
-        projectGbc.gridy = 3;
+        projectGbc.gridy = 2;
         projectDeleteBtn = new JButton("프로젝트 삭제");
         projectPanel.add(projectDeleteBtn, projectGbc);
 
-        projectGbc.gridy = 4;
+        projectGbc.gridy = 3;
         projectBrowseBtn = new JButton("프로젝트 조회");
         projectPanel.add(projectBrowseBtn, projectGbc);
 
