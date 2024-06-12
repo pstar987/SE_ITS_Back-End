@@ -105,7 +105,7 @@ class CommentServiceTest {
     @Transactional
     void testUpdateComment_ValidMemberAndCommentId_ShouldUpdateComment() {
         // Given
-        Long memberId = 2L;
+        Long memberId = 1L;
         Long commentId = 1L;
         CommentUpdateRequestDto requestDto = new CommentUpdateRequestDto(commentId, "Updated comment content");
 
@@ -135,7 +135,7 @@ class CommentServiceTest {
     @Transactional
     void testRemoveComment_ValidMemberAndCommentId_ShouldRemoveComment() {
         // Given
-        Long memberId = 2L;
+        Long memberId = 1L;
         Long commentId = 1L;
         CommentDeleteRequestDto requestDto = new CommentDeleteRequestDto(commentId);
 
